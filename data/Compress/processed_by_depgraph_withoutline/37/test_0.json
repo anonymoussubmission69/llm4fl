@@ -1,0 +1,139 @@
+{
+    "bug_id": 37,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest.survivesBlankLinesInPaxHeader",
+    "test_body": "305: public void survivesBlankLinesInPaxHeader() throws Exception {\n306: final TarArchiveInputStream is = getTestStream(\"/COMPRESS-355.tar\");\n307: try {\n308: final TarArchiveEntry entry = is.getNextTarEntry();\n309: assertEquals(\"package/package.json\", entry.getName());",
+    "stack_trace": "java.lang.NegativeArraySizeException\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.parsePaxHeaders(TarArchiveInputStream.java:474)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.paxHeaders(TarArchiveInputStream.java:444)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextTarEntry(TarArchiveInputStream.java:319)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest.survivesBlankLinesInPaxHeader(TarArchiveInputStreamTest.java:308)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:parsePaxHeaders(Ljava/io/InputStream;)Ljava/util/Map;",
+            "method_body": "Map<String, String> parsePaxHeaders(final InputStream i)\nfinal Map<String, String> headers = new HashMap<String, String>(globalPaxHeaders);\nint len = 0;\nint read = 0;\nwhile((ch = i.read()) != -1) {\nread++;\nif (ch == ' '){\nfinal ByteArrayOutputStream coll = new ByteArrayOutputStream();\nwhile((ch = i.read()) != -1) {\nread++;\nif (ch == '='){ // end of keyword\nfinal String keyword = coll.toString(CharsetNames.UTF_8);\nfinal int restLen = len - read;\nif (restLen == 1) { // only NL\nheaders.remove(keyword);\nfinal byte[] rest = new byte[restLen];\nfinal int got = IOUtils.readFully(i, rest);\nif (got != restLen) {\nfinal String value = new String(rest, 0,\nheaders.put(keyword, value);\nbreak;\ncoll.write((byte) ch);\nlen *= 10;\nlen += ch - '0';\nif (ch == -1){ // EOF\n}\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:read([BII)I",
+            "method_body": "public int read(final byte[] buf, final int offset, int numToRead) throws IOException {\nint totalRead = 0;\nif (hasHitEOF || isDirectory() || entryOffset >= entrySize) {\nif (currEntry == null) {\nnumToRead = Math.min(numToRead, available());\ntotalRead = is.read(buf, offset, numToRead);\nif (totalRead == -1) {\ncount(totalRead);\nentryOffset += totalRead;\nreturn totalRead;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getNextTarEntry()Lorg/apache/commons/compress/archivers/tar/TarArchiveEntry;",
+            "method_body": "public TarArchiveEntry getNextTarEntry() throws IOException {\nif (hasHitEOF) {\nif (currEntry != null) {\nfinal byte[] headerBuf = getRecord();\nif (headerBuf == null) {\ncurrEntry = new TarArchiveEntry(headerBuf, zipEncoding);\n}\nentryOffset = 0;\nentrySize = currEntry.getSize();\nif (currEntry.isGNULongLinkEntry()) {\nif (currEntry.isGNULongNameEntry()) {\nif (currEntry.isGlobalPaxHeader()){ // Process Global Pax headers\nif (currEntry.isPaxHeader()){ // Process Pax headers\npaxHeaders();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;IILjava/lang/String;)V",
+            "method_body": "public TarArchiveInputStream(final InputStream is, final int blockSize, final int recordSize,\nfinal String encoding) {\nthis.is = is;\nthis.hasHitEOF = false;\nthis.encoding = encoding;\nthis.zipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nthis.recordSize = recordSize;\nthis.blockSize = blockSize;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:available()I",
+            "method_body": "public int available() throws IOException {\nif (isDirectory()) {\nif (entrySize - entryOffset > Integer.MAX_VALUE) {\nreturn (int) (entrySize - entryOffset);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:readRecord()[B",
+            "method_body": "protected byte[] readRecord() throws IOException {\nfinal byte[] record = new byte[recordSize];\nfinal int readNow = IOUtils.readFully(is, record);\ncount(readNow);\nif (readNow != recordSize) {\nreturn record;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:paxHeaders()V",
+            "method_body": "private void paxHeaders() throws IOException{\nfinal Map<String, String> headers = parsePaxHeaders(this);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getRecord()[B",
+            "method_body": "private byte[] getRecord() throws IOException {\nbyte[] headerBuf = readRecord();\nhasHitEOF = isEOFRecord(headerBuf);\nif (hasHitEOF && headerBuf != null) {\nreturn headerBuf;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isDirectory()Z",
+            "method_body": "public boolean isDirectory() {\nif (file != null) {\nif (linkFlag == LF_DIR) {\nif (getName().endsWith(\"/\")) {\nreturn false;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>(Ljava/io/File;Ljava/lang/String;)V",
+            "method_body": "private static final TarArchiveEntry[] EMPTY_TAR_ARCHIVE_ENTRIES = new TarArchiveEntry[0];\nprivate String name = \"\";\nprivate long userId = 0;\nprivate long groupId = 0;\nprivate long size = 0;\nprivate String linkName = \"\";\nprivate String magic = MAGIC_POSIX;\nprivate String version = VERSION_POSIX;\nprivate String groupName = \"\";\nprivate int devMajor = 0;\nprivate int devMinor = 0;\nprivate TarArchiveEntry() {\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userName = user;\nthis.file = null;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>()V",
+            "method_body": "private TarArchiveEntry() {\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userName = user;\nthis.file = null;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>([BLorg/apache/commons/compress/archivers/zip/ZipEncoding;)V",
+            "method_body": "public TarArchiveEntry(final byte[] headerBuf, final ZipEncoding encoding)\nthis();\nparseTarHeader(headerBuf, encoding);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:close()V",
+            "method_body": "public void close() throws IOException {\nis.close();\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;II)V",
+            "method_body": "public TarArchiveInputStream(final InputStream is, final int blockSize, final int recordSize) {\nthis(is, blockSize, recordSize, null);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public TarArchiveInputStream(final InputStream is) {\nthis(is, TarConstants.DEFAULT_BLKSIZE, TarConstants.DEFAULT_RCDSIZE);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:isDirectory()Z",
+            "method_body": "private boolean isDirectory() {\nreturn currEntry != null && currEntry.isDirectory();\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isPaxHeader()Z",
+            "method_body": "public boolean isPaxHeader(){\nreturn linkFlag == LF_PAX_EXTENDED_HEADER_LC\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isGlobalPaxHeader()Z",
+            "method_body": "public boolean isGlobalPaxHeader(){\nreturn linkFlag == LF_PAX_GLOBAL_EXTENDED_HEADER;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:isEOFRecord([B)Z",
+            "method_body": "protected boolean isEOFRecord(final byte[] record) {\nreturn record == null || ArchiveUtils.isArrayZero(record, recordSize);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:getSize()J",
+            "method_body": "public long getSize() {\nreturn size;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:getName()Ljava/lang/String;",
+            "method_body": "public String getName() {\nreturn name;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isGNULongLinkEntry()Z",
+            "method_body": "public boolean isGNULongLinkEntry() {\nreturn linkFlag == LF_GNUTYPE_LONGLINK;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isGNULongNameEntry()Z",
+            "method_body": "public boolean isGNULongNameEntry() {\nreturn linkFlag == LF_GNUTYPE_LONGNAME;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.ArchiveUtils:isArrayZero([BI)Z",
+            "method_body": "public static boolean isArrayZero(final byte[] a, final int size) {\nfor (int i = 0; i < size; i++) {\nif (a[i] != 0) {\nreturn false;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[BII)I",
+            "method_body": "public static int readFully(final InputStream input, final byte[] b, final int offset, final int len)\nif (len < 0 || offset < 0 || len + offset > b.length) {\nint count = 0, x = 0;\nwhile (count != len) {\nx = input.read(b, offset + count, len - count);\nif (x == -1) {\ncount += x;\nreturn count;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[B)I",
+            "method_body": "public static int readFully(final InputStream input, final byte[] b) throws IOException {\nreturn readFully(input, b, 0, b.length);\n}",
+            "method_id": 25
+        }
+    ]
+}

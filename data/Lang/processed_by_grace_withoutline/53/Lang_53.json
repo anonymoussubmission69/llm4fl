@@ -1,0 +1,23 @@
+{
+    "bug_id": 53,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang.time.DateUtilsTest.testRoundLang346",
+            "test_body": "public void testRoundLang346() throws Exception\n{\nTimeZone.setDefault(defaultZone);\ndateTimeParser.setTimeZone(defaultZone);\nCalendar testCalendar = Calendar.getInstance();\ntestCalendar.set(2007, 6, 2, 8, 8, 50);\nDate date = testCalendar.getTime();\nassertEquals(\"Minute Round Up Failed\",\ndateTimeParser.parse(\"July 2, 2007 08:09:00.000\"),",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang.time.DateUtils:modify(Ljava/util/Calendar;IZ)V",
+                    "method_body": "private static void modify(Calendar val, int field, boolean round) {\nif (val.get(Calendar.YEAR) > 280000000) {\nif (field == Calendar.MILLISECOND) {\nDate date = val.getTime();\nlong time = date.getTime();\nboolean done = false;\nint millisecs = val.get(Calendar.MILLISECOND);\nif (!round || millisecs < 500) {\nint seconds = val.get(Calendar.SECOND);\nif (!done && (!round || seconds < 30)) {\nint minutes = val.get(Calendar.MINUTE);\nif (!done && (!round || minutes < 30)) {\ntime = time - (minutes * 60000L);\nif (date.getTime() != time) {\ndate.setTime(time);\nval.setTime(date);\nboolean roundUp = false;\nfor (int i = 0; i < fields.length; i++) {\nfor (int j = 0; j < fields[i].length; j++) {\nif (fields[i][j] == field) {\nif (round && roundUp) {\nif (field == DateUtils.SEMI_MONTH) {\nval.add(fields[i][0], 1);\nreturn;\nint offset = 0;\nboolean offsetSet = false;\nswitch (field) {\nif (!offsetSet) {\nint min = val.getActualMinimum(fields[i][0]);\nint max = val.getActualMaximum(fields[i][0]);\noffset = val.get(fields[i][0]) - min;\nroundUp = offset > ((max - min) / 2);\nif (offset != 0) {\nval.set(fields[i][0], val.get(fields[i][0]) - offset);\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.time.DateUtils:round(Ljava/util/Date;I)Ljava/util/Date;",
+                    "method_body": "public static Date round(Date date, int field) {\nif (date == null) {\nCalendar gval = Calendar.getInstance();\ngval.setTime(date);\nmodify(gval, field, true);\nreturn gval.getTime();\n}",
+                    "method_id": 1
+                }
+            ],
+            "stack_trace": "junit.framework.AssertionFailedError: Minute Round Up Failed expected:<Mon Jul 02 08:09:00 PDT 2007> but was:<Mon Jul 02 08:01:00 PDT 2007>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.TestCase.assertEquals(TestCase.java:244)\nat org.apache.commons.lang.time.DateUtilsTest.testRoundLang346(DateUtilsTest.java:712)",
+            "test_id": 0
+        }
+    ]
+}

@@ -1,0 +1,104 @@
+{
+    "bug_id": 74,
+    "test_id": 0,
+    "test_name": "org.jsoup.nodes.ElementTest.testNormalizesInvisiblesInText",
+    "test_body": "@Test public void testNormalizesInvisiblesInText() {\n// return Character.getType(c) == 16 && (c == 8203 || c == 8204 || c == 8205 || c == 173);\nString escaped = \"This&shy;is&#x200b;one&#x200c;long&#x200d;word\";\nString decoded = \"This\\u00ADis\\u200Bone\\u200Clong\\u200Dword\"; // browser would not display those soft hyphens / other chars, so we don't want them in the text\n1209: Document doc = Jsoup.parse(\"<p>\" + escaped);\nElement p = doc.select(\"p\").first();\ndoc.outputSettings().charset(\"ascii\"); // so that the outer html is easier to see with escaped invisibles\nassertEquals(\"Thisisonelongword\", p.text()); // text is normalized\nassertEquals(\"<p>\" + escaped + \"</p>\", p.outerHtml()); // html / whole text keeps &shy etc;",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<This[isonelong]word> but was:<This[\u00adis\u200bone\u200clong\u200d]word>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.nodes.ElementTest.testNormalizesInvisiblesInText(ElementTest.java:1212)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matches(Ljava/lang/String;)Z",
+            "method_body": "public boolean matches(String seq) {\nreturn queue.regionMatches(true, pos, seq, 0, seq.length());\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesAny([Ljava/lang/String;)Z",
+            "method_body": "public boolean matchesAny(String... seq) {\nfor (String s : seq) {\nif (matches(s))\nreturn false;\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchChomp(Ljava/lang/String;)Z",
+            "method_body": "public boolean matchChomp(String seq) {\nif (matches(seq)) {\nreturn false;\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWhitespace()Z",
+            "method_body": "public boolean matchesWhitespace() {\nreturn !isEmpty() && StringUtil.isWhitespace(queue.charAt(pos));\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWord()Z",
+            "method_body": "public boolean matchesWord() {\nreturn !isEmpty() && Character.isLetterOrDigit(queue.charAt(pos));\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeWhitespace()Z",
+            "method_body": "public boolean consumeWhitespace() {\nboolean seen = false;\nwhile (matchesWhitespace()) {\nreturn seen;\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeElementSelector()Ljava/lang/String;",
+            "method_body": "public String consumeElementSelector() {\nint start = pos;\nwhile (!isEmpty() && (matchesWord() || matchesAny(\"*|\",\"|\", \"_\", \"-\")))\npos++;\nreturn queue.substring(start, pos);\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator:<init>()V",
+            "method_body": "protected Evaluator() {\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector:collect(Lorg/jsoup/select/Evaluator;Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;",
+            "method_body": "public static Elements collect (Evaluator eval, Element root) {\nElements elements = new Elements();\nNodeTraversor.traverse(new Accumulator(root, elements, eval), root);\nreturn elements;\n}",
+            "method_id": 208
+        },
+        {
+            "method_signature": "org.jsoup.select.Elements:<init>()V",
+            "method_body": "public Elements() {\n}",
+            "method_id": 209
+        },
+        {
+            "method_signature": "org.jsoup.select.Elements:first()Lorg/jsoup/nodes/Element;",
+            "method_body": "public Element first() {\nreturn isEmpty() ? null : get(0);\n}",
+            "method_id": 210
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:<init>(Lorg/jsoup/nodes/Element;Lorg/jsoup/select/Elements;Lorg/jsoup/select/Evaluator;)V",
+            "method_body": "Accumulator(Element root, Elements elements, Evaluator eval) {\nthis.root = root;\nthis.elements = elements;\nthis.eval = eval;\n}",
+            "method_id": 211
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void head(Node node, int depth) {\nif (node instanceof Element) {\nElement el = (Element) node;\nif (eval.matches(root, el))\nelements.add(el);\n}",
+            "method_id": 212
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void tail(Node node, int depth) {\n}",
+            "method_id": 213
+        },
+        {
+            "method_signature": "org.jsoup.select.NodeTraversor:traverse(Lorg/jsoup/select/NodeVisitor;Lorg/jsoup/nodes/Node;)V",
+            "method_body": "public static void traverse(NodeVisitor visitor, Node root) {\nNode node = root;\nint depth = 0;\nwhile (node != null) {\nvisitor.head(node, depth);\nif (node.childNodeSize() > 0) {\nnode = node.childNode(0);\ndepth++;\nwhile (node.nextSibling() == null && depth > 0) {\nvisitor.tail(node, depth);\nnode = node.parentNode();\ndepth--;\nvisitor.tail(node, depth);\nif (node == root)\nbreak;\nnode = node.nextSibling();\n}",
+            "method_id": 214
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:<init>(Ljava/lang/String;)V",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 215
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 216
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element$1:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public String text() {\nfinal StringBuilder accum = new StringBuilder();\nNodeTraversor.traverse(new NodeVisitor() {\nif (node instanceof TextNode) {\nTextNode textNode = (TextNode) node;\nappendNormalisedText(accum, textNode);\n} else if (node instanceof Element) {\nElement element = (Element) node;\nif (accum.length() > 0 &&\n}\n}\nreturn accum.toString().trim();\n}",
+            "method_id": 217
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element$1:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public String text() {\nfinal StringBuilder accum = new StringBuilder();\nNodeTraversor.traverse(new NodeVisitor() {\nif (node instanceof TextNode) {\nTextNode textNode = (TextNode) node;\nappendNormalisedText(accum, textNode);\n} else if (node instanceof Element) {\nElement element = (Element) node;\nif (accum.length() > 0 &&\n}\n}\nreturn accum.toString().trim();\n}",
+            "method_id": 218
+        }
+    ]
+}

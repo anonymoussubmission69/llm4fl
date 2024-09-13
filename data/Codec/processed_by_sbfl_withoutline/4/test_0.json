@@ -1,0 +1,74 @@
+{
+    "bug_id": 4,
+    "test_id": 0,
+    "test_name": "org.apache.commons.codec.binary.Base64Codec13Test.testEncoder",
+    "test_body": "public void testEncoder() throws EncoderException {\nEncoder enc = new Base64();\nfor (int i = 0; i < STRINGS.length; i++) {\nif (STRINGS[i] != null) {\nbyte[] base64 = utf8(STRINGS[i]);\nbyte[] binary = BYTES[i];\nboolean b = Arrays.equals(base64, (byte[]) enc.encode(binary));\nassertTrue(\"Encoder test-\" + i, b);\n}",
+    "stack_trace": "junit.framework.AssertionFailedError: Encoder test-1\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.assertTrue(Assert.java:22)\nat junit.framework.TestCase.assertTrue(TestCase.java:192)\nat org.apache.commons.codec.binary.Base64Codec13Test.testEncoder(Base64Codec13Test.java:378)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encode(Ljava/lang/Object;)Ljava/lang/Object;",
+            "method_body": "public Object encode(Object pObject) throws EncoderException {\nif (!(pObject instanceof byte[])) {\nreturn encode((byte[]) pObject);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encode([B)[B",
+            "method_body": "public byte[] encode(byte[] pArray) {\nreset();\nif (pArray == null || pArray.length == 0) {\nreturn pArray;\nlong len = getEncodeLength(pArray, lineLength, lineSeparator);\nbyte[] buf = new byte[(int) len];\nsetInitialBuffer(buf, 0, buf.length);\nencode(pArray, 0, pArray.length);\nencode(pArray, 0, -1); // Notify encoder of EOF.\nif (buffer != buf) {\nif (isUrlSafe() && pos < buf.length) {\nreturn buf;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isUrlSafe()Z",
+            "method_body": "public boolean isUrlSafe() {\nreturn this.encodeTable == URL_SAFE_ENCODE_TABLE;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:getEncodeLength([BI[B)J",
+            "method_body": "private static long getEncodeLength(byte[] pArray, int chunkSize, byte[] chunkSeparator) {\nchunkSize = (chunkSize / 4) * 4;\nlong len = (pArray.length * 4) / 3;\nlong mod = len % 4;\nif (mod != 0) {\nlen += 4 - mod;\nif (chunkSize > 0) {\nboolean lenChunksPerfectly = len % chunkSize == 0;\nlen += (len / chunkSize) * chunkSeparator.length;\nif (!lenChunksPerfectly) {\nlen += chunkSeparator.length;\nreturn len;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encode([BII)V",
+            "method_body": "void encode(byte[] in, int inPos, int inAvail) {\nif (eof) {\nif (inAvail < 0) {\neof = true;\nif (buffer == null || buffer.length - pos < encodeSize) {\nswitch (modulus) {\nbuffer[pos++] = encodeTable[(x >> 2) & MASK_6BITS];\nbuffer[pos++] = encodeTable[(x << 4) & MASK_6BITS];\nif (encodeTable == STANDARD_ENCODE_TABLE) {\nbuffer[pos++] = PAD;\nbuffer[pos++] = PAD;\nif (lineLength > 0 && pos > 0) {\nSystem.arraycopy(lineSeparator, 0, buffer, pos, lineSeparator.length);\npos += lineSeparator.length;\nfor (int i = 0; i < inAvail; i++) {\nif (buffer == null || buffer.length - pos < encodeSize) {\nmodulus = (++modulus) % 3;\nint b = in[inPos++];\nif (b < 0) {\nb += 256;\nx = (x << 8) + b;\nif (0 == modulus) {\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>()V",
+            "method_body": "public Base64() {\nthis(false);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:setInitialBuffer([BII)V",
+            "method_body": "void setInitialBuffer(byte[] out, int outPos, int outAvail) {\nif (out != null && out.length == outAvail) {\nbuffer = out;\npos = outPos;\nreadPos = outPos;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:reset()V",
+            "method_body": "private void reset() {\nbuffer = null;\npos = 0;\nreadPos = 0;\ncurrentLinePos = 0;\nmodulus = 0;\neof = false;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(Z)V",
+            "method_body": "public Base64(boolean urlSafe) {\nthis(CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[BZ)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {\nif (lineSeparator == null) {\nthis.lineLength = lineLength > 0 ? (lineLength / 4) * 4 : 0;\nthis.lineSeparator = new byte[lineSeparator.length];\nSystem.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);\nif (lineLength > 0) {\nthis.encodeSize = 4 + lineSeparator.length;\nthis.decodeSize = this.encodeSize - 1;\nif (containsBase64Byte(lineSeparator)) {\nthis.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:containsBase64Byte([B)Z",
+            "method_body": "private static boolean containsBase64Byte(byte[] arrayOctet) {\nfor (int i = 0; i < arrayOctet.length; i++) {\nif (isBase64(arrayOctet[i])) {\nreturn false;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isBase64(B)Z",
+            "method_body": "public static boolean isBase64(byte octet) {\nreturn octet == PAD || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<clinit>()V",
+            "method_body": "static final int CHUNK_SIZE = 76;\nstatic final byte[] CHUNK_SEPARATOR = {'\\r', '\\n'};",
+            "method_id": 12
+        }
+    ]
+}

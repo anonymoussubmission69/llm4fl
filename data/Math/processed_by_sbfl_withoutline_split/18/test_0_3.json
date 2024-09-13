@@ -1,0 +1,49 @@
+{
+    "bug_id": 18,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.optimization.direct.CMAESOptimizerTest.testFitAccuracyDependsOnBoundary",
+    "test_body": "public void testFitAccuracyDependsOnBoundary() {\nfinal CMAESOptimizer optimizer = new CMAESOptimizer();\nfinal MultivariateFunction fitnessFunction = new MultivariateFunction() {\npublic double value(double[] parameters) {\nfinal double target = 11.1;\nfinal double error = target - parameters[0];\nreturn error * error;\n}\n};\n449: final double[] start = { 1 };\n451: // No bounds.\nPointValuePair result = optimizer.optimize(100000, fitnessFunction, GoalType.MINIMIZE,\nstart);\nfinal double resNoBound = result.getPoint()[0];\n456: // Optimum is near the lower bound.\nfinal double[] lower = { -20 };\nfinal double[] upper = { 5e16 };\nresult = optimizer.optimize(100000, fitnessFunction, GoalType.MINIMIZE,\nstart, lower, upper);\nfinal double resNearLo = result.getPoint()[0];\n463: // Optimum is near the upper bound.\nlower[0] = -5e16;\nupper[0] = 20;\nresult = optimizer.optimize(100000, fitnessFunction, GoalType.MINIMIZE,\nstart, lower, upper);\nfinal double resNearHi = result.getPoint()[0];\n470: // System.out.println(\"resNoBound=\" + resNoBound +\n//                    \" resNearLo=\" + resNearLo +\n//                    \" resNearHi=\" + resNearHi);\n474: // The two values currently differ by a substantial amount, indicating that\n// the bounds definition can prevent reaching the optimum.\nAssert.assertEquals(resNoBound, resNearLo, 1e-3);\nAssert.assertEquals(resNoBound, resNearHi, 1e-3);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<11.100000000388787> but was:<8.0>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math3.optimization.direct.CMAESOptimizerTest.testFitAccuracyDependsOnBoundary(CMAESOptimizerTest.java:477)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:log(D)D",
+            "method_body": "public static double log(final double x) {\nreturn log(x, null);\n}",
+            "method_id": 150
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.MathUtils:checkNotNull(Ljava/lang/Object;)V",
+            "method_body": "public static void checkNotNull(Object o)\nif (o == null) {\n}",
+            "method_id": 151
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:abs(J)J",
+            "method_body": "public static long abs(final long x) {\nreturn (x < 0l) ? -x : x;\n}",
+            "method_id": 152
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:log(D[D)D",
+            "method_body": "private static double log(final double x, final double[] hiPrec) {\nif (x==0) { // Handle special case of +0/-0\nlong bits = Double.doubleToLongBits(x);\nif ((bits & 0x8000000000000000L) != 0 || x != x) {\nif (x == Double.POSITIVE_INFINITY) {\nint exp = (int)(bits >> 52)-1023;\nif ((bits & 0x7ff0000000000000L) == 0) {\nif (exp == -1 || exp == 0) {\nif (x < 1.01 && x > 0.99 && hiPrec == null) {\ndouble xa = x - 1.0;\ndouble xb = xa - x + 1.0;\ndouble tmp = xa * HEX_40000000;\ndouble aa = xa + tmp - tmp;\ndouble ab = xa - aa;\nxa = aa;\nxb = ab;\nfinal double[] lnCoef_last = LN_QUICK_COEF[LN_QUICK_COEF.length - 1];\ndouble ya = lnCoef_last[0];\ndouble yb = lnCoef_last[1];\nfor (int i = LN_QUICK_COEF.length - 2; i >= 0; i--) {\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\nfinal double[] lnCoef_i = LN_QUICK_COEF[i];\naa = ya + lnCoef_i[0];\nab = yb + lnCoef_i[1];\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\nreturn ya + yb;\nfinal double[] lnm = lnMant.LN_MANT[(int)((bits & 0x000ffc0000000000L) >> 42)];\nfinal double epsilon = (bits & 0x3ffffffffffL) / (TWO_POWER_52 + (bits & 0x000ffc0000000000L));\ndouble lnza = 0.0;\ndouble lnzb = 0.0;\nif (hiPrec != null) {\nlnza = -0.16624882440418567;\nlnza = lnza * epsilon + 0.19999954120254515;\nlnza = lnza * epsilon + -0.2499999997677497;\nlnza = lnza * epsilon + 0.3333333333332802;\nlnza = lnza * epsilon + -0.5;\nlnza = lnza * epsilon + 1.0;\nlnza = lnza * epsilon;\ndouble a = LN_2_A*exp;\ndouble b = 0.0;\ndouble c = a+lnm[0];\ndouble d = -(c-a-lnm[0]);\na = c;\nb = b + d;\nc = a + lnza;\nd = -(c - a - lnza);\na = c;\nb = b + d;\nc = a + LN_2_B*exp;\nd = -(c - a - LN_2_B*exp);\na = c;\nb = b + d;\nc = a + lnm[1];\nd = -(c - a - lnm[1]);\na = c;\nb = b + d;\nc = a + lnzb;\nd = -(c - a - lnzb);\na = c;\nb = b + d;\nif (hiPrec != null) {\nreturn a + b;\n}",
+            "method_id": 153
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 154
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 155
+        },
+        {
+            "method_signature": "org.apache.commons.math3.linear.AbstractRealMatrix$2:<init>(Lorg/apache/commons/math3/linear/AbstractRealMatrix;)V",
+            "method_body": "public double getFrobeniusNorm() {\nreturn walkInOptimizedOrder(new RealMatrixPreservingVisitor() {\nsum = 0;\n}\nsum += value * value;\n}\nreturn FastMath.sqrt(sum);\n}",
+            "method_id": 156
+        },
+        {
+            "method_signature": "org.apache.commons.math3.linear.AbstractRealMatrix$5:<init>(Lorg/apache/commons/math3/linear/AbstractRealMatrix;Lorg/apache/commons/math3/linear/RealMatrix;)V",
+            "method_body": "public RealMatrix transpose() {\nfinal int nRows = getRowDimension();\nfinal int nCols = getColumnDimension();\nfinal RealMatrix out = createMatrix(nCols, nRows);\nwalkInOptimizedOrder(new DefaultRealMatrixPreservingVisitor() {\nout.setEntry(column, row, value);\n}\nreturn out;\n}",
+            "method_id": 157
+        }
+    ]
+}

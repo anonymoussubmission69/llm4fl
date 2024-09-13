@@ -1,0 +1,34 @@
+{
+    "bug_id": 43,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang.text.ExtendedMessageFormatTest.testEscapedQuote_LANG_477",
+    "test_body": "public void testEscapedQuote_LANG_477() {\nString pattern = \"it''s a {0,lower} 'test'!\";\nExtendedMessageFormat emf = new ExtendedMessageFormat(pattern, registry);\nassertEquals(\"it's a dummy test!\", emf.format(new Object[] {\"DUMMY\"}));",
+    "stack_trace": "java.lang.OutOfMemoryError: Java heap space\nat java.util.Arrays.copyOf(Arrays.java:3332)\nat java.lang.AbstractStringBuilder.ensureCapacityInternal(AbstractStringBuilder.java:124)\nat java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:649)\nat java.lang.StringBuffer.append(StringBuffer.java:381)\nat org.apache.commons.lang.text.ExtendedMessageFormat.appendQuotedString(ExtendedMessageFormat.java:422)\nat org.apache.commons.lang.text.ExtendedMessageFormat.applyPattern(ExtendedMessageFormat.java:158)\nat org.apache.commons.lang.text.ExtendedMessageFormat.<init>(ExtendedMessageFormat.java:127)\nat org.apache.commons.lang.text.ExtendedMessageFormat.<init>(ExtendedMessageFormat.java:112)\nat org.apache.commons.lang.text.ExtendedMessageFormatTest.testEscapedQuote_LANG_477(ExtendedMessageFormatTest.java:100)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang.text.ExtendedMessageFormat:<init>(Ljava/lang/String;Ljava/util/Map;)V",
+            "method_body": "public ExtendedMessageFormat(String pattern, Map registry) {\nthis(pattern, Locale.getDefault(), registry);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang.text.ExtendedMessageFormat:applyPattern(Ljava/lang/String;)V",
+            "method_body": "public final void applyPattern(String pattern) {\nif (registry == null) {\nsuper.applyPattern(pattern);\ntoPattern = super.toPattern();\nreturn;\nArrayList foundFormats = new ArrayList();\nArrayList foundDescriptions = new ArrayList();\nStringBuffer stripCustom = new StringBuffer(pattern.length());\nParsePosition pos = new ParsePosition(0);\nchar[] c = pattern.toCharArray();\nint fmtCount = 0;\nwhile (pos.getIndex() < pattern.length()) {\nswitch (c[pos.getIndex()]) {\nappendQuotedString(pattern, pos, stripCustom, true);\nbreak;\nstripCustom.append(c[pos.getIndex()]);\nnext(pos);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang.text.ExtendedMessageFormat:<init>(Ljava/lang/String;Ljava/util/Locale;Ljava/util/Map;)V",
+            "method_body": "public ExtendedMessageFormat(String pattern, Locale locale, Map registry) {\nsuper(DUMMY_PATTERN);\nsetLocale(locale);\nthis.registry = registry;\napplyPattern(pattern);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang.text.ExtendedMessageFormat:appendQuotedString(Ljava/lang/String;Ljava/text/ParsePosition;Ljava/lang/StringBuffer;Z)Ljava/lang/StringBuffer;",
+            "method_body": "private StringBuffer appendQuotedString(String pattern, ParsePosition pos,\nint start = pos.getIndex();\nchar[] c = pattern.toCharArray();\nif (escapingOn && c[start] == QUOTE) {\nreturn appendTo == null ? null : appendTo.append(QUOTE);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang.text.ExtendedMessageFormat:next(Ljava/text/ParsePosition;)Ljava/text/ParsePosition;",
+            "method_body": "private ParsePosition next(ParsePosition pos) {\npos.setIndex(pos.getIndex() + 1);\nreturn pos;\n}",
+            "method_id": 4
+        }
+    ]
+}

@@ -1,0 +1,239 @@
+{
+    "bug_id": 29,
+    "test_id": 2,
+    "test_name": "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest.testEncodingInputStreamAutodetect",
+    "test_body": "290: public void testEncodingInputStreamAutodetect() throws Exception {\n291: int failed = 0;\n292: for(int i = 1; i <= TESTS.length; i++) {\n293: TestData test = TESTS[i-1];\n294: ArchiveInputStream ais = getInputStreamFor(test.testFile, test.fac);\n295: final String field = getField(ais,test.fieldName);\n296: if (!eq(test.expectedEncoding,field)) {\n297: System.out.println(\"Failed test \" + i + \". expected: \" + test.expectedEncoding + \" actual: \" + field + \" type: \" + test.type);\n298: failed++;\n299: }\n300: }\n301: if (failed > 0) {\n302: fail(\"Tests failed: \" + failed);\n303: }",
+    "stack_trace": "junit.framework.AssertionFailedError: Tests failed: 24\nat org.junit.Assert.fail(Assert.java:88)\nat org.apache.commons.compress.archivers.ArchiveStreamFactoryTest.testEncodingInputStreamAutodetect(ArchiveStreamFactoryTest.java:302)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveInputStream(Ljava/io/InputStream;)Lorg/apache/commons/compress/archivers/ArchiveInputStream;",
+            "method_body": "public ArchiveInputStream createArchiveInputStream(final InputStream in)\nif (in == null) {\nif (!in.markSupported()) {\nfinal byte[] signature = new byte[12];\nin.mark(signature.length);\nint signatureLength = IOUtils.readFully(in, signature);\nin.reset();\nif (ZipArchiveInputStream.matches(signature, signatureLength)) {\nif (entryEncoding != null) {\nreturn new ZipArchiveInputStream(in, entryEncoding);\nreturn new ZipArchiveInputStream(in);\n} else if (JarArchiveInputStream.matches(signature, signatureLength)) {\n} else if (ArArchiveInputStream.matches(signature, signatureLength)) {\n} else if (CpioArchiveInputStream.matches(signature, signatureLength)) {\nif (entryEncoding != null) {\nreturn new CpioArchiveInputStream(in, entryEncoding);\nreturn new CpioArchiveInputStream(in);\n} else if (ArjArchiveInputStream.matches(signature, signatureLength)) {\nreturn new ArjArchiveInputStream(in);\n} else if (SevenZFile.matches(signature, signatureLength)) {\nfinal byte[] dumpsig = new byte[32];\nin.mark(dumpsig.length);\nsignatureLength = IOUtils.readFully(in, dumpsig);\nin.reset();\nif (DumpArchiveInputStream.matches(dumpsig, signatureLength)) {\nreturn new DumpArchiveInputStream(in, entryEncoding);\nfinal byte[] tarheader = new byte[512];\nin.mark(tarheader.length);\nsignatureLength = IOUtils.readFully(in, tarheader);\nin.reset();\nif (TarArchiveInputStream.matches(tarheader, signatureLength)) {\nreturn new TarArchiveInputStream(in, entryEncoding);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 6) {\nif (signature[0] == 0x71 && (signature[1] & 0xFF) == 0xc7) {\nif (signature[1] == 0x71 && (signature[0] & 0xFF) == 0xc7) {\nif (signature[0] != 0x30) {\nreturn false;\nif (signature[1] != 0x37) {\nif (signature[2] != 0x30) {\nif (signature[3] != 0x37) {\nif (signature[4] != 0x30) {\nif (signature[5] == 0x31) {\nif (signature[5] == 0x32) {\nreturn true;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < TarConstants.VERSION_OFFSET+TarConstants.VERSIONLEN) {\nif (ArchiveUtils.matchAsciiBuffer(TarConstants.MAGIC_POSIX,\nif (ArchiveUtils.matchAsciiBuffer(TarConstants.MAGIC_GNU,\nreturn true;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] buffer, int length) {\nif (length < 32) {\nif (length >= DumpArchiveConstants.TP_SIZE) {\nreturn DumpArchiveConstants.NFS_MAGIC == DumpArchiveUtil.convert32(buffer,\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream:readCLRI()V",
+            "method_body": "private void readCLRI() throws IOException {\nbyte[] buffer = raw.readRecord();\nif (!DumpArchiveUtil.verify(buffer)) {\nactive = DumpArchiveEntry.parse(buffer);\nif (DumpArchiveConstants.SEGMENT_TYPE.CLRI != active.getHeaderType()) {\nif (raw.skip(DumpArchiveConstants.TP_SIZE * active.getHeaderCount())\nreadIdx = active.getHeaderCount();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream:readBITS()V",
+            "method_body": "private void readBITS() throws IOException {\nbyte[] buffer = raw.readRecord();\nif (!DumpArchiveUtil.verify(buffer)) {\nactive = DumpArchiveEntry.parse(buffer);\nif (DumpArchiveConstants.SEGMENT_TYPE.BITS != active.getHeaderType()) {\nif (raw.skip(DumpArchiveConstants.TP_SIZE * active.getHeaderCount())\nreadIdx = active.getHeaderCount();\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public DumpArchiveInputStream(InputStream is, String encoding)\nthrows ArchiveException {\nthis.raw = new TapeInputStream(is);\nthis.hasHitEOF = false;\nthis.zipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nbyte[] headerBytes = raw.readRecord();\nif (!DumpArchiveUtil.verify(headerBytes)) {\nsummary = new DumpArchiveSummary(headerBytes, this.zipEncoding);\nraw.resetBlockSize(summary.getNTRec(), summary.isCompressed());\nblockBuffer = new byte[4 * DumpArchiveConstants.TP_SIZE];\nreadCLRI();\nreadBITS();\n}\nDirent root = new Dirent(2, 2, 4, \".\");\nnames.put(2, root);\nqueue = new PriorityQueue<DumpArchiveEntry>(10,\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 8) {\nif (signature[0] != 0x21) {\nreturn false;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.ArchiveUtils:isEqual([BII[BIIZ)Z",
+            "method_body": "public static boolean isEqual(\nint minLen=length1 < length2 ? length1 : length2;\nfor (int i=0; i < minLen; i++){\nif (buffer1[offset1+i] != buffer2[offset2+i]){\nreturn false;\nif (length1 == length2){\nreturn true;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveUtil:verify([B)Z",
+            "method_body": "public static final boolean verify(byte[] buffer) {\nint magic = convert32(buffer, 24);\nif (magic != DumpArchiveConstants.NFS_MAGIC) {\nint checksum = convert32(buffer, 28);\nif (checksum != calculateChecksum(buffer)) {\nreturn true;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:getZipEncoding(Ljava/lang/String;)Lorg/apache/commons/compress/archivers/zip/ZipEncoding;",
+            "method_body": "public static ZipEncoding getZipEncoding(String name) {\nif (isUTF8(name)) {\nreturn UTF8_ZIP_ENCODING;\nif (name == null) {\nSimpleEncodingHolder h = simpleEncodings.get(name);\nif (h!=null) {\nCharset cs = Charset.forName(name);\nreturn new NioZipEncoding(cs);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:checksig([B[B)Z",
+            "method_body": "private static boolean checksig(byte[] signature, byte[] expected) {\nfor (int i = 0; i < expected.length; i++) {\nif (signature[i] != expected[i]) {\nreturn false;\nreturn true;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveUtil:convert32([BI)I",
+            "method_body": "public static final int convert32(byte[] buffer, int offset) {\nint i = 0;\ni = buffer[offset + 3] << 24;\ni += (buffer[offset + 2] << 16) & 0x00FF0000;\ni += (buffer[offset + 1] << 8) & 0x0000FF00;\ni += buffer[offset] & 0x000000FF;\nreturn i;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.arj.ArjArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(final byte[] signature, final int length) {\nreturn length >= 2 &&\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:setEntryEncoding(Ljava/lang/String;)V",
+            "method_body": "public void setEntryEncoding(String entryEncoding) {\nif (encoding != null) {\nthis.entryEncoding = entryEncoding;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveUtil:calculateChecksum([B)I",
+            "method_body": "public static int calculateChecksum(byte[] buffer) {\nint calc = 0;\nfor (int i = 0; i < 256; i++) {\ncalc += DumpArchiveUtil.convert32(buffer, 4 * i);\nreturn DumpArchiveConstants.CHECKSUM -\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < ZipArchiveOutputStream.LFH_SIG.length) {\nreturn checksig(signature, ZipArchiveOutputStream.LFH_SIG) // normal file\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.arj.ArjArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public ArjArchiveInputStream(final InputStream inputStream,\nfinal String charsetName) throws ArchiveException {\nin = new DataInputStream(inputStream);\nthis.charsetName = charsetName;\nmainHeader = readMainHeader();\nif ((mainHeader.arjFlags & MainHeader.Flags.GARBLED) != 0) {\nif ((mainHeader.arjFlags & MainHeader.Flags.VOLUME) != 0) {\n}\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:isUTF8(Ljava/lang/String;)Z",
+            "method_body": "static boolean isUTF8(String charsetName) {\nif (charsetName == null) {\ncharsetName = System.getProperty(\"file.encoding\");\nif (Charsets.UTF_8.name().equalsIgnoreCase(charsetName)) {\nreturn true;\nfor (String alias : Charsets.UTF_8.aliases()) {\nif (alias.equalsIgnoreCase(charsetName)) {\nreturn true;\n}\nreturn false;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length ) {\nreturn ZipArchiveInputStream.matches(signature, length);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public CpioArchiveInputStream(final InputStream in, String encoding) {\nthis(in, BLOCK_SIZE, encoding);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.SevenZFile:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < sevenZSignature.length) {\nfor (int i = 0; i < sevenZSignature.length; i++) {\nif (signature[i] != sevenZSignature[i]) {\nreturn false;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;IILjava/lang/String;)V",
+            "method_body": "public TarArchiveInputStream(InputStream is, int blockSize, int recordSize,\nString encoding) {\nthis.is = is;\nthis.hasHitEOF = false;\nthis.zipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nthis.recordSize = recordSize;\nthis.blockSize = blockSize;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.ArchiveUtils:matchAsciiBuffer(Ljava/lang/String;[BII)Z",
+            "method_body": "public static boolean matchAsciiBuffer(\nbuffer1 = expected.getBytes(CharsetNames.US_ASCII);\n}\nreturn isEqual(buffer1, 0, buffer1.length, buffer, offset, length, false);\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public TarArchiveInputStream(InputStream is, String encoding) {\nthis(is, TarConstants.DEFAULT_BLKSIZE, TarConstants.DEFAULT_RCDSIZE,\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.arj.ArjArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public ArjArchiveInputStream(final InputStream inputStream)\nthis(inputStream, \"CP437\");\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public JarArchiveInputStream( final InputStream inputStream ) {\nsuper(inputStream);\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public DumpArchiveInputStream(InputStream is) throws ArchiveException {\nthis(is, null);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public CpioArchiveInputStream(final InputStream in) {\nthis(in, BLOCK_SIZE, CharsetNames.US_ASCII);\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:<init>(Ljava/lang/String;)V",
+            "method_body": "public ArchiveStreamFactory(String encoding) {\nsuper();\nthis.encoding = encoding;\nthis.entryEncoding = encoding;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public ZipArchiveInputStream(InputStream inputStream) {\nthis(inputStream, ZipEncodingHelper.UTF8);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public ZipArchiveInputStream(InputStream inputStream, String encoding) {\nthis(inputStream, encoding, true);\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;Z)V",
+            "method_body": "public ZipArchiveInputStream(InputStream inputStream, String encoding, boolean useUnicodeExtraFields) {\nthis(inputStream, encoding, useUnicodeExtraFields, false);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public TarArchiveInputStream(InputStream is) {\nthis(is, TarConstants.DEFAULT_BLKSIZE, TarConstants.DEFAULT_RCDSIZE);\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;II)V",
+            "method_body": "public TarArchiveInputStream(InputStream is, int blockSize, int recordSize) {\nthis(is, blockSize, recordSize, null);\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:<init>()V",
+            "method_body": "public ArchiveStreamFactory() {\nthis(null);\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[BII)I",
+            "method_body": "public static int readFully(InputStream input, byte[] b, int offset, int len)\nif (len < 0 || offset < 0 || len + offset > b.length) {\nint count = 0, x = 0;\nwhile (count != len) {\nx = input.read(b, offset + count, len - count);\nif (x == -1) {\ncount += x;\nreturn count;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes(J)[B",
+            "method_body": "public static byte[] getBytes(long value) {\nbyte[] result = new byte[WORD];\nputLong(value, result, 0);\nreturn result;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.FallbackZipEncoding:<init>(Ljava/lang/String;)V",
+            "method_body": "public FallbackZipEncoding(String charsetName) {\nthis.charsetName = charsetName;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.NioZipEncoding:<init>(Ljava/nio/charset/Charset;)V",
+            "method_body": "public NioZipEncoding(Charset charset) {\nthis.charset = charset;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:putLong(J[BI)V",
+            "method_body": "public static void putLong(long value, byte[] buf, int offset) {\nbuf[offset++] = (byte) ((value & BYTE_MASK));\nbuf[offset++] = (byte) ((value & BYTE_1_MASK) >> BYTE_1_SHIFT);\nbuf[offset++] = (byte) ((value & BYTE_2_MASK) >> BYTE_2_SHIFT);\nbuf[offset] = (byte) ((value & BYTE_3_MASK) >> BYTE_3_SHIFT);\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes()[B",
+            "method_body": "public byte[] getBytes() {\nreturn ZipLong.getBytes(value);\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[B)I",
+            "method_body": "public static int readFully(InputStream input, byte[] b) throws IOException {\nreturn readFully(input, b, 0, b.length);\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<clinit>()V",
+            "method_body": "private static final byte[] LFH = ZipLong.LFH_SIG.getBytes();\nprivate static final byte[] CFH = ZipLong.CFH_SIG.getBytes();\nprivate static final byte[] DD = ZipLong.DD_SIG.getBytes();\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;ZZ)V",
+            "method_body": "public ZipArchiveInputStream(InputStream inputStream,\nboolean allowStoredEntriesWithDataDescriptor) {\nzipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nthis.useUnicodeExtraFields = useUnicodeExtraFields;\nin = new PushbackInputStream(inputStream, buf.capacity());\nthis.allowStoredEntriesWithDataDescriptor =\nbuf.limit(0);\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream:<init>(Ljava/io/InputStream;ILjava/lang/String;)V",
+            "method_body": "public CpioArchiveInputStream(final InputStream in, int blockSize, String encoding) {\nthis.in = in;\nthis.blockSize = blockSize;\nthis.zipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\n}",
+            "method_id": 45
+        }
+    ]
+}

@@ -1,0 +1,204 @@
+{
+    "bug_id": 55,
+    "test_id": 0,
+    "test_name": "org.jsoup.parser.AttributeParseTest.dropsSlashFromAttributeName",
+    "test_body": "@Test public void dropsSlashFromAttributeName() {\nString html = \"<img /onerror='doMyJob'/>\";\nDocument doc = Jsoup.parse(html);\nassertTrue(\"SelfClosingStartTag ignores last character\", doc.select(\"img[onerror]\").size() != 0);\nassertEquals(\"<img onerror=\\\"doMyJob\\\">\", doc.body().html());",
+    "stack_trace": "junit.framework.AssertionFailedError: SelfClosingStartTag ignores last character\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.jsoup.parser.AttributeParseTest.dropsSlashFromAttributeName(AttributeParseTest.java:97)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.select.Selector:select(Ljava/lang/String;Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;",
+            "method_body": "public static Elements select(String query, Element root) {\nreturn new Selector(query, root).select();\n}",
+            "method_id": 150
+        },
+        {
+            "method_signature": "org.jsoup.select.Selector:select()Lorg/jsoup/select/Elements;",
+            "method_body": "private Elements select() {\nreturn Collector.collect(evaluator, root);\n}",
+            "method_id": 151
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:<init>(Ljava/lang/String;)V",
+            "method_body": "private QueryParser(String query) {\nthis.query = query;\nthis.tq = new TokenQueue(query);\n}",
+            "method_id": 152
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:<clinit>()V",
+            "method_body": "private static final Pattern NTH_AB = Pattern.compile(\"((\\\\+|-)?(\\\\d+)?)n(\\\\s*(\\\\+|-)?\\\\s*\\\\d+)?\", Pattern.CASE_INSENSITIVE);\nprivate static final Pattern NTH_B  = Pattern.compile(\"(\\\\+|-)?(\\\\d+)\");\n}",
+            "method_id": 153
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:parse(Ljava/lang/String;)Lorg/jsoup/select/Evaluator;",
+            "method_body": "public static Evaluator parse(String query) {\nQueryParser p = new QueryParser(query);\nreturn p.parse();\n}",
+            "method_id": 154
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:parse()Lorg/jsoup/select/Evaluator;",
+            "method_body": "Evaluator parse() {\ntq.consumeWhitespace();\nif (tq.matchesAny(combinators)) { // if starts with a combinator, use root as elements\nfindElements();\nwhile (!tq.isEmpty()) {\nboolean seenWhite = tq.consumeWhitespace();\nif (tq.matchesAny(combinators)) {\n} else if (seenWhite) {\nfindElements(); // take next el, #. etc off queue\n}\nif (evals.size() == 1)\nreturn new CombiningEvaluator.And(evals);\n}",
+            "method_id": 155
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:findElements()V",
+            "method_body": "private void findElements() {\nif (tq.matchChomp(\"#\"))\nelse if (tq.matchChomp(\".\"))\nelse if (tq.matchesWord() || tq.matches(\"*|\"))\nbyTag();\nelse if (tq.matches(\"[\"))\nbyAttribute();\n}",
+            "method_id": 156
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:byTag()V",
+            "method_body": "private void byTag() {\nString tagName = tq.consumeElementSelector();\nValidate.notEmpty(tagName);\nif (tagName.startsWith(\"*|\")) {\nif (tagName.contains(\"|\"))\nevals.add(new Evaluator.Tag(tagName.trim()));\n}",
+            "method_id": 157
+        },
+        {
+            "method_signature": "org.jsoup.select.QueryParser:byAttribute()V",
+            "method_body": "private void byAttribute() {\nTokenQueue cq = new TokenQueue(tq.chompBalanced('[', ']')); // content queue\nString key = cq.consumeToAny(AttributeEvals); // eq, not, start, end, contain, match, (no val)\nValidate.notEmpty(key);\ncq.consumeWhitespace();\nif (cq.isEmpty()) {\nif (key.startsWith(\"^\"))\nevals.add(new Evaluator.Attribute(key));\n}",
+            "method_id": 158
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:<init>(Ljava/lang/String;)V",
+            "method_body": "private String queue;\nprivate int pos = 0;\npublic TokenQueue(String data) {\nValidate.notNull(data);\nqueue = data;\n}",
+            "method_id": 159
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:isEmpty()Z",
+            "method_body": "public boolean isEmpty() {\nreturn remainingLength() == 0;\n}",
+            "method_id": 160
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:remainingLength()I",
+            "method_body": "private int remainingLength() {\nreturn queue.length() - pos;\n}",
+            "method_id": 161
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matches(Ljava/lang/String;)Z",
+            "method_body": "public boolean matches(String seq) {\nreturn queue.regionMatches(true, pos, seq, 0, seq.length());\n}",
+            "method_id": 162
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesAny([Ljava/lang/String;)Z",
+            "method_body": "public boolean matchesAny(String... seq) {\nfor (String s : seq) {\nif (matches(s))\nreturn false;\n}",
+            "method_id": 163
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchChomp(Ljava/lang/String;)Z",
+            "method_body": "public boolean matchChomp(String seq) {\nif (matches(seq)) {\nreturn false;\n}",
+            "method_id": 164
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWhitespace()Z",
+            "method_body": "public boolean matchesWhitespace() {\nreturn !isEmpty() && StringUtil.isWhitespace(queue.charAt(pos));\n}",
+            "method_id": 165
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWord()Z",
+            "method_body": "public boolean matchesWord() {\nreturn !isEmpty() && Character.isLetterOrDigit(queue.charAt(pos));\n}",
+            "method_id": 166
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consume()C",
+            "method_body": "public char consume() {\nreturn queue.charAt(pos++);\n}",
+            "method_id": 167
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeToAny([Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String consumeToAny(String... seq) {\nint start = pos;\nwhile (!isEmpty() && !matchesAny(seq)) {\npos++;\nreturn queue.substring(start, pos);\n}",
+            "method_id": 168
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:chompBalanced(CC)Ljava/lang/String;",
+            "method_body": "public String chompBalanced(char open, char close) {\nint start = -1;\nint end = -1;\nint depth = 0;\nchar last = 0;\nboolean inQuote = false;\nif (isEmpty()) break;\nCharacter c = consume();\nif (last == 0 || last != ESC) {\nif ((c.equals('\\'') || c.equals('\"')) && c != open)\nif (inQuote)\nif (c.equals(open)) {\ndepth++;\nif (start == -1)\nstart = pos;\nelse if (c.equals(close))\ndepth--;\nif (depth > 0 && last != 0)\nend = pos; // don't include the outer match pair in the return\nlast = c;\n} while (depth > 0);\nreturn (end >= 0) ? queue.substring(start, end) : \"\";\n}",
+            "method_id": 169
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeWhitespace()Z",
+            "method_body": "public boolean consumeWhitespace() {\nboolean seen = false;\nwhile (matchesWhitespace()) {\nreturn seen;\n}",
+            "method_id": 170
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeElementSelector()Ljava/lang/String;",
+            "method_body": "public String consumeElementSelector() {\nint start = pos;\nwhile (!isEmpty() && (matchesWord() || matchesAny(\"*|\",\"|\", \"_\", \"-\")))\npos++;\nreturn queue.substring(start, pos);\n}",
+            "method_id": 171
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator:<init>()V",
+            "method_body": "protected Evaluator() {\n}",
+            "method_id": 172
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector:collect(Lorg/jsoup/select/Evaluator;Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;",
+            "method_body": "public static Elements collect (Evaluator eval, Element root) {\nElements elements = new Elements();\nnew NodeTraversor(new Accumulator(root, elements, eval)).traverse(root);\nreturn elements;\n}",
+            "method_id": 173
+        },
+        {
+            "method_signature": "org.jsoup.select.Elements:<init>()V",
+            "method_body": "public Elements() {\n}",
+            "method_id": 174
+        },
+        {
+            "method_signature": "org.jsoup.select.NodeTraversor:<init>(Lorg/jsoup/select/NodeVisitor;)V",
+            "method_body": "public NodeTraversor(NodeVisitor visitor) {\nthis.visitor = visitor;\n}",
+            "method_id": 175
+        },
+        {
+            "method_signature": "org.jsoup.select.NodeTraversor:traverse(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "public void traverse(Node root) {\nNode node = root;\nint depth = 0;\nwhile (node != null) {\nvisitor.head(node, depth);\nif (node.childNodeSize() > 0) {\nnode = node.childNode(0);\ndepth++;\nwhile (node.nextSibling() == null && depth > 0) {\nvisitor.tail(node, depth);\nnode = node.parentNode();\ndepth--;\nvisitor.tail(node, depth);\nif (node == root)\nbreak;\nnode = node.nextSibling();\n}",
+            "method_id": 176
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:<init>(Lorg/jsoup/nodes/Element;Lorg/jsoup/select/Elements;Lorg/jsoup/select/Evaluator;)V",
+            "method_body": "Accumulator(Element root, Elements elements, Evaluator eval) {\nthis.root = root;\nthis.elements = elements;\nthis.eval = eval;\n}",
+            "method_id": 177
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void head(Node node, int depth) {\nif (node instanceof Element) {\nElement el = (Element) node;\nif (eval.matches(root, el))\n}",
+            "method_id": 178
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void tail(Node node, int depth) {\n}",
+            "method_id": 179
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:<init>(Ljava/lang/String;)V",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 180
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 181
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:<init>()V",
+            "method_body": "CombiningEvaluator() {\nsuper();\nevaluators = new ArrayList<Evaluator>();\n}",
+            "method_id": 182
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:<init>(Ljava/util/Collection;)V",
+            "method_body": "CombiningEvaluator(Collection<Evaluator> evaluators) {\nthis();\nthis.evaluators.addAll(evaluators);\nupdateNumEvaluators();\n}",
+            "method_id": 183
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:updateNumEvaluators()V",
+            "method_body": "void updateNumEvaluators() {\nnum = evaluators.size();\n}",
+            "method_id": 184
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$And:<init>(Ljava/util/Collection;)V",
+            "method_body": "And(Collection<Evaluator> evaluators) {\nsuper(evaluators);\n}",
+            "method_id": 185
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$And:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public boolean matches(Element root, Element node) {\nfor (int i = 0; i < num; i++) {\nEvaluator s = evaluators.get(i);\nif (!s.matches(root, node))\nreturn false;\n}",
+            "method_id": 186
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Attribute:<init>(Ljava/lang/String;)V",
+            "method_body": "public Attribute(String key) {\nthis.key = key;\n}",
+            "method_id": 187
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Attribute:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public boolean matches(Element root, Element element) {\nreturn element.hasAttr(key);\n}",
+            "method_id": 188
+        }
+    ]
+}

@@ -1,0 +1,89 @@
+{
+    "bug_id": 25,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.optimization.fitting.HarmonicFitterTest.testMath844",
+    "test_body": "public void testMath844() {\nfinal double[] y = { 0, 1, 2, 3, 2, 1,\n0, -1, -2, -3, -2, -1,\n0, 1, 2, 3, 2, 1,\n0, -1, -2, -3, -2, -1,\n0, 1, 2, 3, 2, 1, 0 };\nfinal int len = y.length;\nfinal WeightedObservedPoint[] points = new WeightedObservedPoint[len];\nfor (int i = 0; i < len; i++) {\npoints[i] = new WeightedObservedPoint(1, i, y[i]);\n}\n194: final HarmonicFitter.ParameterGuesser guesser\n= new HarmonicFitter.ParameterGuesser(points);\n197: // The guesser fails because the function is far from an harmonic\n// function: It is a triangular periodic function with amplitude 3\n// and period 12, and all sample points are taken at integer abscissae\n// so function values all belong to the integer subset {-3, -2, -1, 0,\n// 1, 2, 3}.\nguesser.guess();\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected exception: org.apache.commons.math3.exception.MathIllegalStateException\nat org.junit.internal.runners.statements.ExpectException.evaluate(ExpectException.java:32)\nat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)\nat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)\nat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)\nat org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)\nat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)\nat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)\nat org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)\nat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)\nat org.junit.runners.ParentRunner.run(ParentRunner.java:309)\nat junit.framework.JUnit4TestAdapter.run(JUnit4TestAdapter.java:38)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner.run(JUnitTestRunner.java:520)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTask.executeInVM(JUnitTask.java:1484)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTask.execute(JUnitTask.java:872)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTask.executeOrQueue(JUnitTask.java:1972)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTask.execute1(JUnitTask.java:824)\nat org.apache.tools.ant.taskdefs.optional.junit.JUnitTask.execute(JUnitTask.java:2277)\nat org.apache.tools.ant.UnknownElement.execute(UnknownElement.java:291)\nat sun.reflect.GeneratedMethodAccessor4.invoke(Unknown Source)\nat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\nat java.lang.reflect.Method.invoke(Method.java:498)\nat org.apache.tools.ant.dispatch.DispatchUtils.execute(DispatchUtils.java:106)\nat org.apache.tools.ant.Task.perform(Task.java:348)\nat org.apache.tools.ant.Target.execute(Target.java:392)\nat org.apache.tools.ant.Target.performTasks(Target.java:413)\nat org.apache.tools.ant.Project.executeSortedTargets(Project.java:1399)\nat org.apache.tools.ant.Project.executeTarget(Project.java:1368)\nat org.apache.tools.ant.helper.DefaultExecutor.executeTargets(DefaultExecutor.java:41)\nat org.apache.tools.ant.Project.executeTargets(Project.java:1251)\nat org.apache.tools.ant.Main.runBuild(Main.java:811)\nat org.apache.tools.ant.Main.startAnt(Main.java:217)\nat org.apache.tools.ant.launch.Launcher.run(Launcher.java:280)\nat org.apache.tools.ant.launch.Launcher.main(Launcher.java:109)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.HarmonicFitter$ParameterGuesser:guess()[D",
+            "method_body": "public double[] guess() {\nsortObservations();\nguessAOmega();\nguessPhi();\nreturn new double[] { a, omega, phi };\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.HarmonicFitter$ParameterGuesser:sortObservations()V",
+            "method_body": "private void sortObservations() {\nWeightedObservedPoint curr = observations[0];\nfor (int j = 1; j < observations.length; ++j) {\nWeightedObservedPoint prec = curr;\ncurr = observations[j];\nif (curr.getX() < prec.getX()) {\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.HarmonicFitter$ParameterGuesser:guessAOmega()V",
+            "method_body": "private void guessAOmega() {\ndouble sx2 = 0;\ndouble sy2 = 0;\ndouble sxy = 0;\ndouble sxz = 0;\ndouble syz = 0;\ndouble currentX = observations[0].getX();\ndouble currentY = observations[0].getY();\ndouble f2Integral = 0;\ndouble fPrime2Integral = 0;\nfinal double startX = currentX;\nfor (int i = 1; i < observations.length; ++i) {\nfinal double previousX = currentX;\nfinal double previousY = currentY;\ncurrentX = observations[i].getX();\ncurrentY = observations[i].getY();\nfinal double dx = currentX - previousX;\nfinal double dy = currentY - previousY;\nfinal double f2StepIntegral =\nfinal double fPrime2StepIntegral = dy * dy / dx;\nfinal double x = currentX - startX;\nf2Integral += f2StepIntegral;\nfPrime2Integral += fPrime2StepIntegral;\nsx2 += x * x;\nsy2 += f2Integral * f2Integral;\nsxy += x * f2Integral;\nsxz += x * fPrime2Integral;\nsyz += f2Integral * fPrime2Integral;\ndouble c1 = sy2 * sxz - sxy * syz;\ndouble c2 = sxy * sxz - sx2 * syz;\ndouble c3 = sx2 * sy2 - sxy * sxy;\nif ((c1 / c2 < 0) || (c2 / c3 < 0)) {\na = FastMath.sqrt(c1 / c2);\nomega = FastMath.sqrt(c2 / c3);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.HarmonicFitter$ParameterGuesser:guessPhi()V",
+            "method_body": "private void guessPhi() {\ndouble fcMean = 0;\ndouble fsMean = 0;\ndouble currentX = observations[0].getX();\ndouble currentY = observations[0].getY();\nfor (int i = 1; i < observations.length; ++i) {\nfinal double previousX = currentX;\nfinal double previousY = currentY;\ncurrentX = observations[i].getX();\ncurrentY = observations[i].getY();\nfinal double currentYPrime = (currentY - previousY) / (currentX - previousX);\ndouble omegaX = omega * currentX;\ndouble cosine = FastMath.cos(omegaX);\ndouble sine = FastMath.sin(omegaX);\nfcMean += omega * currentY * cosine - currentYPrime * sine;\nfsMean += omega * currentY * sine + currentYPrime * cosine;\nphi = FastMath.atan2(-fsMean, fcMean);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.HarmonicFitter$ParameterGuesser:<init>([Lorg/apache/commons/math3/optimization/fitting/WeightedObservedPoint;)V",
+            "method_body": "public ParameterGuesser(WeightedObservedPoint[] observations) {\nif (observations.length < 4) {\nthis.observations = observations.clone();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.WeightedObservedPoint:getX()D",
+            "method_body": "public double getX() {\nreturn x;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.WeightedObservedPoint:getY()D",
+            "method_body": "public double getY() {\nreturn y;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math3.optimization.fitting.WeightedObservedPoint:<init>(DDD)V",
+            "method_body": "public WeightedObservedPoint(final double weight, final double x, final double y) {\nthis.weight = weight;\nthis.x      = x;\nthis.y      = y;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:atan2(DD)D",
+            "method_body": "public static double atan2(double y, double x) {\nif (x != x || y != y) {\nif (y == 0) {\nfinal double result = x * y;\nfinal double invx = 1d / x;\nfinal double invy = 1d / y;\nif (invx == 0) { // X is infinite\nif (x < 0 || invx < 0) {\nreturn result;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:cos(D)D",
+            "method_body": "public static double cos(double x) {\nint quadrant = 0;\ndouble xa = x;\nif (x < 0) {\nif (xa != xa || xa == Double.POSITIVE_INFINITY) {\ndouble xb = 0;\nif (xa > 3294198.0) {\n} else if (xa > 1.5707963267948966) {\nswitch (quadrant) {\nreturn cosQ(xa, xb);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:cosQ(DD)D",
+            "method_body": "private static double cosQ(double xa, double xb) {\nfinal double pi2a = 1.5707963267948966;\nfinal double pi2b = 6.123233995736766E-17;\nfinal double a = pi2a - xa;\ndouble b = -(a - pi2a + xa);\nb += pi2b - xb;\nreturn sinQ(a, b);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sin(D)D",
+            "method_body": "public static double sin(double x) {\nboolean negative = false;\nint quadrant = 0;\ndouble xb = 0.0;\nxa = x;\nif (x < 0) {\nif (xa == 0.0) {\nlong bits = Double.doubleToLongBits(x);\nif (bits < 0) {\nreturn 0.0;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sinQ(DD)D",
+            "method_body": "private static double sinQ(double xa, double xb) {\nint idx = (int) ((xa * 8.0) + 0.5);\nfinal double epsilon = xa - EIGHTHS[idx]; //idx*0.125;\nfinal double sintA = SINE_TABLE_A[idx];\nfinal double sintB = SINE_TABLE_B[idx];\nfinal double costA = COSINE_TABLE_A[idx];\nfinal double costB = COSINE_TABLE_B[idx];\ndouble sinEpsA = epsilon;\ndouble sinEpsB = polySine(epsilon);\nfinal double cosEpsA = 1.0;\nfinal double cosEpsB = polyCosine(epsilon);\nfinal double temp = sinEpsA * HEX_40000000;\ndouble temp2 = (sinEpsA + temp) - temp;\nsinEpsB +=  sinEpsA - temp2;\nsinEpsA = temp2;\ndouble a = 0;\ndouble b = 0;\ndouble t = sintA;\ndouble c = a + t;\ndouble d = -(c - a - t);\na = c;\nb = b + d;\nt = costA * sinEpsA;\nc = a + t;\nd = -(c - a - t);\na = c;\nb = b + d;\nb = b + sintA * cosEpsB + costA * sinEpsB;\nb = b + sintB + costB * sinEpsA + sintB * cosEpsB + costB * sinEpsB;\nif (xb != 0.0) {\nt = ((costA + costB) * (cosEpsA + cosEpsB) -\nc = a + t;\nd = -(c - a - t);\na = c;\nb = b + d;\nresult = a + b;\nreturn result;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:polySine(D)D",
+            "method_body": "private static double polySine(final double x)\ndouble x2 = x*x;\ndouble p = 2.7553817452272217E-6;\np = p * x2 + -1.9841269659586505E-4;\np = p * x2 + 0.008333333333329196;\np = p * x2 + -0.16666666666666666;\np = p * x2 * x;\nreturn p;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:polyCosine(D)D",
+            "method_body": "private static double polyCosine(double x) {\ndouble x2 = x*x;\ndouble p = 2.479773539153719E-5;\np = p * x2 + -0.0013888888689039883;\np = p * x2 + 0.041666666666621166;\np = p * x2 + -0.49999999999999994;\np *= x2;\nreturn p;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 15
+        }
+    ]
+}

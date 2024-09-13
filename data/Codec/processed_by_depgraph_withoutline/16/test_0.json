@@ -1,0 +1,34 @@
+{
+    "bug_id": 16,
+    "test_id": 0,
+    "test_name": "org.apache.commons.codec.binary.Base32Test.testCodec200",
+    "test_body": "public void testCodec200() {\nfinal Base32 codec = new Base32(true, (byte)'W'); // should be allowed\nassertNotNull(codec);",
+    "stack_trace": "java.lang.IllegalArgumentException: pad must not be in alphabet or whitespace\nat org.apache.commons.codec.binary.Base32.<init>(Base32.java:309)\nat org.apache.commons.codec.binary.Base32.<init>(Base32.java:193)\nat org.apache.commons.codec.binary.Base32Test.testCodec200(Base32Test.java:158)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base32:<init>(I[BZB)V",
+            "method_body": "public Base32(final int lineLength, final byte[] lineSeparator, final boolean useHex, final byte pad) {super(BYTES_PER_UNENCODED_BLOCK, BYTES_PER_ENCODED_BLOCK, lineLength,lineSeparator == null ? 0 : lineSeparator.length, pad);if (useHex) {this.encodeTable = HEX_ENCODE_TABLE;this.decodeTable = HEX_DECODE_TABLE;} else {this.encodeTable = ENCODE_TABLE;this.decodeTable = DECODE_TABLE;}if (lineLength > 0) {if (lineSeparator == null) {throw new IllegalArgumentException(\"lineLength \" + lineLength + \" > 0, but lineSeparator is null\");}if (containsAlphabetOrPad(lineSeparator)) {final String sep = StringUtils.newStringUtf8(lineSeparator);throw new IllegalArgumentException(\"lineSeparator must not contain Base32 characters: [\" + sep + \"]\");}this.encodeSize = BYTES_PER_ENCODED_BLOCK + lineSeparator.length;this.lineSeparator = new byte[lineSeparator.length];System.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);} else {this.encodeSize = BYTES_PER_ENCODED_BLOCK;this.lineSeparator = null;}this.decodeSize = this.encodeSize - 1;if (isInAlphabet(pad) || isWhiteSpace(pad)) {throw new IllegalArgumentException(\"pad must not be in alphabet or whitespace\");}}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base32:<init>(ZB)V",
+            "method_body": "public Base32(final boolean useHex, final byte pad) {\nthis(0, null, useHex, pad);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.BaseNCodec:<init>(IIIIB)V",
+            "method_body": "protected BaseNCodec(final int unencodedBlockSize, final int encodedBlockSize,\nfinal int lineLength, final int chunkSeparatorLength, final byte pad) {\nthis.unencodedBlockSize = unencodedBlockSize;\nthis.encodedBlockSize = encodedBlockSize;\nfinal boolean useChunking = lineLength > 0 && chunkSeparatorLength > 0;\nthis.lineLength = useChunking ? (lineLength / encodedBlockSize) * encodedBlockSize : 0;\nthis.chunkSeparatorLength = chunkSeparatorLength;\nthis.pad = pad;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base32:<clinit>()V",
+            "method_body": "private static final byte[] ENCODE_TABLE = {\n'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M','N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','2', '3', '4', '5', '6', '7',\n};",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base32:isInAlphabet(B)Z",
+            "method_body": "public boolean isInAlphabet(final byte octet) {\nreturn octet >= 0 && octet < decodeTable.length && decodeTable[octet] != -1;\n}",
+            "method_id": 4
+        }
+    ]
+}

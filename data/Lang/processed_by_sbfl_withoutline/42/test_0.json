@@ -1,0 +1,64 @@
+{
+    "bug_id": 42,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang.StringEscapeUtilsTest.testEscapeHtmlHighUnicode",
+    "test_body": "public void testEscapeHtmlHighUnicode() throws java.io.UnsupportedEncodingException {\n// this is the utf8 representation of the character:\n// COUNTING ROD UNIT DIGIT THREE\n// in unicode\n// codepoint: U+1D362\nbyte[] data = new byte[] { (byte)0xF0, (byte)0x9D, (byte)0x8D, (byte)0xA2 };\n427: String escaped = StringEscapeUtils.escapeHtml( new String(data, \"UTF8\") );\nString unescaped = StringEscapeUtils.unescapeHtml( escaped );\n430: assertEquals( \"High unicode was not escaped correctly\", \"&#119650;\", escaped);\n}\n",
+    "stack_trace": "junit.framework.ComparisonFailure: High unicode was not escaped correctly expected:<&#[119650];> but was:<&#[55348;&#57186];>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.TestCase.assertEquals(TestCase.java:261)\nat org.apache.commons.lang.StringEscapeUtilsTest.testEscapeHtmlHighUnicode(StringEscapeUtilsTest.java:430)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang.StringEscapeUtils:escapeHtml(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String escapeHtml(String str) {\nif (str == null) {\nStringWriter writer = new StringWriter ((int)(str.length() * 1.5));\nescapeHtml(writer, str);\nreturn writer.toString();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringEscapeUtils:escapeHtml(Ljava/io/Writer;Ljava/lang/String;)V",
+            "method_body": "public static void escapeHtml(Writer writer, String string) throws IOException {\nif (writer == null ) {\nif (string == null) {\nEntities.HTML40.escape(writer, string);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities:escape(Ljava/io/Writer;Ljava/lang/String;)V",
+            "method_body": "public void escape(Writer writer, String str) throws IOException {\nint len = str.length();\nfor (int i = 0; i < len; i++) {\nchar c = str.charAt(i);\nString entityName = this.entityName(c);\nif (entityName == null) {\nif (c > 0x7F) {\nwriter.write(\"&#\");\nwriter.write(Integer.toString(c, 10));\nwriter.write(';');\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringEscapeUtils:unescapeHtml(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String unescapeHtml(String str) {\nif (str == null) {\nStringWriter writer = new StringWriter ((int)(str.length() * 1.5));\nunescapeHtml(writer, str);\nreturn writer.toString();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringEscapeUtils:unescapeHtml(Ljava/io/Writer;Ljava/lang/String;)V",
+            "method_body": "public static void unescapeHtml(Writer writer, String string) throws IOException {\nif (writer == null ) {\nif (string == null) {\nEntities.HTML40.unescape(writer, string);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities$LookupEntityMap:name(I)Ljava/lang/String;",
+            "method_body": "public String name(int value) {\nif (value < LOOKUP_TABLE_SIZE) {\nreturn super.name(value);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities:entityName(I)Ljava/lang/String;",
+            "method_body": "public String entityName(int value) {\nreturn map.name(value);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities:unescape(Ljava/io/Writer;Ljava/lang/String;)V",
+            "method_body": "public void unescape(Writer writer, String str) throws IOException {\nint firstAmp = str.indexOf('&');\nif (firstAmp < 0) {\ndoUnescape(writer, str, firstAmp);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities$PrimitiveEntityMap:name(I)Ljava/lang/String;",
+            "method_body": "void add(String name, int value);\nreturn (String) mapValueToName.get(value);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang.IntHashMap:get(I)Ljava/lang/Object;",
+            "method_body": "public Object get(int key) {\nEntry tab[] = table;\nint hash = key;\nint index = (hash & 0x7FFFFFFF) % tab.length;\nfor (Entry e = tab[index]; e != null; e = e.next) {\nif (e.hash == hash) {\nreturn null;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang.Entities:doUnescape(Ljava/io/Writer;Ljava/lang/String;I)V",
+            "method_body": "private void doUnescape(Writer writer, String str, int firstAmp) throws IOException {\nwriter.write(str, 0, firstAmp);\nint len = str.length();\nfor (int i = firstAmp; i < len; i++) {\nchar c = str.charAt(i);\nif (c == '&') {\nint nextIdx = i + 1;\nint semiColonIdx = str.indexOf(';', nextIdx);\nif (semiColonIdx == -1) {\nint amphersandIdx = str.indexOf('&', i + 1);\nif (amphersandIdx != -1 && amphersandIdx < semiColonIdx) {\nString entityContent = str.substring(nextIdx, semiColonIdx);\nint entityValue = -1;\nint entityContentLen = entityContent.length();\nif (entityContentLen > 0) {\nif (entityContent.charAt(0) == '#') { // escaped value content is an integer (decimal or\nif (entityContentLen > 1) {\nchar isHexChar = entityContent.charAt(1);\nswitch (isHexChar) {\nentityValue = Integer.parseInt(entityContent.substring(1), 10);\nif (entityValue > 0xFFFF) {\n}\n}\nif (entityValue == -1) {\nwriter.write(entityValue);\ni = semiColonIdx; // move index up to the semi-colon\n} else {\n}",
+            "method_id": 10
+        }
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "bug_id": 54,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.dfp.DfpTest.testIssue567",
+    "test_body": "public void testIssue567() {\nDfpField field = new DfpField(100);\nAssert.assertEquals(0.0, field.getZero().toDouble(), MathUtils.SAFE_MIN);\nAssert.assertEquals(0.0, field.newDfp(0.0).toDouble(), MathUtils.SAFE_MIN);",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<0.0> but was:<-Infinity>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math.dfp.DfpTest.testIssue567(DfpTest.java:1512)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:divide(I)Lorg/apache/commons/math/dfp/Dfp;",
+            "method_body": "public Dfp divide(int divisor) {\nif (nans != FINITE) {\nif (divisor == 0) {\nif (divisor < 0 || divisor >= RADIX) {\nDfp result = newInstance(this);\nint rl = 0;\nfor (int i = mant.length-1; i >= 0; i--) {\nfinal int r = rl*RADIX + result.mant[i];\nfinal int rh = r / divisor;\nrl = r - rh * divisor;\nresult.mant[i] = rh;\nif (result.mant[mant.length-1] == 0) {\nresult.shiftLeft();\nfinal int r = rl * RADIX;        // compute the next digit and put it in\nfinal int rh = r / divisor;\nrl = r - rh * divisor;\nresult.mant[0] = rh;\nfinal int excp = result.round(rl * RADIX / divisor);  // do the rounding\nif (excp != 0) {\nresult = dotrap(excp, DIVIDE_TRAP, result, result);\nreturn result;\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:sqrt()Lorg/apache/commons/math/dfp/Dfp;",
+            "method_body": "public Dfp sqrt() {\nif (nans == FINITE && mant[mant.length-1] == 0) {\nif (nans != FINITE) {\nif (sign == -1) {\nDfp x = newInstance(this);\nif (x.exp < -1 || x.exp > 1) {\nswitch (x.mant[mant.length-1] / 2000) {\nx.mant[mant.length-1] = x.mant[mant.length-1]/2+1;\nbreak;\nx.mant[mant.length-1] = 3000;\nDfp dx = newInstance(x);\nDfp px  = getZero();\nDfp ppx = getZero();\nwhile (x.unequal(px)) {\ndx = newInstance(x);\ndx.sign = -1;\ndx = dx.add(this.divide(x));\ndx = dx.divide(2);\nppx = px;\npx = x;\nx = x.add(dx);\nif (x.equals(ppx)) {\nif (dx.mant[mant.length-1] == 0) {\nbreak;\nreturn x;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:toString()Ljava/lang/String;",
+            "method_body": "public String toString() {\nif (nans != FINITE) {\nif (exp > mant.length || exp < -1) {\nreturn dfp2string();\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:dfp2string()Ljava/lang/String;",
+            "method_body": "protected String dfp2string() {\nchar buffer[] = new char[mant.length*4 + 20];\nint p = 1;\nint e = exp;\nboolean pointInserted = false;\nbuffer[0] = ' ';\nif (e <= 0) {\nbuffer[p++] = '0';\nbuffer[p++] = '.';\npointInserted = true;\nwhile (e < 0) {\nfor (int i = mant.length - 1; i >= 0; i--) {\nbuffer[p++] = (char) ((mant[i] / 1000) + '0');\nbuffer[p++] = (char) (((mant[i] / 100) % 10) + '0');\nbuffer[p++] = (char) (((mant[i] / 10) % 10) + '0');\nbuffer[p++] = (char) (((mant[i]) % 10) + '0');\nif (--e == 0) {\nbuffer[p++] = '.';\npointInserted = true;\nwhile (e > 0) {\nif (!pointInserted) {\nq = 1;\nwhile (buffer[q] == '0') {\nq++;\nif (buffer[q] == '.') {\nq--;\nwhile (buffer[p-1] == '0') {\np--;\nif (sign < 0) {\nbuffer[--q] = '-';\nreturn new String(buffer, q, p - q);\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:dotrap(ILjava/lang/String;Lorg/apache/commons/math/dfp/Dfp;Lorg/apache/commons/math/dfp/Dfp;)Lorg/apache/commons/math/dfp/Dfp;",
+            "method_body": "public Dfp dotrap(int type, String what, Dfp oper, Dfp result) {\nDfp def = result;\nswitch (type) {\nif (nans == FINITE && mant[mant.length-1] != 0) {\ndef = newInstance(getZero());\ndef.sign = (byte)(sign*oper.sign);\ndef.nans = INFINITE;\nif (nans == FINITE && mant[mant.length-1] == 0) {\ndef = newInstance(getZero());\ndef.nans = QNAN;\nif (nans == INFINITE || nans == QNAN) {\nif (nans == INFINITE || nans == SNAN) {\ndefault: def = result; break;\nreturn trap(type, what, oper, def, result);\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.apache.commons.math.dfp.Dfp:trap(ILjava/lang/String;Lorg/apache/commons/math/dfp/Dfp;Lorg/apache/commons/math/dfp/Dfp;Lorg/apache/commons/math/dfp/Dfp;)Lorg/apache/commons/math/dfp/Dfp;",
+            "method_body": "protected Dfp trap(int type, String what, Dfp oper, Dfp def, Dfp result) {\nreturn def;\n}",
+            "method_id": 55
+        }
+    ]
+}

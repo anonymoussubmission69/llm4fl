@@ -1,0 +1,84 @@
+{
+    "bug_id": 52,
+    "test_id": 1,
+    "test_name": "org.jsoup.parser.XmlTreeBuilderTest.testParseDeclarationAttributes",
+    "test_body": "public void testParseDeclarationAttributes() {\nString xml = \"<?xml version='1' encoding='UTF-8' something='else'?><val>One</val>\";\nDocument doc = Jsoup.parse(xml, \"\", Parser.xmlParser());\nXmlDeclaration decl = (XmlDeclaration) doc.childNode(0);\nassertEquals(\"1\", decl.attr(\"version\"));\nassertEquals(\"UTF-8\", decl.attr(\"encoding\"));",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<[1]> but was:<[]>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.parser.XmlTreeBuilderTest.testParseDeclarationAttributes(XmlTreeBuilderTest.java:151)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.parser.Token$Comment:<init>()V",
+            "method_body": "final StringBuilder data = new StringBuilder();\nboolean bogus = false;\nreset(data);\nbogus = false;\nreturn this;\n}",
+            "method_id": 100
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Comment:reset()Lorg/jsoup/parser/Token;",
+            "method_body": "Token reset() {\nreset(data);\nbogus = false;\nreturn this;\n}",
+            "method_id": 101
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Comment:getData()Ljava/lang/String;",
+            "method_body": "String getData() {\nreturn data.toString();\n}",
+            "method_id": 102
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$EOF:<init>()V",
+            "method_body": "EOF() {\ntype = Token.TokenType.EOF;\n}",
+            "method_id": 103
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$EOF:reset()Lorg/jsoup/parser/Token;",
+            "method_body": "Token reset() {\nreturn this;\n}",
+            "method_id": 104
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Comment:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public Comment(String data, String baseUri) {\nsuper(baseUri);\nattributes.put(COMMENT_KEY, data);\n}",
+            "method_id": 105
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Comment:getData()Ljava/lang/String;",
+            "method_body": "public String getData() {\nreturn attributes.get(COMMENT_KEY);\n}",
+            "method_id": 106
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:process(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "protected boolean process(Token token) {\nswitch (token.type) {\ninsert(token.asStartTag());\nbreak;\npopStackToClose(token.asEndTag());\nbreak;\ninsert(token.asComment());\nbreak;\ninsert(token.asCharacter());\nbreak;\nbreak;\nValidate.fail(\"Unexpected token type: \" + token.type);\nreturn true;\n}",
+            "method_id": 107
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:initialiseParse(Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/ParseErrorList;)V",
+            "method_body": "protected void initialiseParse(String input, String baseUri, ParseErrorList errors) {\nsuper.initialiseParse(input, baseUri, errors);\nstack.add(doc); // place the document onto the stack. differs from HtmlTreeBuilder (not on stack)\ndoc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);\n}",
+            "method_id": 108
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insertNode(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "private void insertNode(Node node) {\ncurrentElement().appendChild(node);\n}",
+            "method_id": 109
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insert(Lorg/jsoup/parser/Token$StartTag;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insert(Token.StartTag startTag) {\nTag tag = Tag.valueOf(startTag.name());\nElement el = new Element(tag, baseUri, startTag.attributes);\ninsertNode(el);\nif (startTag.isSelfClosing()) {\nstack.add(el);\nreturn el;\n}",
+            "method_id": 110
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insert(Lorg/jsoup/parser/Token$Comment;)V",
+            "method_body": "void insert(Token.Comment commentToken) {\nComment comment = new Comment(commentToken.getData(), baseUri);\nNode insert = comment;\nif (commentToken.bogus) { // xml declarations are emitted as bogus comments (which is right for html, but not xml)\nString data = comment.getData();\nif (data.length() > 1 && (data.startsWith(\"!\") || data.startsWith(\"?\"))) {\nString declaration = data.substring(1);\ninsert = new XmlDeclaration(declaration, comment.baseUri(), data.startsWith(\"!\"));\ninsertNode(insert);\n}",
+            "method_id": 111
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insert(Lorg/jsoup/parser/Token$Character;)V",
+            "method_body": "void insert(Token.Character characterToken) {\nNode node = new TextNode(characterToken.getData(), baseUri);\ninsertNode(node);\n}",
+            "method_id": 112
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:popStackToClose(Lorg/jsoup/parser/Token$EndTag;)V",
+            "method_body": "private void popStackToClose(Token.EndTag endTag) {\nString elName = endTag.name();\nElement firstFound = null;\nfor (int pos = stack.size() -1; pos >= 0; pos--) {\nElement next = stack.get(pos);\nif (next.nodeName().equals(elName)) {\nfirstFound = next;\nbreak;\nif (firstFound == null)\nfor (int pos = stack.size() -1; pos >= 0; pos--) {\nElement next = stack.get(pos);\nstack.remove(pos);\nif (next == firstFound)\nbreak;\n}",
+            "method_id": 113
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder$1:<clinit>()V",
+            "method_body": "protected boolean process(Token token) {\nswitch (token.type) {\ninsert(token.asStartTag());\nbreak;\npopStackToClose(token.asEndTag());\nbreak;\ninsert(token.asComment());\nbreak;\ninsert(token.asCharacter());\nbreak;\nbreak;\nValidate.fail(\"Unexpected token type: \" + token.type);\nreturn true;\n}",
+            "method_id": 114
+        }
+    ]
+}

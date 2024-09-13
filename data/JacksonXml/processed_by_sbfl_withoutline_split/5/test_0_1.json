@@ -1,0 +1,249 @@
+{
+    "bug_id": 5,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.dataformat.xml.MapperCopyTest.testCopyWith",
+    "test_body": "public void testCopyWith() throws Exception\n{\nXmlMapper xmlMapper = newMapper();\nfinal ObjectMapper xmlMapperNoAnno = xmlMapper.copy()\n.disable(MapperFeature.USE_ANNOTATIONS)\n.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);\n81: String xml1 = xmlMapper.writeValueAsString(new Pojo282());\nString xml2 = xmlMapperNoAnno.writeValueAsString(new Pojo282());\n84: if (!xml1.contains(\"AnnotatedName\")) {\nfail(\"Should use name 'AnnotatedName', xml = \"+xml1);\n}\nif (!xml2.contains(\"Pojo282\")\n|| xml2.contains(\"AnnotatedName\")) {\nfail(\"Should NOT use name 'AnnotatedName' but 'Pojo282', xml = \"+xml1);\n}",
+    "stack_trace": "junit.framework.AssertionFailedError: Should NOT use name 'AnnotatedName' but 'Pojo282', xml = <AnnotatedName><a>3</a></AnnotatedName>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.dataformat.xml.MapperCopyTest.testCopyWith(MapperCopyTest.java:89)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:createGenerator(Ljava/io/Writer;)Lcom/fasterxml/jackson/dataformat/xml/ser/ToXmlGenerator;",
+            "method_body": "public ToXmlGenerator createGenerator(Writer out) throws IOException\nreturn new ToXmlGenerator(_createContext(out, false),\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:_createXmlWriter(Ljava/io/Writer;)Ljavax/xml/stream/XMLStreamWriter;",
+            "method_body": "protected XMLStreamWriter _createXmlWriter(Writer w) throws IOException\nsw = _xmlOutputFactory.createXMLStreamWriter(w);\n}\nreturn _initializeXmlWriter(sw);\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:close()V",
+            "method_body": "public void close() throws IOException\nsuper.close();\nif (isEnabled(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT)) {\nJsonStreamContext ctxt = _writeContext;\nif (ctxt.inArray()) {\n} else if (ctxt.inObject()) {\n}\nif (_ioContext.isResourceManaged() || isEnabled(JsonGenerator.Feature.AUTO_CLOSE_TARGET)) {\n_xmlWriter.closeCompletely();\n}\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:_initializeXmlWriter(Ljavax/xml/stream/XMLStreamWriter;)Ljavax/xml/stream/XMLStreamWriter;",
+            "method_body": "protected final XMLStreamWriter _initializeXmlWriter(XMLStreamWriter sw) throws IOException\nsw.setDefaultNamespace(\"\");\n}\nreturn sw;\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:<init>(Lcom/fasterxml/jackson/core/io/IOContext;IILcom/fasterxml/jackson/core/ObjectCodec;Ljavax/xml/stream/XMLStreamWriter;)V",
+            "method_body": "public ToXmlGenerator(IOContext ctxt, int stdFeatures, int xmlFeatures,\nsuper(stdFeatures, codec);\n_formatFeatures = xmlFeatures;\n_ioContext = ctxt;\n_originalXmlWriter = sw;\n_xmlWriter = Stax2WriterAdapter.wrapIfNecessary(sw);\n_stax2Emulation = (_xmlWriter != sw);\n_xmlPrettyPrinter = (_cfgPrettyPrinter instanceof XmlPrettyPrinter) ?\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerModifier:modifySerializer(Lcom/fasterxml/jackson/databind/SerializationConfig;Lcom/fasterxml/jackson/databind/BeanDescription;Lcom/fasterxml/jackson/databind/JsonSerializer;)Lcom/fasterxml/jackson/databind/JsonSerializer;",
+            "method_body": "public JsonSerializer<?> modifySerializer(SerializationConfig config,\nif (!(serializer instanceof BeanSerializerBase)) {\nreturn serializer;\nreturn new XmlBeanSerializer((BeanSerializerBase) serializer);\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.AnnotationUtil:findNamespaceAnnotation(Lcom/fasterxml/jackson/databind/AnnotationIntrospector;Lcom/fasterxml/jackson/databind/introspect/AnnotatedMember;)Ljava/lang/String;",
+            "method_body": "public static String findNamespaceAnnotation(AnnotationIntrospector ai,\nfor (AnnotationIntrospector intr : ai.allIntrospectors()) {\nif (intr instanceof XmlAnnotationIntrospector) {\nString ns = ((XmlAnnotationIntrospector) intr).findNamespace(prop);\nif (ns != null) {\n} else  if (intr instanceof JaxbAnnotationIntrospector) {\n}\nreturn null;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.AnnotationUtil:findIsCDataAnnotation(Lcom/fasterxml/jackson/databind/AnnotationIntrospector;Lcom/fasterxml/jackson/databind/introspect/AnnotatedMember;)Ljava/lang/Boolean;",
+            "method_body": "public static Boolean findIsCDataAnnotation(AnnotationIntrospector ai,\nfor (AnnotationIntrospector intr : ai.allIntrospectors()) {\nif (intr instanceof XmlAnnotationIntrospector) {\nBoolean b = ((XmlAnnotationIntrospector) intr).isOutputAsCData(prop);\nif (b != null) {\n}\nreturn null;\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase:_isAttribute(Lcom/fasterxml/jackson/databind/ser/BeanPropertyWriter;)Z",
+            "method_body": "protected static boolean _isAttribute(BeanPropertyWriter bpw)\nXmlInfo info = (XmlInfo) bpw.getInternalSetting(KEY_XML_INFO);\nreturn (info != null) && info.isAttribute();\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase:_isCData(Lcom/fasterxml/jackson/databind/ser/BeanPropertyWriter;)Z",
+            "method_body": "protected static boolean _isCData(BeanPropertyWriter bpw)\nXmlInfo info = (XmlInfo) bpw.getInternalSetting(KEY_XML_INFO);\nreturn (info != null) && info.isCData();\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.XmlInfo:<init>(Ljava/lang/Boolean;Ljava/lang/String;Ljava/lang/Boolean;Ljava/lang/Boolean;)V",
+            "method_body": "public XmlInfo(Boolean isAttribute, String ns, Boolean isText, Boolean isCData)\n{\n_isAttribute = (isAttribute == null) ? false : isAttribute.booleanValue();\n_namespace = (ns == null) ? \"\" : ns;\n_isText = (isText == null) ? false : isText.booleanValue();\n_isCData = (isCData == null) ? false : isCData.booleanValue();\n}",
+            "method_id": 60
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.XmlInfo:getNamespace()Ljava/lang/String;",
+            "method_body": "public String getNamespace() { return _namespace; }\npublic String getNamespace() { return _namespace; }",
+            "method_id": 61
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.XmlInfo:isAttribute()Z",
+            "method_body": "public boolean isAttribute() { return _isAttribute; }\npublic boolean isAttribute() { return _isAttribute; }",
+            "method_id": 62
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.XmlInfo:isText()Z",
+            "method_body": "public boolean isText() { return _isText; }\npublic boolean isText() { return _isText; }",
+            "method_id": 63
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.XmlInfo:isCData()Z",
+            "method_body": "public boolean isCData() { return _isCData; }\npublic boolean isCData() { return _isCData; }",
+            "method_id": 64
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerModifier:changeProperties(Lcom/fasterxml/jackson/databind/SerializationConfig;Lcom/fasterxml/jackson/databind/BeanDescription;Ljava/util/List;)Ljava/util/List;",
+            "method_body": "public List<BeanPropertyWriter> changeProperties(SerializationConfig config,\nfinal AnnotationIntrospector intr = config.getAnnotationIntrospector();\nfor (int i = 0, len = beanProperties.size(); i < len; ++i) {\nBeanPropertyWriter bpw = beanProperties.get(i);\nfinal AnnotatedMember member = bpw.getMember();\nString ns = AnnotationUtil.findNamespaceAnnotation(intr, member);\nBoolean isAttribute = AnnotationUtil.findIsAttributeAnnotation(intr, member);\nBoolean isText = AnnotationUtil.findIsTextAnnotation(intr, member);\nBoolean isCData = AnnotationUtil.findIsCDataAnnotation(intr, member);\nbpw.setInternalSetting(XmlBeanSerializerBase.KEY_XML_INFO,\nif (!TypeUtil.isIndexedType(bpw.getType())) {\ncontinue;\nreturn beanProperties;\n}",
+            "method_id": 65
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase:<init>(Lcom/fasterxml/jackson/databind/ser/std/BeanSerializerBase;)V",
+            "method_body": "public XmlBeanSerializerBase(BeanSerializerBase src)\nsuper(src);\nint attrCount = 0;\nfor (BeanPropertyWriter bpw : _props) {\nif (_isAttribute(bpw)) { // Yup: let's build re-ordered list then\n_attributeCount = attrCount;\nBitSet cdata = null;\nfor (int i = 0, len = _props.length; i < len; ++i) {\nBeanPropertyWriter bpw = _props[i];\nif (_isCData(bpw)) {\n_cdata = cdata;\n_xmlNames = new QName[_props.length];\nint textIndex = -1;\nfor (int i = 0, len = _props.length; i < len; ++i) {\nBeanPropertyWriter bpw = _props[i];\nXmlInfo info = (XmlInfo) bpw.getInternalSetting(KEY_XML_INFO);\nString ns = null;\nif (info != null) {\nns = info.getNamespace();\nif (textIndex < 0 && info.isText()) {\n_xmlNames[i] = new QName((ns == null) ? \"\" : ns, bpw.getName());\n_textPropertyIndex = textIndex;\n}",
+            "method_id": 66
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase:<clinit>()V",
+            "method_body": "public final static String KEY_XML_INFO = new String(\"xmlInfo\");\nsuper(src);\nint attrCount = 0;\nfor (BeanPropertyWriter bpw : _props) {\nif (_isAttribute(bpw)) { // Yup: let's build re-ordered list then\n_attributeCount = attrCount;\nBitSet cdata = null;\nfor (int i = 0, len = _props.length; i < len; ++i) {\nBeanPropertyWriter bpw = _props[i];\nif (_isCData(bpw)) {\n_cdata = cdata;\n_xmlNames = new QName[_props.length];\nint textIndex = -1;\nfor (int i = 0, len = _props.length; i < len; ++i) {\nBeanPropertyWriter bpw = _props[i];\nXmlInfo info = (XmlInfo) bpw.getInternalSetting(KEY_XML_INFO);\nString ns = null;\nif (info != null) {\nns = info.getNamespace();\nif (textIndex < 0 && info.isText()) {\n_xmlNames[i] = new QName((ns == null) ? \"\" : ns, bpw.getName());\n_textPropertyIndex = textIndex;\n}",
+            "method_id": 67
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializer:<init>(Lcom/fasterxml/jackson/databind/ser/std/BeanSerializerBase;)V",
+            "method_body": "public XmlBeanSerializer(BeanSerializerBase src) {\nsuper(src);\n}",
+            "method_id": 68
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:_verifyValueWrite(Ljava/lang/String;)V",
+            "method_body": "protected final void _verifyValueWrite(String typeMsg) throws IOException\nint status = _writeContext.writeValue();\nif (status == JsonWriteContext.STATUS_EXPECT_NAME) {\n}",
+            "method_id": 69
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:_findXmlName(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Lcom/fasterxml/jackson/databind/PropertyName;",
+            "method_body": "protected PropertyName _findXmlName(Annotated a)\nJacksonXmlProperty pann = a.getAnnotation(JacksonXmlProperty.class);\nif (pann != null) {\nreturn null;\n}",
+            "method_id": 70
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:writeFieldName(Lcom/fasterxml/jackson/core/SerializableString;)V",
+            "method_body": "public void writeFieldName(SerializableString name) throws IOException\nwriteFieldName(name.getValue());\n}",
+            "method_id": 71
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializer:serialize(Ljava/lang/Object;Lcom/fasterxml/jackson/core/JsonGenerator;Lcom/fasterxml/jackson/databind/SerializerProvider;)V",
+            "method_body": "public void serialize(Object bean, JsonGenerator g, SerializerProvider provider) throws IOException\nif (_objectIdWriter != null) {\ng.writeStartObject();\nif (_propertyFilterId != null) {\nserializeFields(bean, g, provider);\ng.writeEndObject();\n}",
+            "method_id": 72
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase:serializeFields(Ljava/lang/Object;Lcom/fasterxml/jackson/core/JsonGenerator;Lcom/fasterxml/jackson/databind/SerializerProvider;)V",
+            "method_body": "protected void serializeFields(Object bean, JsonGenerator gen0, SerializerProvider provider)\nif (!(gen0 instanceof ToXmlGenerator)) {\nfinal ToXmlGenerator xgen = (ToXmlGenerator) gen0;\nif (_filteredProps != null && provider.getActiveView() != null) {\nprops = _props;\nfinal int attrCount = _attributeCount;\nfinal boolean isAttribute = xgen._nextIsAttribute;\nif (attrCount > 0) {\nfinal int textIndex = _textPropertyIndex;\nfinal QName[] xmlNames = _xmlNames;\nint i = 0;\nfinal BitSet cdata = _cdata;\nfor (final int len = props.length; i < len; ++i) {\nif (i == attrCount && !(isAttribute && isUnwrappingSerializer())) {\nxgen.setNextIsAttribute(false);\nif (i == textIndex) {\nxgen.setNextName(xmlNames[i]);\nBeanPropertyWriter prop = props[i];\nif (prop != null) { // can have nulls in filtered list\nif ((cdata != null) && cdata.get(i)) {\nprop.serializeAsField(bean, xgen, provider);\nif (i == textIndex) {\nif (_anyGetterWriter != null) {\n}\n}",
+            "method_id": 73
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:writeStartObject()V",
+            "method_body": "public final void writeStartObject() throws IOException\n_verifyValueWrite(\"start an object\");\n_writeContext = _writeContext.createChildObjectContext();\nif (_cfgPrettyPrinter != null) {\n_handleStartObject();\n}",
+            "method_id": 74
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:_handleStartObject()V",
+            "method_body": "public final void _handleStartObject() throws IOException\nif (_nextName == null) {\n_elementNameStack.addLast(_nextName);\n_xmlWriter.writeStartElement(_nextName.getNamespaceURI(), _nextName.getLocalPart());\n}\n}",
+            "method_id": 75
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:setNextIsAttribute(Z)V",
+            "method_body": "public void setNextIsAttribute(boolean isAttribute)\n_nextIsAttribute = isAttribute;\n}",
+            "method_id": 76
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:isOutputAsAttribute(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Ljava/lang/Boolean;",
+            "method_body": "public Boolean isOutputAsAttribute(Annotated ann)\nJacksonXmlProperty prop = ann.getAnnotation(JacksonXmlProperty.class);\nif (prop != null) {\nreturn null;\n}",
+            "method_id": 77
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:findRootName(Lcom/fasterxml/jackson/databind/introspect/AnnotatedClass;)Lcom/fasterxml/jackson/databind/PropertyName;",
+            "method_body": "public PropertyName findRootName(AnnotatedClass ac)\nJacksonXmlRootElement root = ac.getAnnotation(JacksonXmlRootElement.class);\nif (root != null) {\nString local = root.localName();\nString ns = root.namespace();\nif (local.length() == 0 && ns.length() == 0) {\nreturn new PropertyName(local, ns);\n}",
+            "method_id": 78
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:findWrapperName(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Lcom/fasterxml/jackson/databind/PropertyName;",
+            "method_body": "public PropertyName findWrapperName(Annotated ann)\nJacksonXmlElementWrapper w = ann.getAnnotation(JacksonXmlElementWrapper.class);\nif (w != null) {\nif (_cfgDefaultUseWrapper) {\nreturn PropertyName.USE_DEFAULT;\n}",
+            "method_id": 79
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:isOutputAsText(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Ljava/lang/Boolean;",
+            "method_body": "public Boolean isOutputAsText(Annotated ann)\nJacksonXmlText prop = ann.getAnnotation(JacksonXmlText.class);\nif (prop != null) {\nreturn null;\n}",
+            "method_id": 80
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:writeFieldName(Ljava/lang/String;)V",
+            "method_body": "public final void writeFieldName(String name) throws IOException\nif (_writeContext.writeFieldName(name) == JsonWriteContext.STATUS_EXPECT_VALUE) {\nString ns = (_nextName == null) ? \"\" : _nextName.getNamespaceURI();\nsetNextName(new QName(ns, name));\n}",
+            "method_id": 81
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:setNextName(Ljavax/xml/namespace/QName;)V",
+            "method_body": "public final void setNextName(QName name)\n_nextName = name;\n}",
+            "method_id": 82
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:findNameForSerialization(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Lcom/fasterxml/jackson/databind/PropertyName;",
+            "method_body": "public PropertyName findNameForSerialization(Annotated a)\nPropertyName name = _findXmlName(a);\nif (name == null) {\nname = super.findNameForSerialization(a);\nif (name == null) {\nif (a.hasAnnotation(JacksonXmlText.class)) {\nreturn name;\n}",
+            "method_id": 83
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:findNamespace(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Ljava/lang/String;",
+            "method_body": "public String findNamespace(Annotated ann)\nJacksonXmlProperty prop = ann.getAnnotation(JacksonXmlProperty.class);\nif (prop != null) {\nreturn null;\n}",
+            "method_id": 84
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector:isOutputAsCData(Lcom/fasterxml/jackson/databind/introspect/Annotated;)Ljava/lang/Boolean;",
+            "method_body": "public Boolean isOutputAsCData(Annotated ann) {\nJacksonXmlCData prop = ann.getAnnotation(JacksonXmlCData.class);\nif (prop != null) {\nreturn null;\n}",
+            "method_id": 85
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:checkNextIsUnwrapped()Z",
+            "method_body": "protected boolean checkNextIsUnwrapped()\nif (_nextIsUnwrapped) {\nreturn false;\n}",
+            "method_id": 86
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:writeEndObject()V",
+            "method_body": "public final void writeEndObject() throws IOException\nif (!_writeContext.inObject()) {\n_writeContext = _writeContext.getParent();\nif (_cfgPrettyPrinter != null) {\n_handleEndObject();\n}",
+            "method_id": 87
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:_handleEndObject()V",
+            "method_body": "public final void _handleEndObject() throws IOException\nif (_elementNameStack.isEmpty()) {\n_nextName = _elementNameStack.removeLast();\n_nextIsAttribute = false;\n_xmlWriter.writeEndElement();\nif (_elementNameStack.isEmpty() && (_xmlPrettyPrinter != null)) {\n}\n}",
+            "method_id": 88
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlMapper:<init>(Lcom/fasterxml/jackson/dataformat/xml/XmlMapper;)V",
+            "method_body": "protected XmlMapper(XmlMapper src) {\nsuper(src);\n_xmlModule = src._xmlModule;\n}",
+            "method_id": 89
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlMapper:copy()Lcom/fasterxml/jackson/dataformat/xml/XmlMapper;",
+            "method_body": "public XmlMapper copy()\n_checkInvalidCopy(XmlMapper.class);\nreturn new XmlMapper(this);\n}",
+            "method_id": 90
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:<init>(Lcom/fasterxml/jackson/dataformat/xml/XmlFactory;Lcom/fasterxml/jackson/core/ObjectCodec;)V",
+            "method_body": "protected XmlFactory(XmlFactory src, ObjectCodec oc)\nsuper(src, oc);\n_xmlParserFeatures = src._xmlParserFeatures;\n_xmlGeneratorFeatures = src._xmlGeneratorFeatures;\n_cfgNameForTextElement = src._cfgNameForTextElement;\n_xmlInputFactory = src._xmlInputFactory;\n_xmlOutputFactory = src._xmlOutputFactory;\n}",
+            "method_id": 91
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:copy()Lcom/fasterxml/jackson/dataformat/xml/XmlFactory;",
+            "method_body": "public XmlFactory copy() {\n_checkInvalidCopy(XmlFactory.class);\nreturn new XmlFactory(this, null);\n}",
+            "method_id": 92
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:<init>(Lcom/fasterxml/jackson/dataformat/xml/ser/XmlSerializerProvider;)V",
+            "method_body": "protected XmlSerializerProvider(XmlSerializerProvider src) {\nsuper(src);\n_rootNameLookup = src._rootNameLookup;\n}",
+            "method_id": 93
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlTestBase:newMapper()",
+            "method_body": "protected static XmlMapper newMapper() {return new XmlMapper();}",
+            "method_id": 97
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:copy()Lcom/fasterxml/jackson/databind/ser/DefaultSerializerProvider;",
+            "method_body": "public DefaultSerializerProvider copy() {\nreturn new XmlSerializerProvider(this);\n}",
+            "method_id": 94
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator:writeNumber(I)V",
+            "method_body": "public void writeNumber(int i) throws IOException\n_verifyValueWrite(\"write number\");\nif (_nextName == null) {\nif (_nextIsAttribute) {\n} else if (checkNextIsUnwrapped()) {\nif (_xmlPrettyPrinter != null) {\n_xmlWriter.writeStartElement(_nextName.getNamespaceURI(), _nextName.getLocalPart());\n_xmlWriter.writeInt(i);\n_xmlWriter.writeEndElement();\n}\n}",
+            "method_id": 95
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.util.DefaultXmlPrettyPrinter:<init>(Lcom/fasterxml/jackson/dataformat/xml/util/DefaultXmlPrettyPrinter;)V",
+            "method_body": "public void writeIndentation(JsonGenerator g, int level) throws IOException;\nprotected Indenter _arrayIndenter = new FixedSpaceIndenter();\nprotected Indenter _objectIndenter = new Lf2SpacesIndenter();\nprotected boolean _spacesInObjectEntries = true;\nprotected transient int _nesting = 0;\npublic DefaultXmlPrettyPrinter() { }",
+            "method_id": 96
+        }
+    ]
+}

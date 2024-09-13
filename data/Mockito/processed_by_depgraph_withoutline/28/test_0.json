@@ -1,0 +1,24 @@
+{
+    "bug_id": 28,
+    "test_id": 0,
+    "test_name": "org.mockitousage.bugs.InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.mock_should_be_injected_once_and_in_the_best_matching_type",
+    "test_body": "public void mock_should_be_injected_once_and_in_the_best_matching_type() {\nassertSame(REFERENCE, illegalInjectionExample.mockShouldNotGoInHere);\nassertSame(mockedBean, illegalInjectionExample.mockShouldGoInHere);",
+    "stack_trace": "junit.framework.AssertionFailedError: expected same:<java.lang.Object@1a6aecec> was not:<mockedBean>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotSame(Assert.java:737)\nat org.junit.Assert.assertSame(Assert.java:680)\nat org.junit.Assert.assertSame(Assert.java:691)\nat org.mockitousage.bugs.InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.mock_should_be_injected_once_and_in_the_best_matching_type(InjectionByTypeShouldFirstLookForExactTypeThenAncestorTest.java:33)",
+    "covered_methods": [
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultInjectionEngine:orderedInstanceFieldsFrom(Ljava/lang/Class;)[Ljava/lang/reflect/Field;",
+            "method_body": "private Field[] orderedInstanceFieldsFrom(Class<?> awaitingInjectionClazz) {\nField[] declaredFields = awaitingInjectionClazz.getDeclaredFields();\nArrays.sort(declaredFields, supertypesLast);\nreturn declaredFields;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultInjectionEngine:injectMocksOnFields(Ljava/util/Set;Ljava/util/Set;Ljava/lang/Object;)V",
+            "method_body": "public void injectMocksOnFields(Set<Field> injectMocksFields, Set<Object> mocks, Object testClassInstance) {\nfor (Field field : injectMocksFields) {\nSet<Object> mocksToBeInjected = new HashSet<Object>(mocks);\nObject injectMocksFieldInstance = null;\ninjectMocksFieldInstance = new FieldInitializer(testClassInstance, field).initialize();\n}\nClass<?> fieldClass = injectMocksFieldInstance.getClass();\nwhile (fieldClass != Object.class) {\ninjectMockCandidate(fieldClass, mocksToBeInjected, injectMocksFieldInstance);\nfieldClass = fieldClass.getSuperclass();\n}\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultInjectionEngine:injectMockCandidate(Ljava/lang/Class;Ljava/util/Set;Ljava/lang/Object;)V",
+            "method_body": "private void injectMockCandidate(Class<?> awaitingInjectionClazz, Set<Object> mocks, Object fieldInstance) {\nfor(Field field : orderedInstanceFieldsFrom(awaitingInjectionClazz)) {\nmockCandidateFilter.filterCandidate(mocks, field, fieldInstance).thenInject();\n}",
+            "method_id": 2
+        }
+    ]
+}

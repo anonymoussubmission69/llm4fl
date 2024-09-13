@@ -1,0 +1,24 @@
+{
+    "bug_id": 31,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.tar.TarUtilsTest.testParseOctalInvalid",
+    "test_body": "79: public void testParseOctalInvalid() throws Exception{\n80: byte [] buffer;\n81: buffer=new byte[0]; // empty byte array\n82: try {\n83: TarUtils.parseOctal(buffer,0, buffer.length);\n84: fail(\"Expected IllegalArgumentException - should be at least 2 bytes long\");\n85: } catch (IllegalArgumentException expected) {\n86: }\n87: buffer=new byte[]{0}; // 1-byte array\n88: try {\n89: TarUtils.parseOctal(buffer,0, buffer.length);\n90: fail(\"Expected IllegalArgumentException - should be at least 2 bytes long\");\n91: } catch (IllegalArgumentException expected) {\n92: }\n93: buffer = \"abcdef \".getBytes(CharsetNames.UTF_8); // Invalid input\n94: try {\n95: TarUtils.parseOctal(buffer,0, buffer.length);\n96: fail(\"Expected IllegalArgumentException\");\n97: } catch (IllegalArgumentException expected) {\n98: }\n99: buffer = \" 0 07 \".getBytes(CharsetNames.UTF_8); // Invalid - embedded space\n100: try {\n101: TarUtils.parseOctal(buffer,0, buffer.length);\n102: fail(\"Expected IllegalArgumentException - embedded space\");\n103: } catch (IllegalArgumentException expected) {\n104: }\n105: buffer = \" 0\\00007 \".getBytes(CharsetNames.UTF_8); // Invalid - embedded NUL\n106: try {\n107: TarUtils.parseOctal(buffer,0, buffer.length);\n108: fail(\"Expected IllegalArgumentException - embedded NUL\");\n109: } catch (IllegalArgumentException expected) {",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected IllegalArgumentException - embedded NUL\nat org.junit.Assert.fail(Assert.java:88)\nat org.apache.commons.compress.archivers.tar.TarUtilsTest.testParseOctalInvalid(TarUtilsTest.java:108)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseOctal([BII)J",
+            "method_body": "public static long parseOctal(final byte[] buffer, final int offset, final int length) {\nlong    result = 0;\nint     end = offset + length;\nint     start = offset;\nif (length < 2){\nthrow new IllegalArgumentException(\"Length \"+length+\" must be at least 2\");\nif (buffer[start] == 0) {\nreturn 0L;\nwhile (start < end){\nif (buffer[start] == ' '){\nstart++;\nbyte trailer = buffer[end - 1];\nwhile (start < end && (trailer == 0 || trailer == ' ')) {\nend--;\ntrailer = buffer[end - 1];\nfor ( ;start < end; start++) {\nfinal byte currentByte = buffer[start];\nif (currentByte == 0) {\nbreak;\nif (currentByte < '0' || currentByte > '7'){\nthrow new IllegalArgumentException(\nresult = (result << 3) + (currentByte - '0'); // convert from ASCII\nreturn result;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:exceptionMessage([BIIIB)Ljava/lang/String;",
+            "method_body": "private static String exceptionMessage(byte[] buffer, final int offset,\nString string = new String(buffer, offset, length);\nstring=string.replaceAll(\"\\0\", \"{NUL}\"); // Replace NULs to allow string to be printed\nfinal String s = \"Invalid byte \"+currentByte+\" at offset \"+(current-offset)+\" in '\"+string+\"' len=\"+length;\nreturn s;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:<clinit>()V",
+            "method_body": "private static final int BYTE_MASK = 255;\nstatic final ZipEncoding DEFAULT_ENCODING =\nstatic final ZipEncoding FALLBACK_ENCODING = new ZipEncoding() {\n};",
+            "method_id": 2
+        }
+    ]
+}

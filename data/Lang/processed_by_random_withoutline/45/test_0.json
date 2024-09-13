@@ -1,0 +1,24 @@
+{
+    "bug_id": 45,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang.WordUtilsTest.testAbbreviate",
+    "test_body": "public void testAbbreviate() {\n// check null and empty are returned respectively\nassertNull(WordUtils.abbreviate(null, 1,-1,\"\"));\nassertEquals(StringUtils.EMPTY, WordUtils.abbreviate(\"\", 1,-1,\"\"));\n371: // test upper limit\nassertEquals(\"01234\", WordUtils.abbreviate(\"0123456789\", 0,5,\"\"));\nassertEquals(\"01234\", WordUtils.abbreviate(\"0123456789\", 5, 2,\"\"));\nassertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 2, 5,\"\"));\nassertEquals(\"012 3\", WordUtils.abbreviate(\"012 3456789\", 5, 2,\"\"));\nassertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 0,-1,\"\"));\n378: // test upper limit + append string\nassertEquals(\"01234-\", WordUtils.abbreviate(\"0123456789\", 0,5,\"-\"));\nassertEquals(\"01234-\", WordUtils.abbreviate(\"0123456789\", 5, 2,\"-\"));\nassertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 2, 5, null));\nassertEquals(\"012 3\", WordUtils.abbreviate(\"012 3456789\", 5, 2,\"\"));\nassertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 0,-1,\"\"));\n385: // test lower value\nassertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 0,5, null));\nassertEquals(\"01234\", WordUtils.abbreviate(\"01234 56789\", 5, 10, null));\nassertEquals(\"01 23 45 67\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, -1, null));\nassertEquals(\"01 23 45 6\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, 10, null));\nassertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 15, 20, null));\n392: // test lower value + append\nassertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 0,5, null));\nassertEquals(\"01234-\", WordUtils.abbreviate(\"01234 56789\", 5, 10, \"-\"));\nassertEquals(\"01 23 45 67abc\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, -1, \"abc\"));\nassertEquals(\"01 23 45 6\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, 10, \"\"));\n398: // others\nassertEquals(\"\", WordUtils.abbreviate(\"0123456790\", 0,0,\"\"));\nassertEquals(\"\", WordUtils.abbreviate(\" 0123456790\", 0,-1,\"\"));\n}\n",
+    "stack_trace": "java.lang.StringIndexOutOfBoundsException: String index out of range: 15\nat java.lang.String.substring(String.java:1963)\nat org.apache.commons.lang.WordUtils.abbreviate(WordUtils.java:629)\nat org.apache.commons.lang.WordUtilsTest.testAbbreviate(WordUtilsTest.java:390)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang.StringUtils:defaultString(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String defaultString(String str) {\nreturn str == null ? EMPTY : str;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang.WordUtils:abbreviate(Ljava/lang/String;IILjava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String abbreviate(String str, int lower, int upper, String appendToEnd) {\nif (str == null) {\nreturn null;\nif (str.length() == 0) {\nreturn StringUtils.EMPTY;\nif (upper == -1 || upper > str.length()) {\nupper = str.length();\nif (upper < lower) {\nupper = lower;\nStringBuffer result = new StringBuffer();\nint index = StringUtils.indexOf(str, \" \", lower);\nif (index == -1) {\nresult.append(str.substring(0, upper));\nif (upper != str.length()) {\nresult.append(StringUtils.defaultString(appendToEnd));\n} else if (index > upper) {\nresult.append(str.substring(0, upper));\nresult.append(StringUtils.defaultString(appendToEnd));\nresult.append(str.substring(0, index));\nresult.append(StringUtils.defaultString(appendToEnd));\nreturn result.toString();\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringUtils:indexOf(Ljava/lang/String;Ljava/lang/String;I)I",
+            "method_body": "public static int indexOf(String str, String searchStr, int startPos) {\nif (str == null || searchStr == null) {\nif (searchStr.length() == 0 && startPos >= str.length()) {\nreturn str.indexOf(searchStr, startPos);\n}",
+            "method_id": 2
+        }
+    ]
+}

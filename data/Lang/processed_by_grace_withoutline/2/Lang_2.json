@@ -1,0 +1,28 @@
+{
+    "bug_id": 2,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang3.LocaleUtilsTest.testParseAllLocales",
+            "test_body": "public void testParseAllLocales() {\nLocale[] locales = Locale.getAvailableLocales();\nint failures = 0;\nfor (Locale l : locales) {\n// Check if it's possible to recreate the Locale using just the standard constructor\nLocale locale = new Locale(l.getLanguage(), l.getCountry(), l.getVariant());\nif (l.equals(locale)) { // it is possible for LocaleUtils.toLocale to handle these Locales\nString str = l.toString();\n// Look for the script/extension suffix\nint suff = str.indexOf(\"_#\");\nif (suff == - 1) {\nsuff = str.indexOf(\"#\");\n}\nif (suff >= 0) { // we have a suffix\ntry {\nLocaleUtils.toLocale(str); // shouuld cause IAE\nSystem.out.println(\"Should not have parsed: \" + str);\nfailures++;\ncontinue; // try next Locale\n} catch (IllegalArgumentException iae) {\n// expected; try without suffix\nstr = str.substring(0, suff);\n}\n}\nLocale loc = LocaleUtils.toLocale(str);\nif (!l.equals(loc)) {\nSystem.out.println(\"Failed to parse: \" + str);\nfailures++;\n}                    \n}\n}\nif (failures > 0) {\nfail(\"Failed \"+failures+\" test(s)\");\n}",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang3.LocaleUtils:isAvailableLocale(Ljava/util/Locale;)Z",
+                    "method_body": "public static boolean isAvailableLocale(final Locale locale) {\nreturn availableLocaleList().contains(locale);\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.LocaleUtils:availableLocaleList()Ljava/util/List;",
+                    "method_body": "public static List<Locale> availableLocaleList() {\nreturn SyncAvoid.AVAILABLE_LOCALE_LIST;\n}",
+                    "method_id": 1
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.LocaleUtils:toLocale(Ljava/lang/String;)Ljava/util/Locale;",
+                    "method_body": "public static Locale toLocale(final String str) {\nif (str == null) {\nfinal int len = str.length();\nif (len < 2) {\nfinal char ch0 = str.charAt(0);\nif (ch0 == '_') {\nfinal char ch1 = str.charAt(1);\nif (!Character.isLowerCase(ch0) || !Character.isLowerCase(ch1)) {\nif (len == 2) {\nreturn new Locale(str);\nif (len < 5) {\nif (str.charAt(2) != '_') {\nfinal char ch3 = str.charAt(3);\nif (ch3 == '_') {\nfinal char ch4 = str.charAt(4);\nif (!Character.isUpperCase(ch3) || !Character.isUpperCase(ch4)) {\nif (len == 5) {\nreturn new Locale(str.substring(0, 2), str.substring(3, 5));\nif (len < 7) {\nif (str.charAt(5) != '_') {\nreturn new Locale(str.substring(0, 2), str.substring(3, 5), str.substring(6));\n}",
+                    "method_id": 2
+                }
+            ],
+            "stack_trace": "junit.framework.AssertionFailedError: Failed 2 test(s)\nat org.junit.Assert.fail(Assert.java:88)\nat org.apache.commons.lang3.LocaleUtilsTest.testParseAllLocales(LocaleUtilsTest.java:578)",
+            "test_id": 0
+        }
+    ]
+}

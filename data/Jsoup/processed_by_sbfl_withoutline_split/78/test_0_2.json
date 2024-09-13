@@ -1,0 +1,44 @@
+{
+    "bug_id": 78,
+    "test_id": 0,
+    "test_name": "org.jsoup.integration.ConnectTest.handlesEmptyStreamDuringParseRead",
+    "test_body": "public void handlesEmptyStreamDuringParseRead() throws IOException {\n// this handles situations where the remote server sets a content length greater than it actually writes\n394: Connection.Response res = Jsoup.connect(InterruptedServlet.Url)\n.timeout(200)\n.execute();\n398: boolean threw = false;\ntry {\nDocument document = res.parse();\nassertEquals(\"Something\", document.title());",
+    "stack_trace": "org.jsoup.UncheckedIOException: java.io.IOException: Underlying input stream returned zero bytes\nat org.jsoup.parser.CharacterReader.bufferUp(CharacterReader.java:63)\nat org.jsoup.parser.CharacterReader.current(CharacterReader.java:93)\nat org.jsoup.parser.TokeniserState$1.read(TokeniserState.java:12)\nat org.jsoup.parser.Tokeniser.read(Tokeniser.java:45)\nat org.jsoup.parser.TreeBuilder.runParser(TreeBuilder.java:51)\nat org.jsoup.parser.TreeBuilder.parse(TreeBuilder.java:45)\nat org.jsoup.parser.Parser.parseInput(Parser.java:39)\nat org.jsoup.helper.DataUtil.parseInputStream(DataUtil.java:151)\nat org.jsoup.helper.HttpConnection$Response.parse(HttpConnection.java:837)\nat org.jsoup.integration.ConnectTest.handlesEmptyStreamDuringParseRead(ConnectTest.java:400)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:contentType()Ljava/lang/String;",
+            "method_body": "public String contentType() {\nreturn contentType;\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:parse()Lorg/jsoup/nodes/Document;",
+            "method_body": "public Document parse() throws IOException {\nValidate.isTrue(executed, \"Request must be executed (with .execute(), .get(), or .post() before parsing response\");\nif (byteData != null) { // bytes have been read in to the buffer, parse that\nValidate.isFalse(inputStreamRead, \"Input stream already read and parsed, cannot re-read.\");\nDocument doc = DataUtil.parseInputStream(bodyStream, charset, url.toExternalForm(), req.parser());\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:createConnection(Lorg/jsoup/Connection$Request;)Ljava/net/HttpURLConnection;",
+            "method_body": "private static HttpURLConnection createConnection(Connection.Request req) throws IOException {\nfinal HttpURLConnection conn = (HttpURLConnection) (\nconn.setRequestMethod(req.method().name());\nconn.setInstanceFollowRedirects(false); // don't rely on native redirection support\nconn.setConnectTimeout(req.timeout());\nconn.setReadTimeout(req.timeout() / 2); // gets reduced after connection is made and status is read\nif (conn instanceof HttpsURLConnection) {\nif (req.method().hasBody())\nif (req.cookies().size() > 0)\nfor (Map.Entry<String, List<String>> header : req.multiHeaders().entrySet()) {\nfor (String value : header.getValue()) {\nconn.addRequestProperty(header.getKey(), value);\n}\n}\nreturn conn;\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:setupFromConnection(Ljava/net/HttpURLConnection;Lorg/jsoup/Connection$Response;)V",
+            "method_body": "private void setupFromConnection(HttpURLConnection conn, Connection.Response previousResponse) throws IOException {\nmethod = Method.valueOf(conn.getRequestMethod());\nurl = conn.getURL();\nstatusCode = conn.getResponseCode();\nstatusMessage = conn.getResponseMessage();\ncontentType = conn.getContentType();\nMap<String, List<String>> resHeaders = createHeaderMap(conn);\nprocessResponseHeaders(resHeaders);\nif (previousResponse != null) {\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:createHeaderMap(Ljava/net/HttpURLConnection;)Ljava/util/LinkedHashMap;",
+            "method_body": "private static LinkedHashMap<String, List<String>> createHeaderMap(HttpURLConnection conn) {\nfinal LinkedHashMap<String, List<String>> headers = new LinkedHashMap<>();\nint i = 0;\nfinal String key = conn.getHeaderFieldKey(i);\nfinal String val = conn.getHeaderField(i);\nif (key == null && val == null)\nbreak;\ni++;\nif (key == null || val == null)\nif (headers.containsKey(key))\nfinal ArrayList<String> vals = new ArrayList<>();\nvals.add(val);\nheaders.put(key, vals);\n}\nreturn headers;\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:processResponseHeaders(Ljava/util/Map;)V",
+            "method_body": "void processResponseHeaders(Map<String, List<String>> resHeaders) {\nfor (Map.Entry<String, List<String>> entry : resHeaders.entrySet()) {\nString name = entry.getKey();\nif (name == null)\nList<String> values = entry.getValue();\nif (name.equalsIgnoreCase(\"Set-Cookie\")) {\nfor (String value : values) {\naddHeader(name, value);\n}\n}\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.UncheckedIOException:<init>(Ljava/io/IOException;)V",
+            "method_body": "public UncheckedIOException(IOException cause) {\nsuper(cause);\n}",
+            "method_id": 206
+        }
+    ]
+}

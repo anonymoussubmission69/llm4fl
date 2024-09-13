@@ -1,0 +1,113 @@
+{
+    "bug_id": 26,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang3.time.FastDateFormatTest.testLang645",
+            "test_body": "public void testLang645() {\nLocale locale = new Locale(\"sv\", \"SE\");\n331: Calendar cal = Calendar.getInstance();\ncal.set(2010, 0, 1, 12, 0, 0);\nDate d = cal.getTime();\n335: FastDateFormat fdf = FastDateFormat.getInstance(\"EEEE', week 'ww\", locale);\n337: assertEquals(\"fredag, week 53\", fdf.format(d));\n}\n",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:parsePattern()Ljava/util/List;",
+                    "method_body": "protected List<Rule> parsePattern() {\nDateFormatSymbols symbols = new DateFormatSymbols(mLocale);\nList<Rule> rules = new ArrayList<Rule>();\nString[] ERAs = symbols.getEras();\nString[] months = symbols.getMonths();\nString[] shortMonths = symbols.getShortMonths();\nString[] weekdays = symbols.getWeekdays();\nString[] shortWeekdays = symbols.getShortWeekdays();\nString[] AmPmStrings = symbols.getAmPmStrings();\nint length = mPattern.length();\nint[] indexRef = new int[1];\nfor (int i = 0; i < length; i++) {\nindexRef[0] = i;\nString token = parseToken(mPattern, indexRef);\ni = indexRef[0];\nint tokenLen = token.length();\nif (tokenLen == 0) {\nchar c = token.charAt(0);\nswitch (c) {\nrule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays);\nbreak;\nrule = selectNumberRule(Calendar.WEEK_OF_YEAR, tokenLen);\nbreak;\nString sub = token.substring(1);\nif (sub.length() == 1) {\nrule = new StringLiteral(sub);\nbreak;\nrules.add(rule);\nreturn rules;\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:parseToken(Ljava/lang/String;[I)Ljava/lang/String;",
+                    "method_body": "protected String parseToken(String pattern, int[] indexRef) {\nStringBuilder buf = new StringBuilder();\nint i = indexRef[0];\nint length = pattern.length();\nchar c = pattern.charAt(i);\nif (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {\nbuf.append(c);\nwhile (i + 1 < length) {\nchar peek = pattern.charAt(i + 1);\nif (peek == c) {\nbuf.append(c);\ni++;\n}\nbuf.append('\\'');\nboolean inLiteral = false;\nfor (; i < length; i++) {\nc = pattern.charAt(i);\nif (c == '\\'') {\nif (i + 1 < length && pattern.charAt(i + 1) == '\\'') {\ninLiteral = !inLiteral;\n} else if (!inLiteral &&\ni--;\nbreak;\nbuf.append(c);\nindexRef[0] = i;\nreturn buf.toString();\n}",
+                    "method_id": 1
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:<init>(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)V",
+                    "method_body": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {\nsuper();\nif (pattern == null) {\nmPattern = pattern;\nmTimeZoneForced = (timeZone != null);\nif (timeZone == null) {\ntimeZone = TimeZone.getDefault();\nmTimeZone = timeZone;\nmLocaleForced = (locale != null);\nif (locale == null) {\nmLocale = locale;\n}",
+                    "method_id": 2
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:getInstance(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang3/time/FastDateFormat;",
+                    "method_body": "public static synchronized FastDateFormat getInstance(String pattern, TimeZone timeZone, Locale locale) {\nFastDateFormat emptyFormat = new FastDateFormat(pattern, timeZone, locale);\nFastDateFormat format = cInstanceCache.get(emptyFormat);\nif (format == null) {\nformat = emptyFormat;\nformat.init();  // convert shell format into usable one\ncInstanceCache.put(format, format);  // this is OK!\nreturn format;\n}",
+                    "method_id": 3
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:hashCode()I",
+                    "method_body": "public int hashCode() {\nint total = 0;\ntotal += mPattern.hashCode();\ntotal += mTimeZone.hashCode();\ntotal += (mTimeZoneForced ? 1 : 0);\ntotal += mLocale.hashCode();\ntotal += (mLocaleForced ? 1 : 0);\nreturn total;\n}",
+                    "method_id": 4
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:init()V",
+                    "method_body": "protected void init() {\nList<Rule> rulesList = parsePattern();\nmRules = rulesList.toArray(new Rule[rulesList.size()]);\nint len = 0;\nfor (int i=mRules.length; --i >= 0; ) {\nlen += mRules[i].estimateLength();\nmMaxLengthEstimate = len;\n}",
+                    "method_id": 5
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:applyRules(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;",
+                    "method_body": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\nRule[] rules = mRules;\nint len = mRules.length;\nfor (int i = 0; i < len; i++) {\nrules[i].appendTo(buf, calendar);\nreturn buf;\n}",
+                    "method_id": 6
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(Ljava/util/Date;)Ljava/lang/String;",
+                    "method_body": "public String format(Date date) {\nCalendar c = new GregorianCalendar(mTimeZone);\nc.setTime(date);\nreturn applyRules(c, new StringBuffer(mMaxLengthEstimate)).toString();\n}",
+                    "method_id": 7
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$StringLiteral:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+                    "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nbuffer.append(mValue);\n}",
+                    "method_id": 8
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+                    "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nbuffer.append(mValues[calendar.get(mField)]);\n}",
+                    "method_id": 9
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:estimateLength()I",
+                    "method_body": "public int estimateLength() {\nint max = 0;\nfor (int i=mValues.length; --i >= 0; ) {\nint len = mValues[i].length();\nif (len > max) {\nmax = len;\n}\nreturn max;\n}",
+                    "method_id": 10
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+                    "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 100) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+                    "method_id": 11
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:<init>(I[Ljava/lang/String;)V",
+                    "method_body": "TextField(int field, String[] values) {\nmField = field;\nmValues = values;\n}",
+                    "method_id": 12
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+                    "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(mField));\n}",
+                    "method_id": 13
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$StringLiteral:<init>(Ljava/lang/String;)V",
+                    "method_body": "StringLiteral(String value) {\nmValue = value;\n}",
+                    "method_id": 14
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:getInstance(Ljava/lang/String;Ljava/util/Locale;)Lorg/apache/commons/lang3/time/FastDateFormat;",
+                    "method_body": "public static FastDateFormat getInstance(String pattern, Locale locale) {\nreturn getInstance(pattern, null, locale);\n}",
+                    "method_id": 15
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:<init>(I)V",
+                    "method_body": "TwoDigitNumberField(int field) {\nmField = field;\n}",
+                    "method_id": 16
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$StringLiteral:estimateLength()I",
+                    "method_body": "public int estimateLength() {\nreturn mValue.length();\n}",
+                    "method_id": 17
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:estimateLength()I",
+                    "method_body": "public int estimateLength() {\nreturn 2;\n}",
+                    "method_id": 18
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.time.FastDateFormat:selectNumberRule(II)Lorg/apache/commons/lang3/time/FastDateFormat$NumberRule;",
+                    "method_body": "protected NumberRule selectNumberRule(int field, int padding) {\nswitch (padding) {\nreturn new TwoDigitNumberField(field);\n}",
+                    "method_id": 19
+                }
+            ],
+            "stack_trace": "junit.framework.ComparisonFailure: expected:<fredag, week [53]> but was:<fredag, week [01]>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat org.apache.commons.lang3.time.FastDateFormatTest.testLang645(FastDateFormatTest.java:337)",
+            "test_id": 0
+        }
+    ]
+}

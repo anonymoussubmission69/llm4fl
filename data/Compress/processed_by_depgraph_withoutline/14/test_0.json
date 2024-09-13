@@ -1,0 +1,109 @@
+{
+    "bug_id": 14,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest.workaroundForBrokenTimeHeader",
+    "test_body": "51: public void workaroundForBrokenTimeHeader() throws Exception {\n52: URL tar = getClass().getResource(\"/simple-aix-native-tar.tar\");\n53: TarArchiveInputStream in = null;\n54: try {\n55: in = new TarArchiveInputStream(new FileInputStream(new File(new URI(tar.toString()))));\n56: TarArchiveEntry tae = in.getNextTarEntry();\n57: tae = in.getNextTarEntry();\n58: assertEquals(\"sample/link-to-txt-file.lnk\", tae.getName());",
+    "stack_trace": "java.io.IOException: Error detected parsing the header\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextTarEntry(TarArchiveInputStream.java:201)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest.workaroundForBrokenTimeHeader(TarArchiveInputStreamTest.java:57)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getNextTarEntry()Lorg/apache/commons/compress/archivers/tar/TarArchiveEntry;",
+            "method_body": "public TarArchiveEntry getNextTarEntry() throws IOException {\nif (hasHitEOF) {\nif (currEntry != null) {\nlong numToSkip = entrySize - entryOffset;\nwhile (numToSkip > 0) {\nreadBuf = null;\nbyte[] headerBuf = getRecord();\nif (hasHitEOF) {\ncurrEntry = new TarArchiveEntry(headerBuf);\n} catch (IllegalArgumentException e) {\nIOException ioe = new IOException(\"Error detected parsing the header\");\nioe.initCause(e);\nthrow ioe;\n}\nentryOffset = 0;\nentrySize = currEntry.getSize();\nif (currEntry.isGNULongNameEntry()) {\nif (currEntry.isPaxHeader()){ // Process Pax headers\nif (currEntry.isGNUSparse()){ // Process sparse files\nentrySize = currEntry.getSize();\nreturn currEntry;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseOctal([BII)J",
+            "method_body": "public static long parseOctal(final byte[] buffer, final int offset, final int length) {\nlong    result = 0;\nint     end = offset + length;\nint     start = offset;\nif (length < 2){\nboolean allNUL = true;\nfor (int i = start; i < end; i++){\nif (buffer[i] != 0){\nallNUL = false;\nbreak;\nif (allNUL) {\nwhile (start < end){\nif (buffer[start] == ' '){\ntrailer = buffer[end-1];\nif (trailer == 0 || trailer == ' '){\nend--;\ntrailer = buffer[end-1];\nif (trailer == 0 || trailer == ' '){\nend--;\nfor ( ;start < end; start++) {\nfinal byte currentByte = buffer[start];\nif (currentByte < '0' || currentByte > '7'){\nthrow new IllegalArgumentException(\nresult = (result << 3) + (currentByte - '0'); // convert from ASCII\nreturn result;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:exceptionMessage([BIIIB)Ljava/lang/String;",
+            "method_body": "private static String exceptionMessage(byte[] buffer, final int offset,\nString string = new String(buffer, offset, length);\nstring=string.replaceAll(\"\\0\", \"{NUL}\"); // Replace NULs to allow string to be printed\nfinal String s = \"Invalid byte \"+currentByte+\" at offset \"+(current-offset)+\" in '\"+string+\"' len=\"+length;\nreturn s;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:close()V",
+            "method_body": "public void close() throws IOException {\nif (outStream != null) {\n} else if (inStream != null) {\nif (inStream != System.in) {\ninStream.close();\ninStream = null;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getRecord()[B",
+            "method_body": "private byte[] getRecord() throws IOException {\nif (hasHitEOF) {\nbyte[] headerBuf = buffer.readRecord();\nif (headerBuf == null) {\n} else if (buffer.isEOFRecord(headerBuf)) {\nreturn hasHitEOF ? null : headerBuf;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>()V",
+            "method_body": "private TarArchiveEntry () {\nthis.magic = MAGIC_POSIX;\nthis.version = VERSION_POSIX;\nthis.name = \"\";\nthis.linkName = \"\";\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userId = 0;\nthis.groupId = 0;\nthis.userName = user;\nthis.groupName = \"\";\nthis.file = null;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:readBlock()Z",
+            "method_body": "private boolean readBlock() throws IOException {\nif (inStream == null) {\ncurrRecIdx = 0;\nint offset = 0;\nint bytesNeeded = blockSize;\nwhile (bytesNeeded > 0) {\nlong numBytes = inStream.read(blockBuffer, offset,\nif (numBytes == -1) {\noffset += numBytes;\nbytesNeeded -= numBytes;\nif (numBytes != blockSize) {\n}\ncurrBlkIdx++;\nreturn true;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;II)V",
+            "method_body": "public TarArchiveInputStream(InputStream is, int blockSize, int recordSize) {\nthis.buffer = new TarBuffer(is, blockSize, recordSize);\nthis.readBuf = null;\nthis.hasHitEOF = false;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:close()V",
+            "method_body": "public void close() throws IOException {\nbuffer.close();\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:readRecord()[B",
+            "method_body": "public byte[] readRecord() throws IOException {\nif (inStream == null) {\nif (currRecIdx >= recsPerBlock && !readBlock()) {\nbyte[] result = new byte[recordSize];\nSystem.arraycopy(blockBuffer,\ncurrRecIdx++;\nreturn result;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseName([BII)Ljava/lang/String;",
+            "method_body": "public static String parseName(byte[] buffer, final int offset, final int length) {\nStringBuffer result = new StringBuffer(length);\nint          end = offset + length;\nfor (int i = offset; i < end; ++i) {\nbyte b = buffer[i];\nif (b == 0) { // Trailing null\nbreak;\nresult.append((char) (b & 0xFF)); // Allow for sign-extension\nreturn result.toString();\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>([B)V",
+            "method_body": "public TarArchiveEntry(byte[] headerBuf) {\nthis();\nparseTarHeader(headerBuf);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public TarArchiveInputStream(InputStream is) {\nthis(is, TarBuffer.DEFAULT_BLKSIZE, TarBuffer.DEFAULT_RCDSIZE);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isPaxHeader()Z",
+            "method_body": "public boolean isPaxHeader(){\nreturn linkFlag == LF_PAX_EXTENDED_HEADER_LC\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:isEOFRecord([B)Z",
+            "method_body": "public boolean isEOFRecord(byte[] record) {\nfor (int i = 0, sz = getRecordSize(); i < sz; ++i) {\nif (record[i] != 0) {\nreturn false;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isGNUSparse()Z",
+            "method_body": "public boolean isGNUSparse() {\nreturn linkFlag == LF_GNUTYPE_SPARSE;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:getSize()J",
+            "method_body": "public long getSize() {\nreturn size;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseOctalOrBinary([BII)J",
+            "method_body": "public static long parseOctalOrBinary(final byte[] buffer, final int offset,\nif ((buffer[offset] & 0x80) == 0) {\nreturn parseOctal(buffer, offset, length);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:isGNULongNameEntry()Z",
+            "method_body": "public boolean isGNULongNameEntry() {\nreturn linkFlag == LF_GNUTYPE_LONGNAME\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:getRecordSize()I",
+            "method_body": "public int getRecordSize() {\nreturn this.recordSize;\n}",
+            "method_id": 19
+        }
+    ]
+}

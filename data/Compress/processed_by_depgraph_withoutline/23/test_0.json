@@ -1,0 +1,44 @@
+{
+    "bug_id": 23,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.sevenz.SevenZFileTest.testCompressedHeaderWithNonDefaultDictionarySize",
+    "test_body": "78: public void testCompressedHeaderWithNonDefaultDictionarySize() throws Exception {\n79: SevenZFile sevenZFile = new SevenZFile(getFile(\"COMPRESS-256.7z\"));\n80: try {",
+    "stack_trace": "org.tukaani.xz.UnsupportedOptionsException: LZMA dictionary is too big for this implementation\nat org.tukaani.xz.LZMAInputStream.initialize(Unknown Source)\nat org.tukaani.xz.LZMAInputStream.<init>(Unknown Source)\nat org.apache.commons.compress.archivers.sevenz.Coders$LZMADecoder.decode(Coders.java:117)\nat org.apache.commons.compress.archivers.sevenz.Coders.addDecoder(Coders.java:48)\nat org.apache.commons.compress.archivers.sevenz.SevenZFile.readEncodedHeader(SevenZFile.java:278)\nat org.apache.commons.compress.archivers.sevenz.SevenZFile.readHeaders(SevenZFile.java:190)\nat org.apache.commons.compress.archivers.sevenz.SevenZFile.<init>(SevenZFile.java:94)\nat org.apache.commons.compress.archivers.sevenz.SevenZFile.<init>(SevenZFile.java:116)\nat org.apache.commons.compress.archivers.sevenz.SevenZFileTest.testCompressedHeaderWithNonDefaultDictionarySize(SevenZFileTest.java:79)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.SevenZFile:<init>(Ljava/io/File;[B)V",
+            "method_body": "public SevenZFile(final File filename, final byte[] password) throws IOException {\nboolean succeeded = false;\nthis.file = new RandomAccessFile(filename, \"r\");\narchive = readHeaders(password);\nif (!succeeded) {\nthis.file.close();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.Coders$LZMADecoder:decode(Ljava/io/InputStream;Lorg/apache/commons/compress/archivers/sevenz/Coder;[B)Ljava/io/InputStream;",
+            "method_body": "InputStream decode(final InputStream in, final Coder coder,\nbyte propsByte = coder.properties[0];\nlong dictSize = coder.properties[1];\nfor (int i = 1; i < 4; i++) {\ndictSize |= (coder.properties[i + 1] << (8 * i));\nif (dictSize > LZMAInputStream.DICT_SIZE_MAX) {\nreturn new LZMAInputStream(in, -1, propsByte, (int) dictSize);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.SevenZMethod:getId()[B",
+            "method_body": "byte[] getId() {\nbyte[] copy = new byte[id.length];\nSystem.arraycopy(id, 0, copy, 0, id.length);\nreturn copy;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.SevenZFile:<init>(Ljava/io/File;)V",
+            "method_body": "public SevenZFile(final File filename) throws IOException {\nthis(filename, null);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.BoundedRandomAccessFileInputStream:<init>(Ljava/io/RandomAccessFile;J)V",
+            "method_body": "public BoundedRandomAccessFileInputStream(final RandomAccessFile file,\nfinal long size) {\nthis.file = file;\nthis.bytesRemaining = size;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.sevenz.Coders:addDecoder(Ljava/io/InputStream;Lorg/apache/commons/compress/archivers/sevenz/Coder;[B)Ljava/io/InputStream;",
+            "method_body": "static InputStream addDecoder(final InputStream is,\nfor (final CoderId coderId : coderTable) {\nif (Arrays.equals(coderId.method.getId(), coder.decompressionMethodId)) {\nreturn coderId.coder.decode(is, coder, password);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.CRC32VerifyingInputStream:<init>(Ljava/io/InputStream;JJ)V",
+            "method_body": "public CRC32VerifyingInputStream(final InputStream in, final long size, final long expectedCrc32) {\nsuper(new CRC32(), in, size, expectedCrc32);\n}",
+            "method_id": 6
+        }
+    ]
+}

@@ -1,0 +1,279 @@
+{
+    "bug_id": 5,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest.testRead7ZipMultiVolumeArchiveForStream",
+    "test_body": "69: public void testRead7ZipMultiVolumeArchiveForStream() throws IOException,\n70: URISyntaxException {\n71: 72: URL zip = getClass().getResource(\"/apache-maven-2.2.1.zip.001\");\n73: FileInputStream archive = new FileInputStream(\n74: new File(new URI(zip.toString())));\n75: ZipArchiveInputStream zi = null;\n76: try {\n77: zi = new ZipArchiveInputStream(archive,null,false);\n78: 79: // these are the entries that are supposed to be processed\n80: // correctly without any problems\n81: for (int i = 0; i < ENTRIES.length; i++) {\n82: assertEquals(ENTRIES[i], zi.getNextEntry().getName());\n83: }\n84: 85: // this is the last entry that is truncated\n86: ArchiveEntry lastEntry = zi.getNextEntry();\n87: assertEquals(LAST_ENTRY_NAME, lastEntry.getName());\n88: byte [] buffer = new byte [4096];\n89: 90: // before the fix, we'd get 0 bytes on this read and all\n91: // subsequent reads thus a client application might enter\n92: // an infinite loop after the fix, we should get an\n93: // exception\n94: try {\n95: int read = 0;\n96: while ((read = zi.read(buffer)) > 0) { }\n97: fail(\"shouldn't be able to read from truncated entry\");\n98: } catch (IOException e) {\n99: assertEquals(\"Truncated ZIP file\", e.getMessage());\n100: }\n101: 102: // and now we get another entry, which should also yield\n103: // an exception\n104: try {\n105: zi.getNextEntry();\n106: fail(\"shouldn't be able to read another entry from truncated\"\n107: + \" file\");\n108: } catch (IOException e) {\n109: // this is to be expected\n110: }\n111: } finally {\n112: if (zi != null) {\n113: zi.close();\n114: }\n115: }\n116: }\n",
+    "stack_trace": "",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;Z)V",
+            "method_body": "public ZipArchiveInputStream(InputStream inputStream,\nboolean useUnicodeExtraFields) {\nzipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nthis.useUnicodeExtraFields = useUnicodeExtraFields;\nin = new PushbackInputStream(inputStream, buf.length);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:getNextZipEntry()Lorg/apache/commons/compress/archivers/zip/ZipArchiveEntry;",
+            "method_body": "public ZipArchiveEntry getNextZipEntry() throws IOException {\nif (closed || hitCentralDirectory) {\nif (current != null) {\ncloseEntry();\nbyte[] lfh = new byte[LFH_LEN];\nreadFully(lfh);\n}\nZipLong sig = new ZipLong(lfh);\nif (sig.equals(ZipLong.CFH_SIG)) {\nif (!sig.equals(ZipLong.LFH_SIG)) {\nint off = WORD;\ncurrent = new ZipArchiveEntry();\nint versionMadeBy = ZipShort.getValue(lfh, off);\noff += SHORT;\ncurrent.setPlatform((versionMadeBy >> ZipFile.BYTE_SHIFT)\nfinal int generalPurposeFlag = ZipShort.getValue(lfh, off);\nfinal boolean hasEFS =\nfinal ZipEncoding entryEncoding =\nhasDataDescriptor = (generalPurposeFlag & 8) != 0;\noff += SHORT;\ncurrent.setMethod(ZipShort.getValue(lfh, off));\noff += SHORT;\nlong time = ZipUtil.dosToJavaTime(ZipLong.getValue(lfh, off));\ncurrent.setTime(time);\noff += WORD;\nif (!hasDataDescriptor) {\ncurrent.setCrc(ZipLong.getValue(lfh, off));\noff += WORD;\ncurrent.setCompressedSize(ZipLong.getValue(lfh, off));\noff += WORD;\ncurrent.setSize(ZipLong.getValue(lfh, off));\noff += WORD;\nint fileNameLen = ZipShort.getValue(lfh, off);\noff += SHORT;\nint extraLen = ZipShort.getValue(lfh, off);\noff += SHORT;\nbyte[] fileName = new byte[fileNameLen];\nreadFully(fileName);\ncurrent.setName(entryEncoding.decode(fileName));\nbyte[] extraData = new byte[extraLen];\nreadFully(extraData);\ncurrent.setExtra(extraData);\nif (!hasEFS && useUnicodeExtraFields) {\nreturn current;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:getNextEntry()Lorg/apache/commons/compress/archivers/ArchiveEntry;",
+            "method_body": "public ArchiveEntry getNextEntry() throws IOException {\nreturn getNextZipEntry();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:read([BII)I",
+            "method_body": "public int read(byte[] buffer, int start, int length) throws IOException {\nif (closed) {\nif (inf.finished() || current == null) {\nreturn -1;\nif (start <= buffer.length && length >= 0 && start >= 0\nif (current.getMethod() == ZipArchiveOutputStream.STORED) {\nint csize = (int) current.getSize();\nif (readBytesOfEntry >= csize) {\nreturn -1;\nif (inf.needsInput()) {\nfill();\nif (lengthOfLastRead > 0) {\nbytesReadFromStream += lengthOfLastRead;\nint read = 0;\nread = inf.inflate(buffer, start, length);\n}\nif (read == 0 && inf.finished()) {\ncrc.update(buffer, start, read);\nreturn read;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (!closed) {\nclosed = true;\nin.close();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:skip(J)J",
+            "method_body": "public long skip(long value) throws IOException {\nif (value >= 0) {\nlong skipped = 0;\nbyte[] b = new byte[1024];\nwhile (skipped != value) {\nlong rem = value - skipped;\nint x = read(b, 0, (int) (b.length > rem ? rem : b.length));\nif (x == -1) {\nreturn skipped;\nskipped += x;\n}\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:closeEntry()V",
+            "method_body": "private void closeEntry() throws IOException {\nif (closed) {\nif (current == null) {\nskip(Long.MAX_VALUE);\nif (current.getMethod() == ZipArchiveOutputStream.DEFLATED) {\ninB = inf.getTotalIn();\ninB = readBytesOfEntry;\nint diff = 0;\nif ((diff = bytesReadFromStream - inB) != 0) {\n((PushbackInputStream) in).unread(buf,\nif (hasDataDescriptor) {\ninf.reset();\nreadBytesOfEntry = offsetInBuffer = bytesReadFromStream =\ncrc.reset();\ncurrent = null;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:fill()V",
+            "method_body": "private void fill() throws IOException {\nif (closed) {\nif ((lengthOfLastRead = in.read(buf)) > 0) {\ninf.setInput(buf, 0, lengthOfLastRead);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:readFully([B)V",
+            "method_body": "private void readFully(byte[] b) throws IOException {\nint count = 0, x = 0;\nwhile (count != b.length) {\ncount += x = in.read(b, count, b.length - count);\nif (x == -1) {\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>(J)V",
+            "method_body": "public ZipLong(long value) {\nthis.value = value;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>([B)V",
+            "method_body": "public ZipLong (byte[] bytes) {\nthis(bytes, 0);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>([BI)V",
+            "method_body": "public ZipLong (byte[] bytes, int offset) {\nvalue = ZipLong.getValue(bytes, offset);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<clinit>()V",
+            "method_body": "private static final int WORD = 4;\npublic static final ZipLong CFH_SIG = new ZipLong(0X02014B50L);\npublic static final ZipLong LFH_SIG = new ZipLong(0X04034B50L);\npublic ZipLong(long value) {\nthis.value = value;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getValue()J",
+            "method_body": "public long getValue() {\nreturn value;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes(J)[B",
+            "method_body": "public static byte[] getBytes(long value) {\nbyte[] result = new byte[WORD];\nresult[0] = (byte) ((value & BYTE_MASK));\nresult[BYTE_1] = (byte) ((value & BYTE_1_MASK) >> BYTE_1_SHIFT);\nresult[BYTE_2] = (byte) ((value & BYTE_2_MASK) >> BYTE_2_SHIFT);\nresult[BYTE_3] = (byte) ((value & BYTE_3_MASK) >> BYTE_3_SHIFT);\nreturn result;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getValue([BI)J",
+            "method_body": "public static long getValue(byte[] bytes, int offset) {\nlong value = (bytes[offset + BYTE_3] << BYTE_3_SHIFT) & BYTE_3_MASK;\nvalue += (bytes[offset + BYTE_2] << BYTE_2_SHIFT) & BYTE_2_MASK;\nvalue += (bytes[offset + BYTE_1] << BYTE_1_SHIFT) & BYTE_1_MASK;\nvalue += (bytes[offset] & BYTE_MASK);\nreturn value;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object o) {\nif (o == null || !(o instanceof ZipLong)) {\nreturn value == ((ZipLong) o).getValue();\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:<clinit>()V",
+            "method_body": "private static final Map simpleEncodings;\nsimpleEncodings = new HashMap();\nchar[] cp437_high_chars =\nSimpleEncodingHolder cp437 = new SimpleEncodingHolder(cp437_high_chars);\nsimpleEncodings.put(\"CP437\",cp437);\nsimpleEncodings.put(\"Cp437\",cp437);\nsimpleEncodings.put(\"cp437\",cp437);\nsimpleEncodings.put(\"IBM437\",cp437);\nsimpleEncodings.put(\"ibm437\",cp437);\nchar[] cp850_high_chars =\nSimpleEncodingHolder cp850 = new SimpleEncodingHolder(cp850_high_chars);\nsimpleEncodings.put(\"CP850\",cp850);\nsimpleEncodings.put(\"Cp850\",cp850);\nsimpleEncodings.put(\"cp850\",cp850);\nsimpleEncodings.put(\"IBM850\",cp850);\nsimpleEncodings.put(\"ibm850\",cp850);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:getZipEncoding(Ljava/lang/String;)Lorg/apache/commons/compress/archivers/zip/ZipEncoding;",
+            "method_body": "static ZipEncoding getZipEncoding(String name) {\nif (isUTF8(name)) {\nreturn UTF8_ZIP_ENCODING;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:isUTF8(Ljava/lang/String;)Z",
+            "method_body": "static boolean isUTF8(String encoding) {\nif (encoding == null) {\nencoding = System.getProperty(\"file.encoding\");\nreturn UTF8.equalsIgnoreCase(encoding)\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper$SimpleEncodingHolder:<init>([C)V",
+            "method_body": "SimpleEncodingHolder(char [] highChars) {\nthis.highChars = highChars;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.FallbackZipEncoding:<init>(Ljava/lang/String;)V",
+            "method_body": "public FallbackZipEncoding(String charset) {\nthis.charset = charset;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.FallbackZipEncoding:decode([B)Ljava/lang/String;",
+            "method_body": "public String decode(byte[] data) throws IOException {\nif (this.charset == null) { // i.e. use default charset, see no-args constructor\nreturn new String(data,this.charset);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<init>()V",
+            "method_body": "protected ZipArchiveEntry() {\nsuper(\"\");\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setPlatform(I)V",
+            "method_body": "protected void setPlatform(int platform) {\nthis.platform = platform;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setExtraFields([Lorg/apache/commons/compress/archivers/zip/ZipExtraField;)V",
+            "method_body": "public void setExtraFields(ZipExtraField[] fields) {\nextraFields = new LinkedHashMap();\nfor (int i = 0; i < fields.length; i++) {\nsetExtra();\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getExtraFields()[Lorg/apache/commons/compress/archivers/zip/ZipExtraField;",
+            "method_body": "public ZipExtraField[] getExtraFields() {\nif (extraFields == null) {\nZipExtraField[] result = new ZipExtraField[extraFields.size()];\nreturn (ZipExtraField[]) extraFields.values().toArray(result);\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setExtra([B)V",
+            "method_body": "public void setExtra(byte[] extra) throws RuntimeException {\nZipExtraField[] local = ExtraFieldUtils.parse(extra, true);\nmergeExtraFields(local, true);\n}\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setExtra()V",
+            "method_body": "protected void setExtra() {\nsuper.setExtra(ExtraFieldUtils.mergeLocalFileDataData(getExtraFields()));\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getName()Ljava/lang/String;",
+            "method_body": "public String getName() {\nreturn name == null ? super.getName() : name;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setName(Ljava/lang/String;)V",
+            "method_body": "protected void setName(String name) {\nthis.name = name;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:mergeExtraFields([Lorg/apache/commons/compress/archivers/zip/ZipExtraField;Z)V",
+            "method_body": "private void mergeExtraFields(ZipExtraField[] f, boolean local)\nif (extraFields == null) {\nsetExtraFields(f);\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.JarMarker:<init>()V",
+            "method_body": "public JarMarker() {\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.JarMarker:<clinit>()V",
+            "method_body": "private static final ZipShort ID = new ZipShort(0xCAFE);\nprivate static final ZipShort NULL = new ZipShort(0);\nprivate static final byte[] NO_BYTES = new byte[0];\nprivate static final JarMarker DEFAULT = new JarMarker();\npublic JarMarker() {\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.JarMarker:getHeaderId()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getHeaderId() {\nreturn ID;\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipShort:<init>(I)V",
+            "method_body": "public ZipShort (int value) {\nthis.value = value;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipShort:getValue([BI)I",
+            "method_body": "public static int getValue(byte[] bytes, int offset) {\nint value = (bytes[offset + 1] << BYTE_1_SHIFT) & BYTE_1_MASK;\nvalue += (bytes[offset] & BYTE_MASK);\nreturn value;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipShort:hashCode()I",
+            "method_body": "public int hashCode() {\nreturn value;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ExtraFieldUtils:<clinit>()V",
+            "method_body": "private static final int WORD = 4;\nimplementations = new HashMap();\nregister(AsiExtraField.class);\nregister(JarMarker.class);\nregister(UnicodePathExtraField.class);\nregister(UnicodeCommentExtraField.class);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ExtraFieldUtils:register(Ljava/lang/Class;)V",
+            "method_body": "public static void register(Class c) {\nZipExtraField ze = (ZipExtraField) c.newInstance();\nimplementations.put(ze.getHeaderId(), c);\n}\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ExtraFieldUtils:parse([BZ)[Lorg/apache/commons/compress/archivers/zip/ZipExtraField;",
+            "method_body": "public static ZipExtraField[] parse(byte[] data, boolean local)\nList v = new ArrayList();\nint start = 0;\nwhile (start <= data.length - WORD) {\nZipExtraField[] result = new ZipExtraField[v.size()];\nreturn (ZipExtraField[]) v.toArray(result);\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ExtraFieldUtils:mergeLocalFileDataData([Lorg/apache/commons/compress/archivers/zip/ZipExtraField;)[B",
+            "method_body": "public static byte[] mergeLocalFileDataData(ZipExtraField[] data) {\nint sum = WORD * data.length;\nfor (int i = 0; i < data.length; i++) {\nbyte[] result = new byte[sum];\nint start = 0;\nfor (int i = 0; i < data.length; i++) {\nreturn result;\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.AsiExtraField:<init>()V",
+            "method_body": "private static final ZipShort HEADER_ID = new ZipShort(0x756E);\nprivate int mode = 0;\nprivate int uid = 0;\nprivate int gid = 0;\nprivate String link = \"\";\nprivate boolean dirFlag = false;\nprivate CRC32 crc = new CRC32();\npublic AsiExtraField() {\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.AsiExtraField:<clinit>()V",
+            "method_body": "private static final ZipShort HEADER_ID = new ZipShort(0x756E);\nprivate int mode = 0;\nprivate int uid = 0;\nprivate int gid = 0;\nprivate String link = \"\";\nprivate boolean dirFlag = false;\nprivate CRC32 crc = new CRC32();\npublic AsiExtraField() {\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.AsiExtraField:getHeaderId()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getHeaderId() {\nreturn HEADER_ID;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.AbstractUnicodeExtraField:<init>()V",
+            "method_body": "protected AbstractUnicodeExtraField() {\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodePathExtraField:<init>()V",
+            "method_body": "public UnicodePathExtraField () {\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodePathExtraField:<clinit>()V",
+            "method_body": "public static final ZipShort UPATH_ID = new ZipShort(0x7075);\npublic UnicodePathExtraField () {\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodePathExtraField:getHeaderId()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getHeaderId() {\nreturn UPATH_ID;\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodeCommentExtraField:<init>()V",
+            "method_body": "public UnicodeCommentExtraField () {\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodeCommentExtraField:<clinit>()V",
+            "method_body": "public static final ZipShort UCOM_ID = new ZipShort(0x6375);\npublic UnicodeCommentExtraField () {\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.UnicodeCommentExtraField:getHeaderId()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getHeaderId() {\nreturn UCOM_ID;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:<clinit>()V",
+            "method_body": "private static final byte[] DOS_TIME_MIN = ZipLong.getBytes(0x00002100L);\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:dosToJavaTime(J)J",
+            "method_body": "public static long dosToJavaTime(long dosTime) {\nCalendar cal = Calendar.getInstance();\ncal.set(Calendar.YEAR, (int) ((dosTime >> 25) & 0x7f) + 1980);\ncal.set(Calendar.MONTH, (int) ((dosTime >> 21) & 0x0f) - 1);\ncal.set(Calendar.DATE, (int) (dosTime >> 16) & 0x1f);\ncal.set(Calendar.HOUR_OF_DAY, (int) (dosTime >> 11) & 0x1f);\ncal.set(Calendar.MINUTE, (int) (dosTime >> 5) & 0x3f);\ncal.set(Calendar.SECOND, (int) (dosTime << 1) & 0x3e);\nreturn cal.getTime().getTime();\n}",
+            "method_id": 53
+        }
+    ]
+}

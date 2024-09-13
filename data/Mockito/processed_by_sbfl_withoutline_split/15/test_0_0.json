@@ -1,0 +1,259 @@
+{
+    "bug_id": 15,
+    "test_id": 0,
+    "test_name": "org.mockitousage.bugs.InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest.shouldInjectUsingPropertySetterIfAvailable",
+    "test_body": "public void shouldInjectUsingPropertySetterIfAvailable() {\nassertTrue(awaitingInjection.propertySetterUsed);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError\nat org.junit.Assert.fail(Assert.java:86)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.junit.Assert.assertTrue(Assert.java:52)\nat org.mockitousage.bugs.InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest.shouldInjectUsingPropertySetterIfAvailable(InjectMocksShouldTryPropertySettersFirstBeforeFieldAccessTest.java:25)",
+    "covered_methods": [
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.FinalMockCandidateFilter$2:thenInject()Z",
+            "method_body": "public OngoingInjecter filterCandidate(final Collection<Object> mocks, final Field field, final Object fieldInstance) {\nif(mocks.size() == 1) {\nfinal Object matchingMock = mocks.iterator().next();\nreturn new OngoingInjecter() {\nnew FieldSetter(fieldInstance, field).set(matchingMock);\n}\nreturn true;\nreturn new OngoingInjecter() {\nreturn false;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.InjectingAnnotationEngine:injectMocks(Ljava/lang/Object;)V",
+            "method_body": "public void injectMocks(Object testClass) {\nClass<?> clazz = testClass.getClass();\nSet<Field> mockDependents = new HashSet<Field>();\nSet<Object> mocks = new HashSet<Object>();\nwhile (clazz != Object.class) {\nmockDependents.addAll(scanForInjection(testClass, clazz));\nmocks.addAll(scanMocks(testClass, clazz));\nclazz = clazz.getSuperclass();\nnew DefaultInjectionEngine().injectMocksOnFields(mockDependents, mocks, testClass);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.InjectingAnnotationEngine:scanForInjection(Ljava/lang/Object;Ljava/lang/Class;)Ljava/util/Set;",
+            "method_body": "private static Set<Field> scanForInjection(Object testClass, Class<?> clazz) {\nSet<Field> testedFields = new HashSet<Field>();\nField[] fields = clazz.getDeclaredFields();\nfor (Field field : fields) {\nif (null != field.getAnnotation(InjectMocks.class)) {\ntestedFields.add(field);\nreturn testedFields;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.InjectingAnnotationEngine:scanMocks(Ljava/lang/Object;Ljava/lang/Class;)Ljava/util/Set;",
+            "method_body": "private static Set<Object> scanMocks(Object testClass, Class<?> clazz) {\nSet<Object> mocks = new HashSet<Object>();\nfor (Field field : clazz.getDeclaredFields()) {\nif (null != field.getAnnotation(Spy.class) || null != field.getAnnotation(org.mockito.Mock.class)\nObject fieldInstance = null;\nboolean wasAccessible = field.isAccessible();\nfield.setAccessible(true);\nfieldInstance = field.get(testClass);\nfield.setAccessible(wasAccessible);\n}\nif (fieldInstance != null) {\nmocks.add(fieldInstance);\nreturn mocks;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultInjectionEngine:injectMocksOnFields(Ljava/util/Set;Ljava/util/Set;Ljava/lang/Object;)V",
+            "method_body": "public void injectMocksOnFields(Set<Field> testClassFields, Set<Object> mocks, Object testClass) {\nfor (Field field : testClassFields) {\nObject fieldInstance = null;\nfieldInstance = new FieldInitializer(testClass, field).initialize();\n}\nClass<?> fieldClass = fieldInstance.getClass();\nwhile (fieldClass != Object.class) {\ninjectMockCandidate(fieldClass, mocks, fieldInstance);\nfieldClass = fieldClass.getSuperclass();\n}\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultInjectionEngine:injectMockCandidate(Ljava/lang/Class;Ljava/util/Set;Ljava/lang/Object;)V",
+            "method_body": "private void injectMockCandidate(Class<?> awaitingInjectionClazz, Set<Object> mocks, Object fieldInstance) {\nfor(Field field : awaitingInjectionClazz.getDeclaredFields()) {\nmockCandidateFilter.filterCandidate(mocks, field, fieldInstance).thenInject();\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.TypeBasedCandidateFilter:<init>(Lorg/mockito/internal/configuration/injection/MockCandidateFilter;)V",
+            "method_body": "public TypeBasedCandidateFilter(MockCandidateFilter next) {\nthis.next = next;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.TypeBasedCandidateFilter:filterCandidate(Ljava/util/Collection;Ljava/lang/reflect/Field;Ljava/lang/Object;)Lorg/mockito/internal/configuration/injection/OngoingInjecter;",
+            "method_body": "public OngoingInjecter filterCandidate(Collection<Object> mocks, Field field, Object fieldInstance) {\nList<Object> mockTypeMatches = new ArrayList<Object>();\nfor (Object mock : mocks) {\nif (field.getType().isAssignableFrom(mock.getClass())) {\nmockTypeMatches.add(mock);\n}\nreturn next.filterCandidate(mockTypeMatches, field, fieldInstance);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.NameBasedCandidateFilter:<init>(Lorg/mockito/internal/configuration/injection/MockCandidateFilter;)V",
+            "method_body": "public NameBasedCandidateFilter(MockCandidateFilter next) {\nthis.next = next;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.NameBasedCandidateFilter:filterCandidate(Ljava/util/Collection;Ljava/lang/reflect/Field;Ljava/lang/Object;)Lorg/mockito/internal/configuration/injection/OngoingInjecter;",
+            "method_body": "public OngoingInjecter filterCandidate(Collection<Object> mocks, Field field, Object fieldInstance) {\nList<Object> mockNameMatches = new ArrayList<Object>();\nif(mocks.size() > 1) {\nfor (Object mock : mocks) {\nif (field.getName().equals(mockUtil.getMockName(mock).toString())) {\nmockNameMatches.add(mock);\n}\nreturn next.filterCandidate(mockNameMatches, field, fieldInstance);\nreturn next.filterCandidate(mocks, field, fieldInstance);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.FinalMockCandidateFilter:filterCandidate(Ljava/util/Collection;Ljava/lang/reflect/Field;Ljava/lang/Object;)Lorg/mockito/internal/configuration/injection/OngoingInjecter;",
+            "method_body": "public OngoingInjecter filterCandidate(final Collection<Object> mocks, final Field field, final Object fieldInstance) {\nif(mocks.size() == 1) {\nfinal Object matchingMock = mocks.iterator().next();\nreturn new OngoingInjecter() {\nnew FieldSetter(fieldInstance, field).set(matchingMock);\n}\nreturn true;\nreturn new OngoingInjecter() {\nreturn false;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.injection.FinalMockCandidateFilter$1:thenInject()Z",
+            "method_body": "public OngoingInjecter filterCandidate(final Collection<Object> mocks, final Field field, final Object fieldInstance) {\nif(mocks.size() == 1) {\nfinal Object matchingMock = mocks.iterator().next();\nreturn new OngoingInjecter() {\nnew FieldSetter(fieldInstance, field).set(matchingMock);\n}\nreturn true;\nreturn new OngoingInjecter() {\nreturn false;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.InjectingAnnotationEngine:assertNoAnnotations(Ljava/lang/reflect/Field;[Ljava/lang/Class;)V",
+            "method_body": "void assertNoAnnotations(Field field, Class ... annotations) {\nfor (Class annotation : annotations) {\nif (field.isAnnotationPresent(annotation)) {\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.JUnit45AndHigherRunnerImpl:filter(Lorg/junit/runner/manipulation/Filter;)V",
+            "method_body": "public void filter(Filter filter) throws NoTestsRemainException {\nrunner.filter(filter);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.mockito.runners.MockitoJUnitRunner:filter(Lorg/junit/runner/manipulation/Filter;)V",
+            "method_body": "public void filter(Filter filter) throws NoTestsRemainException {\nrunner.filter(filter);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.util.FrameworkUsageValidator:testFinished(Lorg/junit/runner/Description;)V",
+            "method_body": "public void testFinished(Description description) throws Exception {\nsuper.testFinished(description);\nMockito.validateMockitoUsage();\n}\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:initializeField(Ljava/lang/Object;Ljava/lang/reflect/Field;)V",
+            "method_body": "private void initializeField(Object testClass, Field field) {\nfinal AccessibilityChanger changer = new AccessibilityChanger();\nConstructor<?> constructor = null;\nconstructor = field.getType().getDeclaredConstructor();\nchanger.enableAccess(constructor);\nfinal Object[] noArg = new Object[0];\nObject newFieldInstance = constructor.newInstance(noArg);\nnew FieldSetter(testClass, field).set(newFieldInstance);\nif(constructor != null) {\nchanger.safelyDisableAccess(constructor);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.mockito.runners.MockitoJUnitRunner:<init>(Ljava/lang/Class;)V",
+            "method_body": "public MockitoJUnitRunner(Class<?> klass) throws InvocationTargetException {\nrunner = new RunnerFactory().create(klass);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.mockito.runners.MockitoJUnitRunner:run(Lorg/junit/runner/notification/RunNotifier;)V",
+            "method_body": "public void run(final RunNotifier notifier) {\nrunner.run(notifier);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.mockito.internal.MockitoCore:validateMockitoUsage()V",
+            "method_body": "public void validateMockitoUsage() {\nmockingProgress.validateState();\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.mockito.Mockito:validateMockitoUsage()V",
+            "method_body": "public static void validateMockitoUsage() {\nMOCKITO_CORE.validateMockitoUsage();\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:checkNotAbstract(Ljava/lang/reflect/Field;)V",
+            "method_body": "private void checkNotAbstract(Field field) {\nif(Modifier.isAbstract(field.getType().getModifiers())) {\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.JUnit45AndHigherRunnerImpl:run(Lorg/junit/runner/notification/RunNotifier;)V",
+            "method_body": "public void run(final RunNotifier notifier) {\nnotifier.addListener(new FrameworkUsageValidator(notifier));\nrunner.run(notifier);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.JUnit45AndHigherRunnerImpl$1:withBefores(Lorg/junit/runners/model/FrameworkMethod;Ljava/lang/Object;Lorg/junit/runners/model/Statement;)Lorg/junit/runners/model/Statement;",
+            "method_body": "protected Statement withBefores(FrameworkMethod method, Object target,\nMockitoAnnotations.initMocks(target);\nreturn super.withBefores(method, target, statement);\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.RunnerFactory:<init>()V",
+            "method_body": "public RunnerFactory() {\nthis(new RunnerProvider());\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.util.FrameworkUsageValidator:<init>(Lorg/junit/runner/notification/RunNotifier;)V",
+            "method_body": "public FrameworkUsageValidator(RunNotifier notifier) {\nthis.notifier = notifier;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:checkNotInterface(Ljava/lang/reflect/Field;)V",
+            "method_body": "private void checkNotInterface(Field field) {\nif(field.getType().isInterface()) {\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.util.RunnerProvider:newInstance(Ljava/lang/String;Ljava/lang/Class;)Lorg/mockito/internal/runners/RunnerImpl;",
+            "method_body": "public RunnerImpl newInstance(String runnerClassName, Class<?> constructorParam) throws Exception {\nClass<?> runnerClass = Class.forName(runnerClassName);\nconstructor = runnerClass.getConstructor(Class.class.getClass());\n}\nreturn (RunnerImpl) constructor.newInstance(constructorParam);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.JUnit45AndHigherRunnerImpl:<init>(Ljava/lang/Class;)V",
+            "method_body": "public JUnit45AndHigherRunnerImpl(Class<?> klass) throws InitializationError {\nrunner = new BlockJUnit4ClassRunner(klass) {\nMockitoAnnotations.initMocks(target);\nreturn super.withBefores(method, target, statement);\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:checkNotInner(Ljava/lang/reflect/Field;)V",
+            "method_body": "private void checkNotInner(Field field) {\nif(field.getType().isMemberClass() && !Modifier.isStatic(field.getType().getModifiers())) {\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.util.RunnerProvider:isJUnit45OrHigherAvailable()Z",
+            "method_body": "public boolean isJUnit45OrHigherAvailable() {\nreturn hasJUnit45OrHigher;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.RunnerFactory:<init>(Lorg/mockito/internal/runners/util/RunnerProvider;)V",
+            "method_body": "RunnerFactory(RunnerProvider runnerProvider) {\nthis.runnerProvider = runnerProvider;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.mockito.internal.runners.RunnerFactory:create(Ljava/lang/Class;)Lorg/mockito/internal/runners/RunnerImpl;",
+            "method_body": "public RunnerImpl create(Class<?> klass) throws InvocationTargetException {\nif (runnerProvider.isJUnit45OrHigherAvailable()) {\nreturn runnerProvider.newInstance(\"org.mockito.internal.runners.JUnit45AndHigherRunnerImpl\", klass);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.mockito.internal.creation.MethodInterceptorFilter:hashCodeForMock(Ljava/lang/Object;)I",
+            "method_body": "private int hashCodeForMock(Object mock) {\nreturn System.identityHashCode(mock);\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:checkNotLocal(Ljava/lang/reflect/Field;)V",
+            "method_body": "private void checkNotLocal(Field field) {\nif(field.getType().isLocalClass()) {\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:initialize()Ljava/lang/Object;",
+            "method_body": "public Object initialize() {\nfinal AccessibilityChanger changer = new AccessibilityChanger();\nchanger.enableAccess(field);\nreturn acquireFieldInstance(testClass, field);\nchanger.safelyDisableAccess(field);\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:acquireFieldInstance(Ljava/lang/Object;Ljava/lang/reflect/Field;)Ljava/lang/Object;",
+            "method_body": "private Object acquireFieldInstance(Object testClass, Field field) throws IllegalAccessException {\nObject fieldInstance = field.get(testClass);\nif(fieldInstance != null) {\ninitializeField(testClass, field);\nreturn field.get(testClass);\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldInitializer:<init>(Ljava/lang/Object;Ljava/lang/reflect/Field;)V",
+            "method_body": "public FieldInitializer(Object testClass, Field field) {\nif(new FieldReader(testClass, field).isNull()) {\ncheckNotLocal(field);\ncheckNotInner(field);\ncheckNotInterface(field);\ncheckNotAbstract(field);\nthis.testClass = testClass;\nthis.field = field;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldReader:<init>(Ljava/lang/Object;Ljava/lang/reflect/Field;)V",
+            "method_body": "public FieldReader(Object target, Field field) {\nthis.target = target;\nthis.field = field;\nchanger.enableAccess(field);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.mockito.internal.util.reflection.FieldReader:isNull()Z",
+            "method_body": "public boolean isNull() {\nreturn field.get(target) == null;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.mockito.internal.util.MockName:toString()Ljava/lang/String;",
+            "method_body": "public String toString() {\nreturn mockName;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.mockito.internal.util.MockUtil:getMockName(Ljava/lang/Object;)Lorg/mockito/internal/util/MockName;",
+            "method_body": "public MockName getMockName(Object mock) {\nreturn getMockHandler(mock).getMockSettings().getMockName();\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.mockito.internal.creation.MockSettingsImpl:getMockName()Lorg/mockito/internal/util/MockName;",
+            "method_body": "public MockName getMockName() {\nreturn mockName;\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.mockito.internal.MockHandler:getMockSettings()Lorg/mockito/internal/creation/MockSettingsImpl;",
+            "method_body": "public MockSettingsImpl getMockSettings() {\nreturn mockSettings;\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.mockito.internal.creation.MethodInterceptorFilter:getHandler()Lorg/mockito/internal/MockitoInvocationHandler;",
+            "method_body": "public MockitoInvocationHandler getHandler() {\nreturn handler;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.mockito.internal.util.MockUtil:getMockHandler(Ljava/lang/Object;)Lorg/mockito/internal/MockHandlerInterface;",
+            "method_body": "public <T> MockHandlerInterface<T> getMockHandler(T mock) {\nif (mock == null) {\nif (isMockitoMock(mock)) {\nreturn (MockHandlerInterface) getInterceptor(mock).getHandler();\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultAnnotationEngine:processAnnotationOn(Lorg/mockito/Mock;Ljava/lang/reflect/Field;)Ljava/lang/Object;",
+            "method_body": "private Object processAnnotationOn(Mock annotation, Field field) {\nMockSettings mockSettings = Mockito.withSettings();\nif (annotation.extraInterfaces().length > 0) { // never null\nif (\"\".equals(annotation.name())) {\nmockSettings.name(field.getName());\nmockSettings.defaultAnswer(annotation.answer().get());\nreturn Mockito.mock(field.getType(), mockSettings);\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultAnnotationEngine:throwIfAlreadyAssigned(Ljava/lang/reflect/Field;Z)V",
+            "method_body": "void throwIfAlreadyAssigned(Field field, boolean alreadyAssigned) {\nif (alreadyAssigned) {\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.mockito.MockitoAnnotations:throwIfAlreadyAssigned(Ljava/lang/reflect/Field;Z)V",
+            "method_body": "static void throwIfAlreadyAssigned(Field field, boolean alreadyAssigned) {\nif (alreadyAssigned) {\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.InjectingAnnotationEngine:createMockFor(Ljava/lang/annotation/Annotation;Ljava/lang/reflect/Field;)Ljava/lang/Object;",
+            "method_body": "public Object createMockFor(Annotation annotation, Field field) {\nreturn delegate.createMockFor(annotation, field);\n}",
+            "method_id": 49
+        }
+    ]
+}

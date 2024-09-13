@@ -1,0 +1,39 @@
+{
+    "bug_id": 73,
+    "test_id": 0,
+    "test_name": "org.jsoup.helper.W3CDomTest.namespacePreservation",
+    "test_body": "public void namespacePreservation() throws IOException {\nFile in = ParseTest.getFile(\"/htmltests/namespaces.xhtml\");\norg.jsoup.nodes.Document jsoupDoc;\njsoupDoc = Jsoup.parse(in, \"UTF-8\");\n71: Document doc;\norg.jsoup.helper.W3CDom jDom = new org.jsoup.helper.W3CDom();\ndoc = jDom.fromJsoup(jsoupDoc);\n75: Node htmlEl = doc.getChildNodes().item(0);\nassertEquals(\"http://www.w3.org/1999/xhtml\", htmlEl.getNamespaceURI());\nassertEquals(\"html\", htmlEl.getLocalName());\nassertEquals(\"html\", htmlEl.getNodeName());\n80: // inherits default namespace\nNode head = htmlEl.getFirstChild();\nassertEquals(\"http://www.w3.org/1999/xhtml\", head.getNamespaceURI());\nassertEquals(\"head\", head.getLocalName());\nassertEquals(\"head\", head.getNodeName());\n86: Node epubTitle = htmlEl.getChildNodes().item(2).getChildNodes().item(3);\nassertEquals(\"Check\", epubTitle.getTextContent());\nassertEquals(\"http://www.idpf.org/2007/ops\", epubTitle.getNamespaceURI());\nassertEquals(\"title\", epubTitle.getLocalName());\nassertEquals(\"epub:title\", epubTitle.getNodeName());\n92: Node xSection = epubTitle.getNextSibling().getNextSibling();\nassertEquals(\"urn:test\", xSection.getNamespaceURI());\nassertEquals(\"section\", xSection.getLocalName());\nassertEquals(\"x:section\", xSection.getNodeName());\n97: // https://github.com/jhy/jsoup/issues/977\n// does not keep last set namespace\nNode svg = xSection.getNextSibling().getNextSibling();\nassertEquals(\"http://www.w3.org/2000/svg\", svg.getNamespaceURI());\nassertEquals(\"svg\", svg.getLocalName());\nassertEquals(\"svg\", svg.getNodeName());\n104: Node path = svg.getChildNodes().item(1);\nassertEquals(\"http://www.w3.org/2000/svg\", path.getNamespaceURI());\nassertEquals(\"path\", path.getLocalName());\nassertEquals(\"path\", path.getNodeName());\n109: Node clip = path.getChildNodes().item(1);\nassertEquals(\"http://example.com/clip\", clip.getNamespaceURI());\nassertEquals(\"clip\", clip.getLocalName());\nassertEquals(\"clip\", clip.getNodeName());\nassertEquals(\"456\", clip.getTextContent());\n115: Node picture = svg.getNextSibling().getNextSibling();\nassertEquals(\"http://www.w3.org/1999/xhtml\", picture.getNamespaceURI());\nassertEquals(\"picture\", picture.getLocalName());",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<http://[www.w3.org/1999/xhtml]> but was:<http://[example.com/clip]>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.helper.W3CDomTest.namespacePreservation(W3CDomTest.java:116)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.helper.W3CDom:convert(Lorg/jsoup/nodes/Document;Lorg/w3c/dom/Document;)V",
+            "method_body": "public void convert(org.jsoup.nodes.Document in, Document out) {\nif (!StringUtil.isBlank(in.location()))\nout.setDocumentURI(in.location());\norg.jsoup.nodes.Element rootEl = in.child(0); // skip the #root node\nNodeTraversor.traverse(new W3CBuilder(out), rootEl);\n}",
+            "method_id": 250
+        },
+        {
+            "method_signature": "org.jsoup.helper.W3CDom$W3CBuilder:<init>(Lorg/w3c/dom/Document;)V",
+            "method_body": "private static final String xmlnsKey = \"xmlns\";\nprivate final HashMap<String, String> namespaces = new HashMap<>();\npublic W3CBuilder(Document doc) {\nthis.doc = doc;\n}",
+            "method_id": 251
+        },
+        {
+            "method_signature": "org.jsoup.helper.W3CDom$W3CBuilder:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void head(org.jsoup.nodes.Node source, int depth) {\nif (source instanceof org.jsoup.nodes.Element) {\norg.jsoup.nodes.Element sourceEl = (org.jsoup.nodes.Element) source;\nString prefix = updateNamespaces(sourceEl);\nString namespace = namespaces.get(prefix);\nElement el = doc.createElementNS(namespace, sourceEl.tagName());\ncopyAttributes(sourceEl, el);\nif (dest == null) { // sets up the root\ndoc.appendChild(el);\ndest.appendChild(el);\ndest = el; // descend\n} else if (source instanceof org.jsoup.nodes.TextNode) {\norg.jsoup.nodes.TextNode sourceText = (org.jsoup.nodes.TextNode) source;\nText text = doc.createTextNode(sourceText.getWholeText());\ndest.appendChild(text);\n} else if (source instanceof org.jsoup.nodes.Comment) {\n} else if (source instanceof org.jsoup.nodes.DataNode) {\norg.jsoup.nodes.DataNode sourceData = (org.jsoup.nodes.DataNode) source;\nText node = doc.createTextNode(sourceData.getWholeData());\ndest.appendChild(node);\n}",
+            "method_id": 252
+        },
+        {
+            "method_signature": "org.jsoup.helper.W3CDom$W3CBuilder:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void tail(org.jsoup.nodes.Node source, int depth) {\nif (source instanceof org.jsoup.nodes.Element && dest.getParentNode() instanceof Element) {\ndest = (Element) dest.getParentNode(); // undescend. cromulent.\n}",
+            "method_id": 253
+        },
+        {
+            "method_signature": "org.jsoup.helper.W3CDom$W3CBuilder:copyAttributes(Lorg/jsoup/nodes/Node;Lorg/w3c/dom/Element;)V",
+            "method_body": "private void copyAttributes(org.jsoup.nodes.Node source, Element el) {\nfor (Attribute attribute : source.attributes()) {\nString key = attribute.getKey().replaceAll(\"[^-a-zA-Z0-9_:.]\", \"\");\nif (key.matches(\"[a-zA-Z_:][-a-zA-Z0-9_:.]*\"))\nel.setAttribute(key, attribute.getValue());\n}\n}",
+            "method_id": 254
+        },
+        {
+            "method_signature": "org.jsoup.helper.W3CDom$W3CBuilder:updateNamespaces(Lorg/jsoup/nodes/Element;)Ljava/lang/String;",
+            "method_body": "private String updateNamespaces(org.jsoup.nodes.Element el) {\nAttributes attributes = el.attributes();\nfor (Attribute attr : attributes) {\nString key = attr.getKey();\nif (key.equals(xmlnsKey)) {\nprefix = \"\";\n} else if (key.startsWith(xmlnsPrefix)) {\nprefix = key.substring(xmlnsPrefix.length());\nnamespaces.put(prefix, attr.getValue());\n}\nint pos = el.tagName().indexOf(\":\");\nreturn pos > 0 ? el.tagName().substring(0, pos) : \"\";\n}",
+            "method_id": 255
+        }
+    ]
+}

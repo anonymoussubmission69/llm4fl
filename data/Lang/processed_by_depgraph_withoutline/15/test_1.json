@@ -1,0 +1,74 @@
+{
+    "bug_id": 15,
+    "test_id": 1,
+    "test_name": "org.apache.commons.lang3.reflect.TypeUtilsTest.testGetTypeArguments",
+    "test_body": "472: public void testGetTypeArguments() {\n473: Map<TypeVariable<?>, Type> typeVarAssigns;\n474: TypeVariable<?> treeSetTypeVar;\n475: Type typeArg;\n476: 477: typeVarAssigns = TypeUtils.getTypeArguments(Integer.class, Comparable.class);\n478: treeSetTypeVar = Comparable.class.getTypeParameters()[0];\n479: Assert.assertTrue(\"Type var assigns for Comparable from Integer: \" + typeVarAssigns,\n480: typeVarAssigns.containsKey(treeSetTypeVar));\n481: typeArg = typeVarAssigns.get(treeSetTypeVar);\n482: Assert.assertEquals(\"Type argument of Comparable from Integer: \" + typeArg, Integer.class,\n483: typeVarAssigns.get(treeSetTypeVar));\n484: 485: typeVarAssigns = TypeUtils.getTypeArguments(int.class, Comparable.class);\n486: treeSetTypeVar = Comparable.class.getTypeParameters()[0];\n487: Assert.assertTrue(\"Type var assigns for Comparable from int: \" + typeVarAssigns,\n488: typeVarAssigns.containsKey(treeSetTypeVar));\n489: typeArg = typeVarAssigns.get(treeSetTypeVar);\n490: Assert.assertEquals(\"Type argument of Comparable from int: \" + typeArg, Integer.class,\n491: typeVarAssigns.get(treeSetTypeVar));\n492: 493: Collection<Integer> col = Arrays.asList(new Integer[0]);\n494: typeVarAssigns = TypeUtils.getTypeArguments(List.class, Collection.class);\n495: treeSetTypeVar = Comparable.class.getTypeParameters()[0];\n496: Assert.assertFalse(\"Type var assigns for Collection from List: \" + typeVarAssigns,\n497: typeVarAssigns.containsKey(treeSetTypeVar));\n498: 499: typeVarAssigns = TypeUtils.getTypeArguments(AAAClass.BBBClass.class, AAClass.BBClass.class);\n500: Assert.assertTrue(typeVarAssigns.size() == 2);\n501: Assert.assertEquals(String.class, typeVarAssigns.get(AAClass.class.getTypeParameters()[0]));\n502: Assert.assertEquals(String.class, typeVarAssigns.get(AAClass.BBClass.class.getTypeParameters()[0]));\n503: 504: typeVarAssigns = TypeUtils.getTypeArguments(Other.class, This.class);\n505: Assert.assertEquals(2, typeVarAssigns.size());\n506: Assert.assertEquals(String.class, typeVarAssigns.get(This.class.getTypeParameters()[0]));",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<2> but was:<0>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:118)\nat org.junit.Assert.assertEquals(Assert.java:555)\nat org.junit.Assert.assertEquals(Assert.java:542)\nat org.apache.commons.lang3.reflect.TypeUtilsTest.testGetTypeArguments(TypeUtilsTest.java:505)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getTypeArguments(Ljava/lang/reflect/ParameterizedType;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;",
+            "method_body": "private static Map<TypeVariable<?>, Type> getTypeArguments(\nClass<?> cls = getRawType(parameterizedType);\nif (!isAssignable(cls, toClass)) {\nType ownerType = parameterizedType.getOwnerType();\nif (ownerType instanceof ParameterizedType) {\nParameterizedType parameterizedOwnerType = (ParameterizedType) ownerType;\ntypeVarAssigns = getTypeArguments(parameterizedOwnerType,\n} else {\ntypeVarAssigns = subtypeVarAssigns == null ? new HashMap<TypeVariable<?>, Type>()\nType[] typeArgs = parameterizedType.getActualTypeArguments();\nTypeVariable<?>[] typeParams = cls.getTypeParameters();\nfor (int i = 0; i < typeParams.length; i++) {\nType typeArg = typeArgs[i];\ntypeVarAssigns.put(typeParams[i], typeVarAssigns.containsKey(typeArg) ? typeVarAssigns\nif (toClass.equals(cls)) {\nreturn typeVarAssigns;\nreturn getTypeArguments(getClosestParentType(cls, toClass), toClass, typeVarAssigns);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getTypeArguments(Ljava/lang/Class;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;",
+            "method_body": "private static Map<TypeVariable<?>, Type> getTypeArguments(Class<?> cls, Class<?> toClass,\nif (!isAssignable(cls, toClass)) {\nif (cls.isPrimitive()) {\nif (toClass.isPrimitive()) {\ncls = ClassUtils.primitiveToWrapper(cls);\nHashMap<TypeVariable<?>, Type> typeVarAssigns = subtypeVarAssigns == null ? new HashMap<TypeVariable<?>, Type>()\nif (cls.getTypeParameters().length > 0 || toClass.equals(cls)) {\nreturn typeVarAssigns;\nreturn getTypeArguments(getClosestParentType(cls, toClass), toClass, typeVarAssigns);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getClosestParentType(Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/reflect/Type;",
+            "method_body": "private static Type getClosestParentType(Class<?> cls, Class<?> superClass) {\nif (superClass.isInterface()) {\nType[] interfaceTypes = cls.getGenericInterfaces();\nType genericInterface = null;\nfor (Type midType : interfaceTypes) {\nClass<?> midClass = null;\nif (midType instanceof ParameterizedType) {\nmidClass = getRawType((ParameterizedType) midType);\nif (isAssignable(midClass, superClass)\ngenericInterface = midType;\nif (genericInterface != null) {\nreturn genericInterface;\nreturn cls.getGenericSuperclass();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:isAssignable(Ljava/lang/reflect/Type;Ljava/lang/Class;)Z",
+            "method_body": "private static boolean isAssignable(Type type, Class<?> toClass) {\nif (type == null) {\nreturn toClass == null || !toClass.isPrimitive();\nif (toClass == null) {\nreturn false;\nif (toClass.equals(type)) {\nreturn true;\nif (type instanceof Class<?>) {\nreturn ClassUtils.isAssignable((Class<?>) type, toClass);\nif (type instanceof ParameterizedType) {\nreturn isAssignable(getRawType((ParameterizedType) type), toClass);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ClassUtils:isAssignable(Ljava/lang/Class;Ljava/lang/Class;Z)Z",
+            "method_body": "public static boolean isAssignable(Class<?> cls, Class<?> toClass, boolean autoboxing) {\nif (toClass == null) {\nif (cls == null) {\nif (autoboxing) {\nif (cls.isPrimitive() && !toClass.isPrimitive()) {\ncls = primitiveToWrapper(cls);\nif (cls == null) {\nif (toClass.isPrimitive() && !cls.isPrimitive()) {\nif (cls.equals(toClass)) {\nif (cls.isPrimitive()) {\nreturn toClass.isAssignableFrom(cls);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ClassUtils:primitiveToWrapper(Ljava/lang/Class;)Ljava/lang/Class;",
+            "method_body": "public static Class<?> primitiveToWrapper(Class<?> cls) {\nClass<?> convertedClass = cls;\nif (cls != null && cls.isPrimitive()) {\nconvertedClass = primitiveWrapperMap.get(cls);\nreturn convertedClass;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getRawType(Ljava/lang/reflect/ParameterizedType;)Ljava/lang/Class;",
+            "method_body": "private static Class<?> getRawType(ParameterizedType parameterizedType) {\nType rawType = parameterizedType.getRawType();\nif (!(rawType instanceof Class<?>)) {\nreturn (Class<?>) rawType;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getTypeArguments(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/util/Map;)Ljava/util/Map;",
+            "method_body": "private static Map<TypeVariable<?>, Type> getTypeArguments(Type type, Class<?> toClass,\nif (type instanceof Class<?>) {\nreturn getTypeArguments((Class<?>) type, toClass, subtypeVarAssigns);\nif (type instanceof ParameterizedType) {\nreturn getTypeArguments((ParameterizedType) type, toClass, subtypeVarAssigns);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SystemUtils:isJavaVersionAtLeast(Lorg/apache/commons/lang3/JavaVersion;)Z",
+            "method_body": "public static boolean isJavaVersionAtLeast(JavaVersion requiredVersion) {\nreturn JAVA_SPECIFICATION_VERSION_AS_ENUM.atLeast(requiredVersion);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ClassUtils:isAssignable(Ljava/lang/Class;Ljava/lang/Class;)Z",
+            "method_body": "public static boolean isAssignable(Class<?> cls, Class<?> toClass) {\nreturn isAssignable(cls, toClass, SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_5));\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:isAssignable(Ljava/lang/reflect/Type;Ljava/lang/reflect/Type;)Z",
+            "method_body": "public static boolean isAssignable(Type type, Type toType) {\nreturn isAssignable(type, toType, null);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.reflect.TypeUtils:getTypeArguments(Ljava/lang/reflect/Type;Ljava/lang/Class;)Ljava/util/Map;",
+            "method_body": "public static Map<TypeVariable<?>, Type> getTypeArguments(Type type, Class<?> toClass) {\nreturn getTypeArguments(type, toClass, null);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.JavaVersion:atLeast(Lorg/apache/commons/lang3/JavaVersion;)Z",
+            "method_body": "public boolean atLeast(JavaVersion requiredVersion) {\nreturn this.value >= requiredVersion.value;\n}",
+            "method_id": 12
+        }
+    ]
+}

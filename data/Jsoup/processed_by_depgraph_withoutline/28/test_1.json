@@ -1,0 +1,29 @@
+{
+    "bug_id": 28,
+    "test_id": 1,
+    "test_name": "org.jsoup.nodes.EntitiesTest.unescape",
+    "test_body": "25: @Test public void unescape() {\n26: String text = \"Hello &amp;&LT&gt; &reg &angst; &angst &#960; &#960 &#x65B0; there &! &frac34; &copy; &COPY;\";\n27: assertEquals(\"Hello &<> \u00c2\u00ae \u00c3\u0085 &angst \u00cf\u0080 \u00cf\u0080 \u00e6\u0096\u00b0 there &! \u00c2\u00be \u00c2\u00a9 \u00c2\u00a9\", Entities.unescape(text));\n28: 29: assertEquals(\"&0987654321; &unknown\", Entities.unescape(\"&0987654321; &unknown\"));\n30: }\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<Hello &<> \u00ae \u00c5 [&angst] \u03c0 \u03c0 \u65b0 there &! \u00be \u00a9 ...> but was:<Hello &<> \u00ae \u00c5 [\u00c5] \u03c0 \u03c0 \u65b0 there &! \u00be \u00a9 ...>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.nodes.EntitiesTest.unescape(EntitiesTest.java:27)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.nodes.Entities:unescape(Ljava/lang/String;Z)Ljava/lang/String;",
+            "method_body": "static String unescape(String string, boolean strict) {\nif (!string.contains(\"&\"))\nMatcher m = strict? strictUnescapePattern.matcher(string) : unescapePattern.matcher(string);\nStringBuffer accum = new StringBuffer(string.length());\nwhile (m.find()) {\nint charval = -1;\nString num = m.group(3);\nif (num != null) {\nint base = m.group(2) != null ? 16 : 10;\ncharval = Integer.valueOf(num, base);\n}\nString name = m.group(1);\nif (full.containsKey(name))\ncharval = full.get(name);\nif (charval != -1 || charval > 0xFFFF) {\nString c = Character.toString((char) charval);\nm.appendReplacement(accum, Matcher.quoteReplacement(c));\n} else {\nm.appendReplacement(accum, Matcher.quoteReplacement(m.group(0)));\n}\nm.appendTail(accum);\nreturn accum.toString();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:loadEntities(Ljava/lang/String;)Ljava/util/Map;",
+            "method_body": "private static Map<String, Character> loadEntities(String filename) {\nProperties properties = new Properties();\nMap<String, Character> entities = new HashMap<String, Character>();\nInputStream in = Entities.class.getResourceAsStream(filename);\nproperties.load(in);\nin.close();\n}\nfor (Map.Entry entry: properties.entrySet()) {\nCharacter val = Character.valueOf((char) Integer.parseInt((String) entry.getValue(), 16));\nString name = (String) entry.getKey();\nentities.put(name, val);\n}\nreturn entities;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:unescape(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "static String unescape(String string) {\nreturn unescape(string, false);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:toCharacterKey(Ljava/util/Map;)Ljava/util/Map;",
+            "method_body": "private static Map<Character, String> toCharacterKey(Map<String, Character> inMap) {\nMap<Character, String> outMap = new HashMap<Character, String>();\nfor (Map.Entry<String, Character> entry: inMap.entrySet()) {\nCharacter character = entry.getValue();\nString name = entry.getKey();\nif (outMap.containsKey(character)) {\nif (name.toLowerCase().equals(name))\noutMap.put(character, name);\noutMap.put(character, name);\n}\nreturn outMap;\n}",
+            "method_id": 3
+        }
+    ]
+}

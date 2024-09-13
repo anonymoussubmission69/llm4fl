@@ -1,0 +1,74 @@
+{
+    "bug_id": 7,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.math.NumberUtilsTest.testCreateNumber",
+    "test_body": "185: public void testCreateNumber() {\n186: // a lot of things can go wrong\n187: assertEquals(\"createNumber(String) 1 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5\"));\n188: assertEquals(\"createNumber(String) 2 failed\", Integer.valueOf(\"12345\"), NumberUtils.createNumber(\"12345\"));\n189: assertEquals(\"createNumber(String) 3 failed\", Double.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5D\"));\n190: assertEquals(\"createNumber(String) 3 failed\", Double.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5d\"));\n191: assertEquals(\"createNumber(String) 4 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5F\"));\n192: assertEquals(\"createNumber(String) 4 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5f\"));\n193: assertEquals(\"createNumber(String) 5 failed\", Long.valueOf(Integer.MAX_VALUE + 1L), NumberUtils.createNumber(\"\"\n194: + (Integer.MAX_VALUE + 1L)));\n195: assertEquals(\"createNumber(String) 6 failed\", Long.valueOf(12345), NumberUtils.createNumber(\"12345L\"));\n196: assertEquals(\"createNumber(String) 6 failed\", Long.valueOf(12345), NumberUtils.createNumber(\"12345l\"));\n197: assertEquals(\"createNumber(String) 7 failed\", Float.valueOf(\"-1234.5\"), NumberUtils.createNumber(\"-1234.5\"));\n198: assertEquals(\"createNumber(String) 8 failed\", Integer.valueOf(\"-12345\"), NumberUtils.createNumber(\"-12345\"));\n199: assertTrue(\"createNumber(String) 9a failed\", 0xFADE == NumberUtils.createNumber(\"0xFADE\").intValue());\n200: assertTrue(\"createNumber(String) 9b failed\", 0xFADE == NumberUtils.createNumber(\"0Xfade\").intValue());\n201: assertTrue(\"createNumber(String) 10a failed\", -0xFADE == NumberUtils.createNumber(\"-0xFADE\").intValue());\n202: assertTrue(\"createNumber(String) 10b failed\", -0xFADE == NumberUtils.createNumber(\"-0Xfade\").intValue());\n203: assertEquals(\"createNumber(String) 11 failed\", Double.valueOf(\"1.1E200\"), NumberUtils.createNumber(\"1.1E200\"));\n204: assertEquals(\"createNumber(String) 12 failed\", Float.valueOf(\"1.1E20\"), NumberUtils.createNumber(\"1.1E20\"));\n205: assertEquals(\"createNumber(String) 13 failed\", Double.valueOf(\"-1.1E200\"), NumberUtils.createNumber(\"-1.1E200\"));\n206: assertEquals(\"createNumber(String) 14 failed\", Double.valueOf(\"1.1E-200\"), NumberUtils.createNumber(\"1.1E-200\"));\n207: assertEquals(\"createNumber(null) failed\", null, NumberUtils.createNumber(null));\n208: assertEquals(\"createNumber(String) failed\", new BigInteger(\"12345678901234567890\"), NumberUtils\n209: .createNumber(\"12345678901234567890L\"));\n210: 211: // jdk 1.2 doesn't support this. unsure about jdk 1.2.2\n212: if (SystemUtils.isJavaVersionAtLeast(JAVA_1_3)) {\n213: assertEquals(\"createNumber(String) 15 failed\", new BigDecimal(\"1.1E-700\"), NumberUtils\n214: .createNumber(\"1.1E-700F\"));\n215: }\n216: assertEquals(\"createNumber(String) 16 failed\", Long.valueOf(\"10\" + Integer.MAX_VALUE), NumberUtils\n217: .createNumber(\"10\" + Integer.MAX_VALUE + \"L\"));\n218: assertEquals(\"createNumber(String) 17 failed\", Long.valueOf(\"10\" + Integer.MAX_VALUE), NumberUtils\n219: .createNumber(\"10\" + Integer.MAX_VALUE));\n220: assertEquals(\"createNumber(String) 18 failed\", new BigInteger(\"10\" + Long.MAX_VALUE), NumberUtils\n221: .createNumber(\"10\" + Long.MAX_VALUE));\n222: 223: // LANG-521\n224: assertEquals(\"createNumber(String) LANG-521 failed\", Float.valueOf(\"2.\"), NumberUtils.createNumber(\"2.\"));\n225: 226: // LANG-638\n227: assertFalse(\"createNumber(String) succeeded\", checkCreateNumber(\"1eE\"));\n228: 229: // LANG-693\n230: assertEquals(\"createNumber(String) LANG-693 failed\", Double.valueOf(Double.MAX_VALUE), NumberUtils\n231: .createNumber(\"\" + Double.MAX_VALUE));\n232: 233: // LANG-822\n234: // ensure that the underlying negative number would create a BigDecimal\n235: final Number bigNum = NumberUtils.createNumber(\"-1.1E-700F\");\n236: assertEquals(BigDecimal.class,bigNum.getClass());\n237: assertNotNull(bigNum);\n238: 239: // Check that the code fails to create a valid number when preceeded by -- rather than -\n240: try {\n241: NumberUtils.createNumber(\"--1.1E-700F\");\n242: fail(\"Expected NumberFormatException\");\n243: } catch (NumberFormatException nfe) {",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected NumberFormatException\nat org.junit.Assert.fail(Assert.java:88)\nat org.apache.commons.lang3.math.NumberUtilsTest.testCreateNumber(NumberUtilsTest.java:242)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createNumber(Ljava/lang/String;)Ljava/lang/Number;",
+            "method_body": "public static Number createNumber(String str) throws NumberFormatException {\nif (str == null) {\nreturn null;\nif (StringUtils.isBlank(str)) {\nif (str.startsWith(\"--\")) {\nreturn null;\nif (str.startsWith(\"0x\") || str.startsWith(\"-0x\") || str.startsWith(\"0X\") || str.startsWith(\"-0X\")) {\nint hexDigits = str.length() - 2; // drop 0x\nif (str.startsWith(\"-\")) { // drop -\nhexDigits--;\nif (hexDigits > 8) { // too many for an int\nreturn createInteger(str);\nchar lastChar = str.charAt(str.length() - 1);\nint decPos = str.indexOf('.');\nint expPos = str.indexOf('e') + str.indexOf('E') + 1;\nif (decPos > -1) {\nif (expPos > -1) {\nif (expPos < decPos || expPos > str.length()) {\ndec = str.substring(decPos + 1, expPos);\ndec = str.substring(decPos + 1);\nmant = str.substring(0, decPos);\nif (expPos > -1) {\nif (expPos > str.length()) {\nthrow new NumberFormatException(str + \" is not a valid number.\");\nmant = str;\ndec = null;\nif (!Character.isDigit(lastChar) && lastChar != '.') {\nif (expPos > -1 && expPos < str.length() - 1) {\nexp = str.substring(expPos + 1, str.length() - 1);\nexp = null;\nString numeric = str.substring(0, str.length() - 1);\nboolean allZeros = isAllZeros(mant) && isAllZeros(exp);\nswitch (lastChar) {\nif (dec == null\nreturn createLong(numeric);\n} catch (NumberFormatException nfe) { // NOPMD\nreturn createBigInteger(numeric);\nFloat f = NumberUtils.createFloat(numeric);\nif (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\nreturn f;\n}\nDouble d = NumberUtils.createDouble(numeric);\nif (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {\nreturn d;\n}\nreturn createBigDecimal(numeric);\nif (expPos > -1 && expPos < str.length() - 1) {\nexp = str.substring(expPos + 1, str.length());\nexp = null;\nif (dec == null && exp == null) {\nreturn createInteger(str);\n} catch (NumberFormatException nfe) { // NOPMD\nreturn createLong(str);\n} catch (NumberFormatException nfe) { // NOPMD\nreturn createBigInteger(str);\nboolean allZeros = isAllZeros(mant) && isAllZeros(exp);\nFloat f = createFloat(str);\nif (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\nreturn f;\n}\nDouble d = createDouble(str);\nif (!(d.isInfinite() || (d.doubleValue() == 0.0D && !allZeros))) {\nreturn d;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:isAllZeros(Ljava/lang/String;)Z",
+            "method_body": "private static boolean isAllZeros(String str) {\nif (str == null) {\nfor (int i = str.length() - 1; i >= 0; i--) {\nif (str.charAt(i) != '0') {\nreturn false;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createBigDecimal(Ljava/lang/String;)Ljava/math/BigDecimal;",
+            "method_body": "public static BigDecimal createBigDecimal(String str) {\nif (str == null) {\nif (StringUtils.isBlank(str)) {\nreturn new BigDecimal(str);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:isDigits(Ljava/lang/String;)Z",
+            "method_body": "public static boolean isDigits(String str) {\nif (StringUtils.isEmpty(str)) {\nfor (int i = 0; i < str.length(); i++) {\nif (!Character.isDigit(str.charAt(i))) {\nreturn true;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createBigInteger(Ljava/lang/String;)Ljava/math/BigInteger;",
+            "method_body": "public static BigInteger createBigInteger(String str) {\nif (str == null) {\nreturn new BigInteger(str);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createFloat(Ljava/lang/String;)Ljava/lang/Float;",
+            "method_body": "public static Float createFloat(String str) {\nif (str == null) {\nreturn Float.valueOf(str);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createDouble(Ljava/lang/String;)Ljava/lang/Double;",
+            "method_body": "public static Double createDouble(String str) {\nif (str == null) {\nreturn Double.valueOf(str);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createInteger(Ljava/lang/String;)Ljava/lang/Integer;",
+            "method_body": "public static Integer createInteger(String str) {\nif (str == null) {\nreturn Integer.decode(str);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createLong(Ljava/lang/String;)Ljava/lang/Long;",
+            "method_body": "public static Long createLong(String str) {\nif (str == null) {\nreturn Long.decode(str);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringUtils:isBlank(Ljava/lang/CharSequence;)Z",
+            "method_body": "public static boolean isBlank(CharSequence cs) {\nif (cs == null || (strLen = cs.length()) == 0) {\nfor (int i = 0; i < strLen; i++) {\nif (Character.isWhitespace(cs.charAt(i)) == false) {\nreturn false;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringUtils:isEmpty(Ljava/lang/CharSequence;)Z",
+            "method_body": "public static boolean isEmpty(CharSequence cs) {\nreturn cs == null || cs.length() == 0;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SystemUtils:isJavaVersionAtLeast(Lorg/apache/commons/lang3/JavaVersion;)Z",
+            "method_body": "public static boolean isJavaVersionAtLeast(JavaVersion requiredVersion) {\nreturn JAVA_SPECIFICATION_VERSION_AS_ENUM.atLeast(requiredVersion);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.JavaVersion:atLeast(Lorg/apache/commons/lang3/JavaVersion;)Z",
+            "method_body": "public boolean atLeast(JavaVersion requiredVersion) {\nreturn this.value >= requiredVersion.value;\n}",
+            "method_id": 12
+        }
+    ]
+}

@@ -1,0 +1,189 @@
+{
+    "bug_id": 18,
+    "test_id": 0,
+    "test_name": "com.google.gson.functional.CollectionTest.testIssue1107",
+    "test_body": "public void testIssue1107() {\nString json = \"{\\n\" +\n\"  \\\"inBig\\\": {\\n\" +\n\"    \\\"key\\\": [\\n\" +\n\"      { \\\"inSmall\\\": \\\"hello\\\" }\\n\" +\n\"    ]\\n\" +\n\"  }\\n\" +\n\"}\";\nBigClass bigClass = new Gson().fromJson(json, BigClass.class);\nSmallClass small = bigClass.inBig.get(\"key\").get(0);\nassertNotNull(small);",
+    "stack_trace": "java.lang.ClassCastException: com.google.gson.internal.LinkedTreeMap cannot be cast to com.google.gson.functional.CollectionTest$SmallClass\nat com.google.gson.functional.CollectionTest.testIssue1107(CollectionTest.java:410)",
+    "covered_methods": [
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:resolve(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/lang/reflect/Type;Ljava/util/Collection;)Ljava/lang/reflect/Type;",
+            "method_body": "private static Type resolve(Type context, Class<?> contextRawType, Type toResolve,\nif (toResolve instanceof TypeVariable) {\nTypeVariable<?> typeVariable = (TypeVariable<?>) toResolve;\nif (visitedTypeVariables.contains(typeVariable)) {\nvisitedTypeVariables.add(typeVariable);\ntoResolve = resolveTypeVariable(context, contextRawType, typeVariable);\nif (toResolve == typeVariable) {\nreturn toResolve;\n} else if (toResolve instanceof Class && ((Class<?>) toResolve).isArray()) {\n} else if (toResolve instanceof GenericArrayType) {\n} else if (toResolve instanceof ParameterizedType) {\nParameterizedType original = (ParameterizedType) toResolve;\nType ownerType = original.getOwnerType();\nType newOwnerType = resolve(context, contextRawType, ownerType, visitedTypeVariables);\nboolean changed = newOwnerType != ownerType;\nType[] args = original.getActualTypeArguments();\nfor (int t = 0, length = args.length; t < length; t++) {\nType resolvedTypeArgument = resolve(context, contextRawType, args[t], visitedTypeVariables);\nif (resolvedTypeArgument != args[t]) {\nreturn changed\n} else if (toResolve instanceof WildcardType) {\nWildcardType original = (WildcardType) toResolve;\nType[] originalLowerBound = original.getLowerBounds();\nType[] originalUpperBound = original.getUpperBounds();\nif (originalLowerBound.length == 1) {\n} else if (originalUpperBound.length == 1) {\nType upperBound = resolve(context, contextRawType, originalUpperBound[0], visitedTypeVariables);\nif (upperBound != originalUpperBound[0]) {\nreturn original;\nreturn toResolve;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.google.gson.Gson:<init>(Lcom/google/gson/internal/Excluder;Lcom/google/gson/FieldNamingStrategy;Ljava/util/Map;ZZZZZZZLcom/google/gson/LongSerializationPolicy;Ljava/lang/String;IILjava/util/List;Ljava/util/List;Ljava/util/List;)V",
+            "method_body": "Gson(final Excluder excluder, final FieldNamingStrategy fieldNamingStrategy,\nList<TypeAdapterFactory> factoriesToBeAdded) {\nthis.excluder = excluder;\nthis.fieldNamingStrategy = fieldNamingStrategy;\nthis.instanceCreators = instanceCreators;\nthis.constructorConstructor = new ConstructorConstructor(instanceCreators);\nthis.serializeNulls = serializeNulls;\nthis.complexMapKeySerialization = complexMapKeySerialization;\nthis.generateNonExecutableJson = generateNonExecutableGson;\nthis.htmlSafe = htmlSafe;\nthis.prettyPrinting = prettyPrinting;\nthis.lenient = lenient;\nthis.serializeSpecialFloatingPointValues = serializeSpecialFloatingPointValues;\nthis.longSerializationPolicy = longSerializationPolicy;\nthis.datePattern = datePattern;\nthis.dateStyle = dateStyle;\nthis.timeStyle = timeStyle;\nthis.builderFactories = builderFactories;\nthis.builderHierarchyFactories = builderHierarchyFactories;\nList<TypeAdapterFactory> factories = new ArrayList<TypeAdapterFactory>();\nfactories.add(TypeAdapters.JSON_ELEMENT_FACTORY);\nfactories.add(ObjectTypeAdapter.FACTORY);\nfactories.add(excluder);\nfactories.addAll(factoriesToBeAdded);\nfactories.add(TypeAdapters.STRING_FACTORY);\nfactories.add(TypeAdapters.INTEGER_FACTORY);\nfactories.add(TypeAdapters.BOOLEAN_FACTORY);\nfactories.add(TypeAdapters.BYTE_FACTORY);\nfactories.add(TypeAdapters.SHORT_FACTORY);\nTypeAdapter<Number> longAdapter = longAdapter(longSerializationPolicy);\nfactories.add(TypeAdapters.newFactory(long.class, Long.class, longAdapter));\nfactories.add(TypeAdapters.newFactory(double.class, Double.class,\nfactories.add(TypeAdapters.newFactory(float.class, Float.class,\nfactories.add(TypeAdapters.NUMBER_FACTORY);\nfactories.add(TypeAdapters.ATOMIC_INTEGER_FACTORY);\nfactories.add(TypeAdapters.ATOMIC_BOOLEAN_FACTORY);\nfactories.add(TypeAdapters.newFactory(AtomicLong.class, atomicLongAdapter(longAdapter)));\nfactories.add(TypeAdapters.newFactory(AtomicLongArray.class, atomicLongArrayAdapter(longAdapter)));\nfactories.add(TypeAdapters.ATOMIC_INTEGER_ARRAY_FACTORY);\nfactories.add(TypeAdapters.CHARACTER_FACTORY);\nfactories.add(TypeAdapters.STRING_BUILDER_FACTORY);\nfactories.add(TypeAdapters.STRING_BUFFER_FACTORY);\nfactories.add(TypeAdapters.newFactory(BigDecimal.class, TypeAdapters.BIG_DECIMAL));\nfactories.add(TypeAdapters.newFactory(BigInteger.class, TypeAdapters.BIG_INTEGER));\nfactories.add(TypeAdapters.URL_FACTORY);\nfactories.add(TypeAdapters.URI_FACTORY);\nfactories.add(TypeAdapters.UUID_FACTORY);\nfactories.add(TypeAdapters.CURRENCY_FACTORY);\nfactories.add(TypeAdapters.LOCALE_FACTORY);\nfactories.add(TypeAdapters.INET_ADDRESS_FACTORY);\nfactories.add(TypeAdapters.BIT_SET_FACTORY);\nfactories.add(DateTypeAdapter.FACTORY);\nfactories.add(TypeAdapters.CALENDAR_FACTORY);\nfactories.add(TimeTypeAdapter.FACTORY);\nfactories.add(SqlDateTypeAdapter.FACTORY);\nfactories.add(TypeAdapters.TIMESTAMP_FACTORY);\nfactories.add(ArrayTypeAdapter.FACTORY);\nfactories.add(TypeAdapters.CLASS_FACTORY);\nfactories.add(new CollectionTypeAdapterFactory(constructorConstructor));\nfactories.add(new MapTypeAdapterFactory(constructorConstructor, complexMapKeySerialization));\nthis.jsonAdapterFactory = new JsonAdapterAnnotationTypeAdapterFactory(constructorConstructor);\nfactories.add(jsonAdapterFactory);\nfactories.add(TypeAdapters.ENUM_FACTORY);\nfactories.add(new ReflectiveTypeAdapterFactory(\nthis.factories = Collections.unmodifiableList(factories);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:getRawType(Ljava/lang/reflect/Type;)Ljava/lang/Class;",
+            "method_body": "public static Class<?> getRawType(Type type) {\nif (type instanceof Class<?>) {\nreturn (Class<?>) type;\n} else if (type instanceof ParameterizedType) {\nParameterizedType parameterizedType = (ParameterizedType) type;\nType rawType = parameterizedType.getRawType();\ncheckArgument(rawType instanceof Class);\nreturn (Class<?>) rawType;\n} else if (type instanceof GenericArrayType) {\n} else if (type instanceof TypeVariable) {\nreturn Object.class;\n} else if (type instanceof WildcardType) {\nreturn getRawType(((WildcardType) type).getUpperBounds()[0]);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:canonicalize(Ljava/lang/reflect/Type;)Ljava/lang/reflect/Type;",
+            "method_body": "public static Type canonicalize(Type type) {\nif (type instanceof Class) {\nClass<?> c = (Class<?>) type;\nreturn c.isArray() ? new GenericArrayTypeImpl(canonicalize(c.getComponentType())) : c;\n} else if (type instanceof ParameterizedType) {\nParameterizedType p = (ParameterizedType) type;\nreturn new ParameterizedTypeImpl(p.getOwnerType(),\n} else if (type instanceof GenericArrayType) {\n} else if (type instanceof WildcardType) {\nWildcardType w = (WildcardType) type;\nreturn new WildcardTypeImpl(w.getUpperBounds(), w.getLowerBounds());\nreturn type;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:doPeek()I",
+            "method_body": "int doPeek() throws IOException {\nint peekStack = stack[stackSize - 1];\nif (peekStack == JsonScope.EMPTY_ARRAY) {\nstack[stackSize - 1] = JsonScope.NONEMPTY_ARRAY;\n} else if (peekStack == JsonScope.NONEMPTY_ARRAY) {\nint c = nextNonWhitespace(true);\nswitch (c) {\nreturn peeked = PEEKED_END_ARRAY;\nstack[stackSize - 1] = JsonScope.DANGLING_NAME;\nif (peekStack == JsonScope.NONEMPTY_OBJECT) {\nint c = nextNonWhitespace(true);\nswitch (c) {\nreturn peeked = PEEKED_END_OBJECT;\nint c = nextNonWhitespace(true);\nswitch (c) {\nreturn peeked = PEEKED_DOUBLE_QUOTED_NAME;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:nextNonWhitespace(Z)I",
+            "method_body": "private int nextNonWhitespace(boolean throwOnEof) throws IOException {\nchar[] buffer = this.buffer;\nint p = pos;\nint l = limit;\nif (p == l) {\npos = p;\nif (!fillBuffer(1)) {\nbreak;\np = pos;\nl = limit;\nint c = buffer[p++];\nif (c == '\\n') {\nlineNumber++;\nlineStart = p;\ncontinue;\n} else if (c == ' ' || c == '\\r' || c == '\\t') {\nif (c == '/') {\n} else if (c == '#') {\npos = p;\nreturn c;\nif (throwOnEof) {\nreturn -1;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:getMapKeyAndValueTypes(Ljava/lang/reflect/Type;Ljava/lang/Class;)[Ljava/lang/reflect/Type;",
+            "method_body": "public static Type[] getMapKeyAndValueTypes(Type context, Class<?> contextRawType) {\nif (context == Properties.class) {\nType mapType = getSupertype(context, contextRawType, Map.class);\nif (mapType instanceof ParameterizedType) {\nParameterizedType mapParameterizedType = (ParameterizedType) mapType;\nreturn mapParameterizedType.getActualTypeArguments();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:resolveTypeVariable(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/lang/reflect/TypeVariable;)Ljava/lang/reflect/Type;",
+            "method_body": "static Type resolveTypeVariable(Type context, Class<?> contextRawType, TypeVariable<?> unknown) {\nClass<?> declaredByRaw = declaringClassOf(unknown);\nif (declaredByRaw == null) {\nType declaredBy = getGenericSupertype(context, contextRawType, declaredByRaw);\nif (declaredBy instanceof ParameterizedType) {\nreturn unknown;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:getGenericSupertype(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/reflect/Type;",
+            "method_body": "static Type getGenericSupertype(Type context, Class<?> rawType, Class<?> toResolve) {\nif (toResolve == rawType) {\nreturn context;\nif (toResolve.isInterface()) {\nClass<?>[] interfaces = rawType.getInterfaces();\nfor (int i = 0, length = interfaces.length; i < length; i++) {\nif (interfaces[i] == toResolve) {\nreturn rawType.getGenericInterfaces()[i];\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:getCollectionElementType(Ljava/lang/reflect/Type;Ljava/lang/Class;)Ljava/lang/reflect/Type;",
+            "method_body": "public static Type getCollectionElementType(Type context, Class<?> contextRawType) {\nType collectionType = getSupertype(context, contextRawType, Collection.class);\nif (collectionType instanceof WildcardType) {\nif (collectionType instanceof ParameterizedType) {\nreturn ((ParameterizedType) collectionType).getActualTypeArguments()[0];\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.google.gson.Gson:fromJson(Lcom/google/gson/stream/JsonReader;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
+            "method_body": "public <T> T fromJson(JsonReader reader, Type typeOfT) throws JsonIOException, JsonSyntaxException {\nboolean isEmpty = true;\nboolean oldLenient = reader.isLenient();\nreader.setLenient(true);\nreader.peek();\nisEmpty = false;\nTypeToken<T> typeToken = (TypeToken<T>) TypeToken.get(typeOfT);\nTypeAdapter<T> typeAdapter = getAdapter(typeToken);\nT object = typeAdapter.read(reader);\nreturn object;\nreader.setLenient(oldLenient);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.google.gson.Gson:getAdapter(Lcom/google/gson/reflect/TypeToken;)Lcom/google/gson/TypeAdapter;",
+            "method_body": "public <T> TypeAdapter<T> getAdapter(TypeToken<T> type) {\nTypeAdapter<?> cached = typeTokenCache.get(type == null ? NULL_KEY_SURROGATE : type);\nif (cached != null) {\nMap<TypeToken<?>, FutureTypeAdapter<?>> threadCalls = calls.get();\nboolean requiresThreadLocalCleanup = false;\nif (threadCalls == null) {\nthreadCalls = new HashMap<TypeToken<?>, FutureTypeAdapter<?>>();\ncalls.set(threadCalls);\nrequiresThreadLocalCleanup = true;\nFutureTypeAdapter<T> ongoingCall = (FutureTypeAdapter<T>) threadCalls.get(type);\nif (ongoingCall != null) {\nFutureTypeAdapter<T> call = new FutureTypeAdapter<T>();\nthreadCalls.put(type, call);\nfor (TypeAdapterFactory factory : factories) {\nTypeAdapter<T> candidate = factory.create(this, type);\nif (candidate != null) {\ncall.setDelegate(candidate);\ntypeTokenCache.put(type, candidate);\nreturn candidate;\n}\nthreadCalls.remove(type);\nif (requiresThreadLocalCleanup) {\ncalls.remove();\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:fillBuffer(I)Z",
+            "method_body": "private boolean fillBuffer(int minimum) throws IOException {\nchar[] buffer = this.buffer;\nlineStart -= pos;\nif (limit != pos) {\nlimit = 0;\npos = 0;\nwhile ((total = in.read(buffer, limit, buffer.length - limit)) != -1) {\nlimit += total;\nif (lineNumber == 0 && lineStart == 0 && limit > 0 && buffer[0] == '\\ufeff') {\nif (limit >= minimum) {\nreturn true;\nreturn false;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:peek()Lcom/google/gson/stream/JsonToken;",
+            "method_body": "public JsonToken peek() throws IOException {\nint p = peeked;\nif (p == PEEKED_NONE) {\np = doPeek();\nswitch (p) {\nreturn JsonToken.BEGIN_OBJECT;\nreturn JsonToken.BEGIN_ARRAY;\nreturn JsonToken.STRING;\nreturn JsonToken.END_DOCUMENT;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:declaringClassOf(Ljava/lang/reflect/TypeVariable;)Ljava/lang/Class;",
+            "method_body": "private static Class<?> declaringClassOf(TypeVariable<?> typeVariable) {\nGenericDeclaration genericDeclaration = typeVariable.getGenericDeclaration();\nreturn genericDeclaration instanceof Class\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "com.google.gson.Gson:fromJson(Ljava/io/Reader;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
+            "method_body": "public <T> T fromJson(Reader json, Type typeOfT) throws JsonIOException, JsonSyntaxException {\nJsonReader jsonReader = newJsonReader(json);\nT object = (T) fromJson(jsonReader, typeOfT);\nassertFullConsumption(object, jsonReader);\nreturn object;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "com.google.gson.Gson:fromJson(Ljava/lang/String;Ljava/lang/reflect/Type;)Ljava/lang/Object;",
+            "method_body": "public <T> T fromJson(String json, Type typeOfT) throws JsonSyntaxException {\nif (json == null) {\nStringReader reader = new StringReader(json);\nT target = (T) fromJson(reader, typeOfT);\nreturn target;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:getSupertype(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/lang/Class;)Ljava/lang/reflect/Type;",
+            "method_body": "static Type getSupertype(Type context, Class<?> contextRawType, Class<?> supertype) {\ncheckArgument(supertype.isAssignableFrom(contextRawType));\nreturn resolve(context, contextRawType,\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:consumeNonExecutePrefix()V",
+            "method_body": "private void consumeNonExecutePrefix() throws IOException {\nnextNonWhitespace(true);\npos--;\nif (pos + NON_EXECUTE_PREFIX.length > limit && !fillBuffer(NON_EXECUTE_PREFIX.length)) {\nfor (int i = 0; i < NON_EXECUTE_PREFIX.length; i++) {\nif (buffer[pos + i] != NON_EXECUTE_PREFIX[i]) {\nreturn; // not a security token!\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "com.google.gson.Gson:newJsonReader(Ljava/io/Reader;)Lcom/google/gson/stream/JsonReader;",
+            "method_body": "public JsonReader newJsonReader(Reader reader) {\nJsonReader jsonReader = new JsonReader(reader);\njsonReader.setLenient(lenient);\nreturn jsonReader;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "com.google.gson.internal.Primitives:wrap(Ljava/lang/Class;)Ljava/lang/Class;",
+            "method_body": "public static <T> Class<T> wrap(Class<T> type) {\nClass<T> wrapped = (Class<T>) PRIMITIVE_TO_WRAPPER_TYPE.get(\nreturn (wrapped == null) ? type : wrapped;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "com.google.gson.Gson:fromJson(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;",
+            "method_body": "public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {\nObject object = fromJson(json, (Type) classOfT);\nreturn Primitives.wrap(classOfT).cast(object);\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Preconditions:checkNotNull(Ljava/lang/Object;)Ljava/lang/Object;",
+            "method_body": "public static <T> T checkNotNull(T obj) {\nif (obj == null) {\nreturn obj;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:hashCodeOrZero(Ljava/lang/Object;)I",
+            "method_body": "static int hashCodeOrZero(Object o) {\nreturn o != null ? o.hashCode() : 0;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:isLenient()Z",
+            "method_body": "public final boolean isLenient() {\nreturn lenient;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:resolve(Ljava/lang/reflect/Type;Ljava/lang/Class;Ljava/lang/reflect/Type;)Ljava/lang/reflect/Type;",
+            "method_body": "public static Type resolve(Type context, Class<?> contextRawType, Type toResolve) {\nreturn resolve(context, contextRawType, toResolve, new HashSet<TypeVariable>());\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "com.google.gson.reflect.TypeToken:get(Ljava/lang/reflect/Type;)Lcom/google/gson/reflect/TypeToken;",
+            "method_body": "public static TypeToken<?> get(Type type) {\nreturn new TypeToken<Object>(type);\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "com.google.gson.reflect.TypeToken:get(Ljava/lang/Class;)Lcom/google/gson/reflect/TypeToken;",
+            "method_body": "public static <T> TypeToken<T> get(Class<T> type) {\nreturn new TypeToken<T>(type);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "com.google.gson.reflect.TypeToken:<init>(Ljava/lang/reflect/Type;)V",
+            "method_body": "TypeToken(Type type) {\nthis.type = $Gson$Types.canonicalize($Gson$Preconditions.checkNotNull(type));\nthis.rawType = (Class<? super T>) $Gson$Types.getRawType(this.type);\nthis.hashCode = this.type.hashCode();\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "com.google.gson.Gson$FutureTypeAdapter:setDelegate(Lcom/google/gson/TypeAdapter;)V",
+            "method_body": "public void setDelegate(TypeAdapter<T> typeAdapter) {\nif (delegate != null) {\ndelegate = typeAdapter;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "com.google.gson.Gson:<init>()V",
+            "method_body": "public Gson() {\nthis(Excluder.DEFAULT, FieldNamingPolicy.IDENTITY,\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:checkNotPrimitive(Ljava/lang/reflect/Type;)V",
+            "method_body": "static void checkNotPrimitive(Type type) {\ncheckArgument(!(type instanceof Class<?>) || !((Class<?>) type).isPrimitive());\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:setLenient(Z)V",
+            "method_body": "public final void setLenient(boolean lenient) {\nthis.lenient = lenient;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "com.google.gson.Gson:assertFullConsumption(Ljava/lang/Object;Lcom/google/gson/stream/JsonReader;)V",
+            "method_body": "private static void assertFullConsumption(Object obj, JsonReader reader) {\nif (obj != null && reader.peek() != JsonToken.END_DOCUMENT) {\n}\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "com.google.gson.internal.$Gson$Types:<clinit>()V",
+            "method_body": "static final Type[] EMPTY_TYPE_ARRAY = new Type[] {};\nstatic final Type[] EMPTY_TYPE_ARRAY = new Type[] {};",
+            "method_id": 34
+        },
+        {
+            "method_signature": "com.google.gson.stream.JsonReader:<init>(Ljava/io/Reader;)V",
+            "method_body": "private static final char[] NON_EXECUTE_PREFIX = \")]}'\\n\".toCharArray();\nprivate boolean lenient = false;\nprivate final char[] buffer = new char[1024];\nprivate int pos = 0;\nprivate int limit = 0;\nprivate int lineNumber = 0;\nprivate int lineStart = 0;\nint peeked = PEEKED_NONE;\nprivate int[] stack = new int[32];\nprivate int stackSize = 0;\nstack[stackSize++] = JsonScope.EMPTY_DOCUMENT;\n}",
+            "method_id": 35
+        }
+    ]
+}

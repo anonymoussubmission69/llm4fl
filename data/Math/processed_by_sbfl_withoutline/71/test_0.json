@@ -1,0 +1,339 @@
+{
+    "bug_id": 71,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest.testMissedEndEvent",
+    "test_body": "public void testMissedEndEvent() throws IntegratorException, DerivativeException {\nfinal double   t0     = 1878250320.0000029;\nfinal double   tEvent = 1878250379.9999986;\nfinal double[] k  = { 1.0e-4, 1.0e-5, 1.0e-6 };\nFirstOrderDifferentialEquations ode = new FirstOrderDifferentialEquations() {\n50: public int getDimension() {\nreturn k.length;\n}\n54: public void computeDerivatives(double t, double[] y, double[] yDot) {\nfor (int i = 0; i < y.length; ++i) {\nyDot[i] = k[i] * y[i];\n}\n}\n};\n61: DormandPrince853Integrator integrator = new DormandPrince853Integrator(0.0, 100.0,\n1.0e-10, 1.0e-10);\n64: double[] y0   = new double[k.length];\nfor (int i = 0; i < y0.length; ++i) {\ny0[i] = i + 1;\n}\ndouble[] y    = new double[k.length];\n70: integrator.setInitialStepSize(60.0);\ndouble finalT = integrator.integrate(ode, t0, y0, tEvent, y);\nAssert.assertEquals(tEvent, finalT, 5.0e-6);\nfor (int i = 0; i < y.length; ++i) {",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<1.8782503799999986E9> but was:<1.878250479999994E9>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:120)\nat junit.framework.Assert.assertEquals(Assert.java:129)\nat org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest.testMissedEndEvent(DormandPrince853IntegratorTest.java:72)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:setInitialStepSize(D)V",
+            "method_body": "public void setInitialStepSize(final double initialStepSize) {\nif ((initialStepSize < minStep) || (initialStepSize > maxStep)) {\ninitialStep = initialStepSize;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.DummyStepInterpolator:computeInterpolatedStateAndDerivatives(DD)V",
+            "method_body": "protected void computeInterpolatedStateAndDerivatives(final double theta, final double oneMinusThetaH)\nSystem.arraycopy(currentState,      0, interpolatedState,       0, currentState.length);\nSystem.arraycopy(currentDerivative, 0, interpolatedDerivatives, 0, currentDerivative.length);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.DummyStepInterpolator:<init>([D[DZ)V",
+            "method_body": "public DummyStepInterpolator(final double[] y, final double[] yDot, final boolean forward) {\nsuper(y, forward);\ncurrentDerivative = yDot;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:isEmpty()Z",
+            "method_body": "public boolean isEmpty() {\nreturn states.isEmpty();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:<init>([DZ)V",
+            "method_body": "protected AbstractStepInterpolator(final double[] y, final boolean forward) {\npreviousTime      = Double.NaN;\ncurrentTime       = Double.NaN;\nh                 = Double.NaN;\ninterpolatedTime  = Double.NaN;\ncurrentState            = y;\ninterpolatedState       = new double[y.length];\ninterpolatedDerivatives = new double[y.length];\nfinalized         = false;\nthis.forward      = forward;\nthis.dirtyState   = true;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator$EndTimeChecker:eventOccurred(D[DZ)I",
+            "method_body": "public int eventOccurred(double t, double[] y, boolean increasing) {\nreturn STOP;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:getEventTime()D",
+            "method_body": "public double getEventTime() {\nreturn (first == null) ? Double.NaN : first.getEventTime();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:getEventTime()D",
+            "method_body": "public double getEventTime() {\nreturn pendingEventTime;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState$1:value(D)D",
+            "method_body": "public boolean evaluateStep(final StepInterpolator interpolator)\nforward = interpolator.isForward();\nfinal double t1 = interpolator.getCurrentTime();\nfinal int    n  = Math.max(1, (int) Math.ceil(Math.abs(t1 - t0) / maxCheckInterval));\nfinal double h  = (t1 - t0) / n;\ndouble ta = t0;\ndouble ga = g0;\ndouble tb = t0 + (interpolator.isForward() ? convergence : -convergence);\nfor (int i = 0; i < n; ++i) {\ntb += h;\ninterpolator.setInterpolatedTime(tb);\nfinal double gb = handler.g(tb, interpolator.getInterpolatedState());\nif (g0Positive ^ (gb >= 0)) {\nif (ga * gb > 0) {\nincreasing = gb >= ga;\nfinal UnivariateRealFunction f = new UnivariateRealFunction() {\ninterpolator.setInterpolatedTime(t);\nreturn handler.g(t, interpolator.getInterpolatedState());\nfinal BrentSolver solver = new BrentSolver();\nsolver.setAbsoluteAccuracy(convergence);\nsolver.setMaximalIterationCount(maxIterationCount);\nfinal double root = (ta <= tb) ? solver.solve(f, ta, tb) : solver.solve(f, tb, ta);\nif ((Math.abs(root - ta) <= convergence) &&\n} else if (Double.isNaN(previousEventTime) ||\npendingEventTime = root;\nif (pendingEvent && (Math.abs(t1 - pendingEventTime) <= convergence)) {\npendingEvent = true;\nreturn true;\nta = tb;\nga = gb;\npendingEvent     = false;\npendingEventTime = Double.NaN;\nreturn false;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator$EndTimeChecker:g(D[D)D",
+            "method_body": "public double g(double t, double[] y) {\nreturn t - endTime;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:stop()Z",
+            "method_body": "public boolean stop() {\nreturn nextAction == EventHandler.STOP;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:reset(D[D)Z",
+            "method_body": "public boolean reset(final double t, final double[] y)\nif (! pendingEvent) {\nreturn false;\nif (nextAction == EventHandler.RESET_STATE) {\npendingEvent      = false;\npendingEventTime  = Double.NaN;\nreturn (nextAction == EventHandler.RESET_STATE) ||\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:reinitializeBegin(D[D)V",
+            "method_body": "public void reinitializeBegin(final double tStart, final double[] yStart)\nt0 = tStart;\ng0 = handler.g(tStart, yStart);\ng0Positive = g0 >= 0;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:evaluateStep(Lorg/apache/commons/math/ode/sampling/StepInterpolator;)Z",
+            "method_body": "public boolean evaluateStep(final StepInterpolator interpolator)\nforward = interpolator.isForward();\nfinal double t1 = interpolator.getCurrentTime();\nfinal int    n  = Math.max(1, (int) Math.ceil(Math.abs(t1 - t0) / maxCheckInterval));\nfinal double h  = (t1 - t0) / n;\ndouble ta = t0;\ndouble ga = g0;\ndouble tb = t0 + (interpolator.isForward() ? convergence : -convergence);\nfor (int i = 0; i < n; ++i) {\ntb += h;\ninterpolator.setInterpolatedTime(tb);\nfinal double gb = handler.g(tb, interpolator.getInterpolatedState());\nif (g0Positive ^ (gb >= 0)) {\nif (ga * gb > 0) {\nincreasing = gb >= ga;\nfinal UnivariateRealFunction f = new UnivariateRealFunction() {\ninterpolator.setInterpolatedTime(t);\nreturn handler.g(t, interpolator.getInterpolatedState());\nfinal BrentSolver solver = new BrentSolver();\nsolver.setAbsoluteAccuracy(convergence);\nsolver.setMaximalIterationCount(maxIterationCount);\nfinal double root = (ta <= tb) ? solver.solve(f, ta, tb) : solver.solve(f, tb, ta);\nif ((Math.abs(root - ta) <= convergence) &&\n} else if (Double.isNaN(previousEventTime) ||\npendingEventTime = root;\nif (pendingEvent && (Math.abs(t1 - pendingEventTime) <= convergence)) {\npendingEvent = true;\nreturn true;\nta = tb;\nga = gb;\npendingEvent     = false;\npendingEventTime = Double.NaN;\nreturn false;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:stepAccepted(D[D)V",
+            "method_body": "public void stepAccepted(final double t, final double[] y)\nt0 = t;\ng0 = handler.g(t, y);\nif (pendingEvent) {\npreviousEventTime = t;\ng0Positive        = increasing;\nnextAction        = handler.eventOccurred(t, y, !(increasing ^ forward));\ng0Positive = g0 >= 0;\nnextAction = EventHandler.CONTINUE;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:isForward()Z",
+            "method_body": "public boolean isForward() {\nreturn forward;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:addEndTimeChecker(DDLorg/apache/commons/math/ode/events/CombinedEventsManager;)Lorg/apache/commons/math/ode/events/CombinedEventsManager;",
+            "method_body": "protected CombinedEventsManager addEndTimeChecker(final double startTime,\nCombinedEventsManager newManager = new CombinedEventsManager();\nfor (final EventState state : manager.getEventsStates()) {\nnewManager.addEventHandler(new EndTimeChecker(endTime),\nreturn newManager;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:getEventsStates()Ljava/util/Collection;",
+            "method_body": "public Collection<EventState> getEventsStates() {\nreturn states;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator$EndTimeChecker:<init>(D)V",
+            "method_body": "public EndTimeChecker(final double endTime) {\nthis.endTime = endTime;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853Integrator:estimateError([[D[D[DD)D",
+            "method_body": "protected double estimateError(final double[][] yDotK,\ndouble error1 = 0;\ndouble error2 = 0;\nfor (int j = 0; j < y0.length; ++j) {\nfinal double errSum1 = E1_01 * yDotK[0][j]  + E1_06 * yDotK[5][j] +\nfinal double errSum2 = E2_01 * yDotK[0][j]  + E2_06 * yDotK[5][j] +\nfinal double yScale = Math.max(Math.abs(y0[j]), Math.abs(y1[j]));\nfinal double tol = (vecAbsoluteTolerance == null) ?\nfinal double ratio1  = errSum1 / tol;\nerror1        += ratio1 * ratio1;\nfinal double ratio2  = errSum2 / tol;\nerror2        += ratio2 * ratio2;\ndouble den = error1 + 0.01 * error2;\nif (den <= 0.0) {\nreturn Math.abs(h) * error1 / Math.sqrt(y0.length * den);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:addEventHandler(Lorg/apache/commons/math/ode/events/EventHandler;DDI)V",
+            "method_body": "public void addEventHandler(final EventHandler handler, final double maxCheckInterval,\nstates.add(new EventState(handler, maxCheckInterval,\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:evaluateStep(Lorg/apache/commons/math/ode/sampling/StepInterpolator;)Z",
+            "method_body": "public boolean evaluateStep(final StepInterpolator interpolator)\nfirst = null;\nif (states.isEmpty()) {\nif (! initialized) {\nfinal double t0 = interpolator.getPreviousTime();\ninterpolator.setInterpolatedTime(t0);\nfinal double [] y = interpolator.getInterpolatedState();\nfor (EventState state : states) {\nstate.reinitializeBegin(t0, y);\ninitialized = true;\nfor (EventState state : states) {\nif (state.evaluateStep(interpolator)) {\nif (first == null) {\nfirst = state;\nreturn first != null;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:setMaximalIterationCount(I)V",
+            "method_body": "public void setMaximalIterationCount(int count) {\nmaximalIterationCount = count;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:stepAccepted(D[D)V",
+            "method_body": "public void stepAccepted(final double t, final double[] y)\nfor (EventState state : states) {\nstate.stepAccepted(t, y);\n}\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:stop()Z",
+            "method_body": "public boolean stop() {\nfor (EventState state : states) {\nif (state.stop()) {\nreturn true;\nreturn false;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:reset(D[D)Z",
+            "method_body": "public boolean reset(final double t, final double[] y)\nboolean resetDerivatives = false;\nfor (EventState state : states) {\nif (state.reset(t, y)) {\nreturn resetDerivatives;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState:<init>(Lorg/apache/commons/math/ode/events/EventHandler;DDI)V",
+            "method_body": "public EventState(final EventHandler handler, final double maxCheckInterval,\nfinal double convergence, final int maxIterationCount) {\nthis.handler           = handler;\nthis.maxCheckInterval  = maxCheckInterval;\nthis.convergence       = Math.abs(convergence);\nthis.maxIterationCount = maxIterationCount;\nt0                = Double.NaN;\ng0                = Double.NaN;\ng0Positive        = true;\npendingEvent      = false;\npendingEventTime  = Double.NaN;\npreviousEventTime = Double.NaN;\nincreasing        = true;\nnextAction        = EventHandler.CONTINUE;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:getPreviousTime()D",
+            "method_body": "public double getPreviousTime() {\nreturn previousTime;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853Integrator:<init>(DDDD)V",
+            "method_body": "public DormandPrince853Integrator(final double minStep, final double maxStep,\nsuper(METHOD_NAME, true, STATIC_C, STATIC_A, STATIC_B,\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:getCurrentTime()D",
+            "method_body": "public double getCurrentTime() {\nreturn currentTime;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:setEquations(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;)V",
+            "method_body": "protected void setEquations(final FirstOrderDifferentialEquations equations) {\nthis.equations = equations;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:computeDerivatives(D[D[D)V",
+            "method_body": "public void computeDerivatives(final double t, final double[] y, final double[] yDot)\nif (++evaluations > maxEvaluations) {\nequations.computeDerivatives(t, y, yDot);\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:getInterpolatedState()[D",
+            "method_body": "public double[] getInterpolatedState() throws DerivativeException {\nif (dirtyState) {\nfinal double oneMinusThetaH = currentTime - interpolatedTime;\nfinal double theta = (h == 0) ? 0 : (h - oneMinusThetaH) / h;\ncomputeInterpolatedStateAndDerivatives(theta, oneMinusThetaH);\ndirtyState = false;\nreturn interpolatedState;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:requiresDenseOutput()Z",
+            "method_body": "protected boolean requiresDenseOutput() {\nfor (StepHandler handler : stepHandlers) {\nreturn false;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.RungeKuttaStepInterpolator:<init>()V",
+            "method_body": "protected RungeKuttaStepInterpolator() {\nsuper();\nyDotK      = null;\nintegrator = null;\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:<init>()V",
+            "method_body": "protected AbstractStepInterpolator() {\npreviousTime            = Double.NaN;\ncurrentTime             = Double.NaN;\nh                       = Double.NaN;\ninterpolatedTime        = Double.NaN;\ncurrentState            = null;\ninterpolatedState       = null;\ninterpolatedDerivatives = null;\nfinalized               = false;\nthis.forward            = true;\nthis.dirtyState         = true;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853Integrator:getOrder()I",
+            "method_body": "public int getOrder() {\nreturn 8;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:<init>()V",
+            "method_body": "public DormandPrince853StepInterpolator() {\nsuper();\nyDotKLast = null;\nv         = null;\nvectorsInitialized = false;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:setAbsoluteAccuracy(D)V",
+            "method_body": "public void setAbsoluteAccuracy(double accuracy) {\nabsoluteAccuracy = accuracy;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:shift()V",
+            "method_body": "public void shift() {\npreviousTime = currentTime;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:storeTime(D)V",
+            "method_body": "public void storeTime(final double t) {\ncurrentTime = t;\nh           = currentTime - previousTime;\nsetInterpolatedTime(t);\nfinalized  = false;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:setInterpolatedTime(D)V",
+            "method_body": "public void setInterpolatedTime(final double time) {\ninterpolatedTime = time;\ndirtyState       = true;\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:sanityChecks(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;D[DD[D)V",
+            "method_body": "protected void sanityChecks(final FirstOrderDifferentialEquations ode,\nif (ode.getDimension() != y0.length) {\nif (ode.getDimension() != y.length) {\nif (Math.abs(t - t0) <= 1.0e-12 * Math.max(Math.abs(t0), Math.abs(t))) {\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:<init>(Ljava/lang/String;)V",
+            "method_body": "public AbstractIntegrator(final String name) {\nthis.name = name;\nstepHandlers = new ArrayList<StepHandler>();\nstepStart = Double.NaN;\nstepSize  = Double.NaN;\neventsHandlersManager = new CombinedEventsManager();\nsetMaxEvaluations(-1);\nresetEvaluations();\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:setMaxEvaluations(I)V",
+            "method_body": "public void setMaxEvaluations(int maxEvaluations) {\nthis.maxEvaluations = (maxEvaluations < 0) ? Integer.MAX_VALUE : maxEvaluations;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:resetEvaluations()V",
+            "method_body": "protected void resetEvaluations() {\nevaluations = 0;\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.CombinedEventsManager:<init>()V",
+            "method_body": "public CombinedEventsManager() {\nstates      = new ArrayList<EventState>();\nfirst       = null;\ninitialized = false;\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.BrentSolver:solve(Lorg/apache/commons/math/analysis/UnivariateRealFunction;DDDDDD)D",
+            "method_body": "private double solve(final UnivariateRealFunction f,\ndouble delta = x1 - x0;\ndouble oldDelta = delta;\nint i = 0;\nwhile (i < maximalIterationCount) {\nif (Math.abs(y2) < Math.abs(y1)) {\nx0 = x1;\nx1 = x2;\nx2 = x0;\ny0 = y1;\ny1 = y2;\ny2 = y0;\nif (Math.abs(y1) <= functionValueAccuracy) {\ndouble dx = x2 - x1;\ndouble tolerance =\nif (Math.abs(dx) <= tolerance) {\nsetResult(x1, i);\nreturn result;\nif ((Math.abs(oldDelta) < tolerance) ||\ndouble r3 = y1 / y0;\nif (x0 == x2) {\np = dx * r3;\np1 = 1.0 - r3;\nif (p > 0.0) {\np1 = -p1;\np = -p;\nif (2.0 * p >= 1.5 * dx * p1 - Math.abs(tolerance * p1) ||\noldDelta = delta;\ndelta = p / p1;\nx0 = x1;\ny0 = y1;\nif (Math.abs(delta) > tolerance) {\n} else if (dx > 0.0) {\nx1 = x1 + 0.5 * tolerance;\n} else if (dx <= 0.0) {\nx1 = x1 - 0.5 * tolerance;\ny1 = f.value(x1);\nif ((y1 > 0) == (y2 > 0)) {\nx2 = x0;\ny2 = y0;\ndelta = x1 - x0;\noldDelta = delta;\ni++;\n}\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.BrentSolver:<init>()V",
+            "method_body": "public BrentSolver() {\nsuper(DEFAULT_MAXIMUM_ITERATIONS, DEFAULT_ABSOLUTE_ACCURACY);\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.BrentSolver:solve(Lorg/apache/commons/math/analysis/UnivariateRealFunction;DD)D",
+            "method_body": "public double solve(final UnivariateRealFunction f,\nclearResult();\nverifyInterval(min, max);\ndouble ret = Double.NaN;\ndouble yMin = f.value(min);\ndouble yMax = f.value(max);\ndouble sign = yMin * yMax;\nif (sign > 0) {\n} else if (sign < 0){\nret = solve(f, min, yMin, max, yMax, min, yMin);\nreturn ret;\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.UnivariateRealSolverImpl:clearResult()V",
+            "method_body": "protected final void clearResult() {\nthis.iterationCount = 0;\nthis.resultComputed = false;\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.UnivariateRealSolverImpl:setResult(DI)V",
+            "method_body": "protected final void setResult(final double newResult, final int iterationCount) {\nthis.result         = newResult;\nthis.iterationCount = iterationCount;\nthis.resultComputed = true;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.UnivariateRealSolverImpl:verifyInterval(DD)V",
+            "method_body": "protected void verifyInterval(final double lower, final double upper) {\nif (lower >= upper) {\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.math.analysis.solvers.UnivariateRealSolverImpl:<init>(ID)V",
+            "method_body": "protected UnivariateRealSolverImpl(final int defaultMaximalIterationCount,\nsuper(defaultMaximalIterationCount, defaultAbsoluteAccuracy);\nthis.defaultFunctionValueAccuracy = 1.0e-15;\nthis.functionValueAccuracy = defaultFunctionValueAccuracy;\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:<init>(ID)V",
+            "method_body": "protected ConvergingAlgorithmImpl(final int defaultMaximalIterationCount,\nfinal double defaultAbsoluteAccuracy) {\nthis.defaultAbsoluteAccuracy = defaultAbsoluteAccuracy;\nthis.defaultRelativeAccuracy = 1.0e-14;\nthis.absoluteAccuracy = defaultAbsoluteAccuracy;\nthis.relativeAccuracy = defaultRelativeAccuracy;\nthis.defaultMaximalIterationCount = defaultMaximalIterationCount;\nthis.maximalIterationCount = defaultMaximalIterationCount;\nthis.iterationCount = 0;\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:<init>(Ljava/lang/String;Z[D[[D[DLorg/apache/commons/math/ode/nonstiff/RungeKuttaStepInterpolator;DDDD)V",
+            "method_body": "protected EmbeddedRungeKuttaIntegrator(final String name, final boolean fsal,\nsuper(name, minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);\nthis.fsal      = fsal;\nthis.c         = c;\nthis.a         = a;\nthis.b         = b;\nthis.prototype = prototype;\nexp = -1.0 / getOrder();\nsetSafety(0.9);\nsetMinReduction(0.2);\nsetMaxGrowth(10.0);\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:integrate(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;D[DD[D)D",
+            "method_body": "public double integrate(final FirstOrderDifferentialEquations equations,\nsanityChecks(equations, t0, y0, t, y);\nsetEquations(equations);\nresetEvaluations();\nfinal boolean forward = t > t0;\nfinal int stages = c.length + 1;\nif (y != y0) {\nSystem.arraycopy(y0, 0, y, 0, y0.length);\nfinal double[][] yDotK = new double[stages][y0.length];\nfinal double[] yTmp = new double[y0.length];\nif (requiresDenseOutput() || (! eventsHandlersManager.isEmpty())) {\ninterpolator = new DummyStepInterpolator(yTmp, yDotK[stages - 1], forward);\ninterpolator.storeTime(t0);\nstepStart         = t0;\ndouble  hNew      = 0;\nboolean firstTime = true;\nfor (StepHandler handler : stepHandlers) {\nCombinedEventsManager manager = addEndTimeChecker(t0, t, eventsHandlersManager);\nboolean lastStep = false;\nwhile (!lastStep) {\ninterpolator.shift();\ndouble error = 0;\nfor (boolean loop = true; loop;) {\nif (firstTime || !fsal) {\ncomputeDerivatives(stepStart, y, yDotK[0]);\nif (firstTime) {\nfinal double[] scale = new double[y0.length];\nif (vecAbsoluteTolerance == null) {\nfor (int i = 0; i < scale.length; ++i) {\nscale[i] = scalAbsoluteTolerance + scalRelativeTolerance * Math.abs(y[i]);\nhNew = initializeStep(equations, forward, getOrder(), scale,\nfirstTime = false;\nstepSize = hNew;\nfor (int k = 1; k < stages; ++k) {\nfor (int j = 0; j < y0.length; ++j) {\ndouble sum = a[k-1][0] * yDotK[0][j];\nfor (int l = 1; l < k; ++l) {\nsum += a[k-1][l] * yDotK[l][j];\nyTmp[j] = y[j] + stepSize * sum;\ncomputeDerivatives(stepStart + c[k-1] * stepSize, yTmp, yDotK[k]);\nfor (int j = 0; j < y0.length; ++j) {\ndouble sum    = b[0] * yDotK[0][j];\nfor (int l = 1; l < stages; ++l) {\nsum    += b[l] * yDotK[l][j];\nyTmp[j] = y[j] + stepSize * sum;\nerror = estimateError(yDotK, y, yTmp, stepSize);\nif (error <= 1.0) {\ninterpolator.storeTime(stepStart + stepSize);\nif (manager.evaluateStep(interpolator)) {\nfinal double dt = manager.getEventTime() - stepStart;\nif (Math.abs(dt) <= Math.ulp(stepStart)) {\nloop     = false;\nhNew = dt;\n} else {\nloop = false;\nfinal double nextStep = stepStart + stepSize;\nSystem.arraycopy(yTmp, 0, y, 0, y0.length);\nmanager.stepAccepted(nextStep, y);\nlastStep = manager.stop();\ninterpolator.storeTime(nextStep);\nfor (StepHandler handler : stepHandlers) {\nstepStart = nextStep;\nif (fsal) {\nSystem.arraycopy(yDotK[stages - 1], 0, yDotK[0], 0, y0.length);\nif (manager.reset(stepStart, y) && ! lastStep) {\nif (! lastStep) {\nstepSize = filterStep(stepSize, forward, true);\nfinal double factor = Math.min(maxGrowth,\nfinal double  scaledH    = stepSize * factor;\nfinal double  nextT      = stepStart + scaledH;\nfinal boolean nextIsLast = forward ? (nextT >= t) : (nextT <= t);\nhNew = filterStep(scaledH, forward, nextIsLast);\n}\nfinal double stopTime = stepStart;\nresetInternalState();\nreturn stopTime;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setSafety(D)V",
+            "method_body": "public void setSafety(final double safety) {\nthis.safety = safety;\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setMinReduction(D)V",
+            "method_body": "public void setMinReduction(final double minReduction) {\nthis.minReduction = minReduction;\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setMaxGrowth(D)V",
+            "method_body": "public void setMaxGrowth(final double maxGrowth) {\nthis.maxGrowth = maxGrowth;\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:initializeStep(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;ZI[DD[D[D[D[D)D",
+            "method_body": "public double initializeStep(final FirstOrderDifferentialEquations equations,\nif (initialStep > 0) {\nreturn forward ? initialStep : -initialStep;\n}",
+            "method_id": 60
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:filterStep(DZZ)D",
+            "method_body": "protected double filterStep(final double h, final boolean forward, final boolean acceptSmall)\ndouble filteredH = h;\nif (Math.abs(h) < minStep) {\nif (filteredH > maxStep) {\nfilteredH = maxStep;\n} else if (filteredH < -maxStep) {\nreturn filteredH;\n}",
+            "method_id": 61
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:<init>(Ljava/lang/String;DDDD)V",
+            "method_body": "public AdaptiveStepsizeIntegrator(final String name,\nsuper(name);\nthis.minStep     = Math.abs(minStep);\nthis.maxStep     = Math.abs(maxStep);\nthis.initialStep = -1.0;\nthis.scalAbsoluteTolerance = scalAbsoluteTolerance;\nthis.scalRelativeTolerance = scalRelativeTolerance;\nthis.vecAbsoluteTolerance  = null;\nthis.vecRelativeTolerance  = null;\nresetInternalState();\n}",
+            "method_id": 62
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:sanityChecks(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;D[DD[D)V",
+            "method_body": "protected void sanityChecks(final FirstOrderDifferentialEquations equations,\nsuper.sanityChecks(equations, t0, y0, t, y);\nif ((vecAbsoluteTolerance != null) && (vecAbsoluteTolerance.length != y0.length)) {\nif ((vecRelativeTolerance != null) && (vecRelativeTolerance.length != y0.length)) {\n}",
+            "method_id": 63
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:resetInternalState()V",
+            "method_body": "protected void resetInternalState() {\nstepStart = Double.NaN;\nstepSize  = Math.sqrt(minStep * maxStep);\n}",
+            "method_id": 64
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState$1:<init>(Lorg/apache/commons/math/ode/events/EventState;Lorg/apache/commons/math/ode/sampling/StepInterpolator;)V",
+            "method_body": "public boolean evaluateStep(final StepInterpolator interpolator)\nforward = interpolator.isForward();\nfinal double t1 = interpolator.getCurrentTime();\nfinal int    n  = Math.max(1, (int) Math.ceil(Math.abs(t1 - t0) / maxCheckInterval));\nfinal double h  = (t1 - t0) / n;\ndouble ta = t0;\ndouble ga = g0;\ndouble tb = t0 + (interpolator.isForward() ? convergence : -convergence);\nfor (int i = 0; i < n; ++i) {\ntb += h;\ninterpolator.setInterpolatedTime(tb);\nfinal double gb = handler.g(tb, interpolator.getInterpolatedState());\nif (g0Positive ^ (gb >= 0)) {\nif (ga * gb > 0) {\nincreasing = gb >= ga;\nfinal UnivariateRealFunction f = new UnivariateRealFunction() {\ninterpolator.setInterpolatedTime(t);\nreturn handler.g(t, interpolator.getInterpolatedState());\nfinal BrentSolver solver = new BrentSolver();\nsolver.setAbsoluteAccuracy(convergence);\nsolver.setMaximalIterationCount(maxIterationCount);\nfinal double root = (ta <= tb) ? solver.solve(f, ta, tb) : solver.solve(f, tb, ta);\nif ((Math.abs(root - ta) <= convergence) &&\n} else if (Double.isNaN(previousEventTime) ||\npendingEventTime = root;\nif (pendingEvent && (Math.abs(t1 - pendingEventTime) <= convergence)) {\npendingEvent = true;\nreturn true;\nta = tb;\nga = gb;\npendingEvent     = false;\npendingEventTime = Double.NaN;\nreturn false;\n}",
+            "method_id": 65
+        }
+    ]
+}

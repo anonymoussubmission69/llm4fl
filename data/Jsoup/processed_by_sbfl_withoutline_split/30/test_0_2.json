@@ -1,0 +1,59 @@
+{
+    "bug_id": 30,
+    "test_id": 0,
+    "test_name": "org.jsoup.safety.CleanerTest.testIsValid",
+    "test_body": "@Test public void testIsValid() {\nString ok = \"<p>Test <b><a href='http://example.com/'>OK</a></b></p>\";\nString nok1 = \"<p><script></script>Not <b>OK</b></p>\";\nString nok2 = \"<p align=right>Test Not <b>OK</b></p>\";\nString nok3 = \"<!-- comment --><p>Not OK</p>\"; // comments and the like will be cleaned\nassertTrue(Jsoup.isValid(ok, Whitelist.basic()));\nassertFalse(Jsoup.isValid(nok1, Whitelist.basic()));\nassertFalse(Jsoup.isValid(nok2, Whitelist.basic()));\nassertFalse(Jsoup.isValid(nok3, Whitelist.basic()));\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError\nat org.junit.Assert.fail(Assert.java:86)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.junit.Assert.assertFalse(Assert.java:64)\nat org.junit.Assert.assertFalse(Assert.java:74)\nat org.jsoup.safety.CleanerTest.testIsValid(CleanerTest.java:99)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeKey:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$AttributeKey;",
+            "method_body": "static AttributeKey valueOf(String value) {\nreturn new AttributeKey(value);\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$Protocol:<init>(Ljava/lang/String;)V",
+            "method_body": "Protocol(String value) {\nsuper(value);\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$Protocol:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$Protocol;",
+            "method_body": "static Protocol valueOf(String value) {\nreturn new Protocol(value);\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeValue:<init>(Ljava/lang/String;)V",
+            "method_body": "AttributeValue(String value) {\nsuper(value);\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeValue:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$AttributeValue;",
+            "method_body": "static AttributeValue valueOf(String value) {\nreturn new AttributeValue(value);\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:<init>(Lorg/jsoup/safety/Whitelist;)V",
+            "method_body": "public Cleaner(Whitelist whitelist) {\nValidate.notNull(whitelist);\nthis.whitelist = whitelist;\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:isValid(Lorg/jsoup/nodes/Document;)Z",
+            "method_body": "public boolean isValid(Document dirtyDocument) {\nValidate.notNull(dirtyDocument);\nDocument clean = Document.createShell(dirtyDocument.baseUri());\nint numDiscarded = copySafeNodes(dirtyDocument.body(), clean.body());\nreturn numDiscarded == 0;\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:copySafeNodes(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)I",
+            "method_body": "private int copySafeNodes(Element root, Element destination) {\nList<Node> sourceChildren = root.childNodes();\nint numDiscarded = 0;\nfor (Node source : sourceChildren) {\nif (source instanceof Element) {\nElement sourceEl = (Element) source;\nif (whitelist.isSafeTag(sourceEl.tagName())) { // safe, clone and copy safe attrs\nElementMeta meta = createSafeElement(sourceEl);\nElement destChild = meta.el;\ndestination.appendChild(destChild);\nnumDiscarded += meta.numAttribsDiscarded;\nnumDiscarded += copySafeNodes(sourceEl, destChild);\n} else {\nnumDiscarded++;\nnumDiscarded += copySafeNodes(sourceEl, destination);\n} else if (source instanceof TextNode) {\nTextNode sourceText = (TextNode) source;\nTextNode destText = new TextNode(sourceText.getWholeText(), source.baseUri());\ndestination.appendChild(destText);\n}\nreturn numDiscarded;\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:createSafeElement(Lorg/jsoup/nodes/Element;)Lorg/jsoup/safety/Cleaner$ElementMeta;",
+            "method_body": "private ElementMeta createSafeElement(Element sourceEl) {\nString sourceTag = sourceEl.tagName();\nAttributes destAttrs = new Attributes();\nElement dest = new Element(Tag.valueOf(sourceTag), sourceEl.baseUri(), destAttrs);\nint numDiscarded = 0;\nAttributes sourceAttrs = sourceEl.attributes();\nfor (Attribute sourceAttr : sourceAttrs) {\nif (whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr))\ndestAttrs.put(sourceAttr);\nnumDiscarded++;\n}\nAttributes enforcedAttrs = whitelist.getEnforcedAttributes(sourceTag);\ndestAttrs.addAll(enforcedAttrs);\nreturn new ElementMeta(dest, numDiscarded);\n}",
+            "method_id": 208
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner$ElementMeta:<init>(Lorg/jsoup/nodes/Element;I)V",
+            "method_body": "ElementMeta(Element el, int numAttribsDiscarded) {\nthis.el = el;\nthis.numAttribsDiscarded = numAttribsDiscarded;\n}",
+            "method_id": 209
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "bug_id": 28,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testSupplementaryUnescaping",
+            "test_body": "public void testSupplementaryUnescaping() {\nNumericEntityUnescaper neu = new NumericEntityUnescaper();\nString input = \"&#68642;\";\nString expected = \"\\uD803\\uDC22\";\n32: String result = neu.translate(input);\nassertEquals(\"Failed to unescape numeric entities supplementary characters\", expected, result);\n}\n",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.NumericEntityUnescaper:translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",
+                    "method_body": "public int translate(CharSequence input, int index, Writer out) throws IOException {\nif(input.charAt(index) == '&' && input.charAt(index + 1) == '#') {\nint start = index + 2;\nboolean isHex = false;\nchar firstChar = input.charAt(start);\nif(firstChar == 'x' || firstChar == 'X') {\nint end = start;\nwhile(input.charAt(end) != ';') {\nend++;\nif(isHex) {\nentityValue = Integer.parseInt(input.subSequence(start, end).toString(), 10);\n}\nout.write(entityValue);\nreturn 2 + (end - start) + (isHex ? 1 : 0) + 1;\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V",
+                    "method_body": "public final void translate(CharSequence input, Writer out) throws IOException {\nif (out == null) {\nif (input == null) {\nint sz = Character.codePointCount(input, 0, input.length());\nfor (int i = 0; i < sz; i++) {\nint consumed = translate(input, i, out);\nif(consumed == 0) {\nfor(int j=0; j<consumed; j++) {\nif(i < sz - 2) {\ni += Character.charCount( Character.codePointAt(input, i) );\ni++;\ni--;\n}",
+                    "method_id": 1
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;)Ljava/lang/String;",
+                    "method_body": "public abstract int translate(CharSequence input, int index, Writer out) throws IOException;\nif (input == null) {\nStringWriter writer = new StringWriter(input.length() * 2);  // TODO: Make the 2 part of the API???\ntranslate(input, writer);\nreturn writer.toString();\n}",
+                    "method_id": 2
+                }
+            ],
+            "stack_trace": "junit.framework.ComparisonFailure: Failed to unescape numeric entities supplementary characters expected:<[\ud803\udc22]> but was:<[\u0c22]>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.TestCase.assertEquals(TestCase.java:261)\nat org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testSupplementaryUnescaping(NumericEntityUnescaperTest.java:33)",
+            "test_id": 0
+        }
+    ]
+}

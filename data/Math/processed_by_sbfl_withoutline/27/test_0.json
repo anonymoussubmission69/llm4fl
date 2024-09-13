@@ -1,0 +1,34 @@
+{
+    "bug_id": 27,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.fraction.FractionTest.testMath835",
+    "test_body": "public void testMath835() {\nfinal int numer = Integer.MAX_VALUE / 99;\nfinal int denom = 1;\nfinal double percentage = 100 * ((double) numer) / denom;\nfinal Fraction frac = new Fraction(numer, denom);\n// With the implementation that preceded the fix suggested in MATH-835,\n// this test was failing, due to overflow.\nAssert.assertEquals(percentage, frac.percentageValue(), Math.ulp(percentage));\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<2.1691754E9> but was:<-2.125791896E9>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math3.fraction.FractionTest.testMath835(FractionTest.java:253)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.fraction.Fraction:percentageValue()D",
+            "method_body": "public double percentageValue() {\nreturn multiply(100).doubleValue();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.fraction.Fraction:multiply(I)Lorg/apache/commons/math3/fraction/Fraction;",
+            "method_body": "public Fraction multiply(final int i) {\nreturn new Fraction(numerator * i, denominator);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.fraction.Fraction:doubleValue()D",
+            "method_body": "public double doubleValue() {\nreturn (double)numerator / (double)denominator;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.fraction.Fraction:<init>(II)V",
+            "method_body": "public Fraction(int num, int den) {\nif (den == 0) {\nif (den < 0) {\nfinal int d = ArithmeticUtils.gcd(num, den);\nif (d > 1) {\nif (den < 0) {\nthis.numerator   = num;\nthis.denominator = den;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.ArithmeticUtils:gcd(II)I",
+            "method_body": "public static int gcd(final int p, final int q) {\nint u = p;\nint v = q;\nif ((u == 0) || (v == 0)) {\nif (u > 0) {\nu = -u;\nif (v > 0) {\nv = -v;\nint k = 0;\nwhile ((u & 1) == 0 && (v & 1) == 0 && k < 31) { // while u and v are\nif (k == 31) {\nint t = ((u & 1) == 1) ? v : -(u / 2)/* B3 */;\nwhile ((t & 1) == 0) { // while t is even..\nt /= 2; // cast out twos\nif (t > 0) {\nu = -t;\nt = (v - u) / 2;\n} while (t != 0);\nreturn -u * (1 << k); // gcd is u*2^k\n}",
+            "method_id": 4
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+    "bug_id": 6,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.TestJsonPointer.testIZeroIndex",
+    "test_body": "public void testIZeroIndex() throws Exception\n{\nJsonPointer ptr = JsonPointer.compile(\"/0\");\nassertEquals(0, ptr.getMatchingIndex());\nptr = JsonPointer.compile(\"/00\");\nassertEquals(-1, ptr.getMatchingIndex());\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<-1> but was:<0>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.Assert.assertEquals(Assert.java:234)\nat junit.framework.Assert.assertEquals(Assert.java:241)\nat junit.framework.TestCase.assertEquals(TestCase.java:409)\nat com.fasterxml.jackson.core.TestJsonPointer.testIZeroIndex(TestJsonPointer.java:51)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:_parseIndex(Ljava/lang/String;)I",
+            "method_body": "private final static int _parseIndex(String str) {final int len = str.length();// [core#133]: beware of super long indexes; assume we never\n// have arrays over 2 billion entries so ints are fine.\nif (len == 0 || len > 10) {return -1;}// [core#176]: no leading zeroes allowed\nfor (int i = 0; i < len; ++i) {char c = str.charAt(i);if (c > '9' || c < '0') {return -1;}}if (len == 10) {long l = NumberInput.parseLong(str);if (l > Integer.MAX_VALUE) {return -1;}}return NumberInput.parseInt(str);}}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:_parseTail(Ljava/lang/String;)Lcom/fasterxml/jackson/core/JsonPointer;",
+            "method_body": "protected static JsonPointer _parseTail(String input) {\nfinal int end = input.length();\nfor (int i = 1; i < end; ) {\nchar c = input.charAt(i);\nif (c == '/') { // common case, got a segment\n++i;\nif (c == '~' && i < end) { // possibly, quote\n}\nreturn new JsonPointer(input, input.substring(1), EMPTY);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:compile(Ljava/lang/String;)Lcom/fasterxml/jackson/core/JsonPointer;",
+            "method_body": "public static JsonPointer compile(String input) throws IllegalArgumentException\nif ((input == null) || input.length() == 0) {\nif (input.charAt(0) != '/') {\nreturn _parseTail(input);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:<init>()V",
+            "method_body": "protected JsonPointer() {\n_nextSegment = null;\n_matchingPropertyName = \"\";\n_matchingElementIndex = -1;\n_asString = \"\";\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:<init>(Ljava/lang/String;Ljava/lang/String;Lcom/fasterxml/jackson/core/JsonPointer;)V",
+            "method_body": "protected final int _matchingElementIndex;\nprotected JsonPointer(String fullString, String segment, JsonPointer next) {\n_asString = fullString;\n_nextSegment = next;\n_matchingPropertyName = segment;\n_matchingElementIndex = _parseIndex(segment);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:<clinit>()V",
+            "method_body": "protected final static JsonPointer EMPTY = new JsonPointer();\n* so that {@link #toString} should be as efficient as possible.",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonPointer:getMatchingIndex()I",
+            "method_body": "public int getMatchingIndex() { return _matchingElementIndex; }\npublic int getMatchingIndex() { return _matchingElementIndex; }",
+            "method_id": 6
+        }
+    ]
+}

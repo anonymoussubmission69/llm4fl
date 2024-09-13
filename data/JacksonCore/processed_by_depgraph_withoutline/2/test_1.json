@@ -1,0 +1,39 @@
+{
+    "bug_id": 2,
+    "test_id": 1,
+    "test_name": "com.fasterxml.jackson.core.json.TestParserErrorHandling.testMangledNumbersChars",
+    "test_body": "public void testMangledNumbersChars() throws Exception {\n_testMangledNumbers(false);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: Should have gotten an exception; instead got token: VALUE_NUMBER_INT\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.core.json.TestParserErrorHandling._testMangledNumbers(TestParserErrorHandling.java:93)\nat com.fasterxml.jackson.core.json.TestParserErrorHandling.testMangledNumbersChars(TestParserErrorHandling.java:26)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:_parseNumber(I)Lcom/fasterxml/jackson/core/JsonToken;",
+            "method_body": "protected JsonToken _parseNumber(int ch) throws IOException\nboolean negative = (ch == INT_MINUS);\nint ptr = _inputPtr;\nint startPtr = ptr-1; // to include sign/digit already read\nfinal int inputLen = _inputEnd;\nif (negative) { // need to read the next digit\nif (ch == INT_0) {\nint intLen = 1; // already got one\nif (ptr >= _inputEnd) {\nch = (int) _inputBuffer[ptr++];\nif (ch < INT_0 || ch > INT_9) {\nbreak int_loop;\n++intLen;\nint fractLen = 0;\nif (ch == '.') { // yes, fraction\nint expLen = 0;\nif (ch == 'e' || ch == 'E') { // and/or exponent\n--ptr; // need to push back following separator\n_inputPtr = ptr;\nint len = ptr-startPtr;\n_textBuffer.resetWithShared(_inputBuffer, startPtr, len);\nreturn reset(negative, intLen, fractLen, expLen);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:nextToken()Lcom/fasterxml/jackson/core/JsonToken;",
+            "method_body": "public JsonToken nextToken()\n_numTypesValid = NR_UNKNOWN;\nif (_currToken == JsonToken.FIELD_NAME) {\nif (_tokenIncomplete) {\nint i = _skipWSOrEnd();\nif (i < 0) { // end-of-input\n_tokenInputTotal = _currInputProcessed + _inputPtr - 1;\n_tokenInputRow = _currInputRow;\n_tokenInputCol = _inputPtr - _currInputRowStart - 1;\n_binaryValue = null;\nif (i == INT_RBRACKET) {\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:loadMore()Z",
+            "method_body": "protected boolean loadMore() throws IOException\n_currInputProcessed += _inputEnd;\n_currInputRowStart -= _inputEnd;\nif (_reader != null) {\nint count = _reader.read(_inputBuffer, 0, _inputBuffer.length);\nif (count > 0) {\n_inputPtr = 0;\n_inputEnd = count;\nreturn true;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:_skipWSOrEnd()I",
+            "method_body": "private int _skipWSOrEnd() throws IOException\nfinal int[] codes = _icWS;\nwhile (_inputPtr < _inputEnd || loadMore()) {\nint i = (int) _inputBuffer[_inputPtr++];\nif (i >= 64) {\nswitch (codes[i]) {\nreturn i;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:<init>(Lcom/fasterxml/jackson/core/io/IOContext;ILjava/io/Reader;Lcom/fasterxml/jackson/core/ObjectCodec;Lcom/fasterxml/jackson/core/sym/CharsToNameCanonicalizer;)V",
+            "method_body": "public ReaderBasedJsonParser(IOContext ctxt, int features, Reader r,\nsuper(ctxt, features);\n_reader = r;\n_inputBuffer = ctxt.allocTokenBuffer();\n_objectCodec = codec;\n_symbols = st;\n_hashSeed = st.hashSeed();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.ReaderBasedJsonParser:<clinit>()V",
+            "method_body": "protected final static int[] _icLatin1 = CharTypes.getInputCodeLatin1();\nprivate final static int[] _icWS = CharTypes.getInputCodeWS();\nprotected boolean _tokenIncomplete = false;\nsuper(ctxt, features);\n_reader = r;\n_inputBuffer = ctxt.allocTokenBuffer();\n_objectCodec = codec;\n_symbols = st;\n_hashSeed = st.hashSeed();\n}",
+            "method_id": 5
+        }
+    ]
+}

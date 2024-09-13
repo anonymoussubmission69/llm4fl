@@ -1,0 +1,84 @@
+{
+    "bug_id": 52,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.geometry.euclidean.threed.RotationTest.testIssue639",
+    "test_body": "public void testIssue639(){\nVector3D u1 = new Vector3D(-1321008684645961.0 /  268435456.0,\n-5774608829631843.0 /  268435456.0,\n-3822921525525679.0 / 4294967296.0);\nVector3D u2 =new Vector3D( -5712344449280879.0 /    2097152.0,\n-2275058564560979.0 /    1048576.0,\n4423475992255071.0 /      65536.0);\nRotation rot = new Rotation(u1, u2, Vector3D.PLUS_I,Vector3D.PLUS_K);\nAssert.assertEquals( 0.6228370359608200639829222, rot.getQ0(), 1.0e-15);\nAssert.assertEquals( 0.0257707621456498790029987, rot.getQ1(), 1.0e-15);",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<0.6228370359608201> but was:<NaN>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math.geometry.euclidean.threed.RotationTest.testIssue639(RotationTest.java:488)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:getNormSq()D",
+            "method_body": "public double getNormSq() {\nreturn x * x + y * y + z * z;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Rotation:<init>(Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Rotation(Vector3D u1, Vector3D u2, Vector3D v1, Vector3D v2) {\ndouble u1u1 = u1.getNormSq();\ndouble u2u2 = u2.getNormSq();\ndouble v1v1 = v1.getNormSq();\ndouble v2v2 = v2.getNormSq();\nif ((u1u1 == 0) || (u2u2 == 0) || (v1v1 == 0) || (v2v2 == 0)) {\nv1 = new Vector3D(FastMath.sqrt(u1u1 / v1v1), v1);\ndouble u1u2   = u1.dotProduct(u2);\ndouble v1v2   = v1.dotProduct(v2);\ndouble coeffU = u1u2 / u1u1;\ndouble coeffV = v1v2 / u1u1;\ndouble beta   = FastMath.sqrt((u2u2 - u1u2 * coeffU) / (v2v2 - v1v2 * coeffV));\ndouble alpha  = coeffU - beta * coeffV;\nv2 = new Vector3D(alpha, v1, beta, v2);\nVector3D uRef  = u1;\nVector3D vRef  = v1;\nVector3D v1Su1 = v1.subtract(u1);\nVector3D v2Su2 = v2.subtract(u2);\nVector3D k     = v1Su1.crossProduct(v2Su2);\nVector3D u3    = u1.crossProduct(u2);\ndouble c       = k.dotProduct(u3);\nif (c == 0) {\nc = FastMath.sqrt(c);\ndouble inv = 1.0 / (c + c);\nq1 = inv * k.getX();\nq2 = inv * k.getY();\nq3 = inv * k.getZ();\nk = new Vector3D(uRef.getY() * q3 - uRef.getZ() * q2,\nq0 = vRef.dotProduct(k) / (2 * k.getNormSq());\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Rotation:getQ0()D",
+            "method_body": "public double getQ0() {\nreturn q0;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:<init>(DLorg/apache/commons/math/geometry/euclidean/threed/Vector3D;DLorg/apache/commons/math/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Vector3D(double a1, Vector3D u1, double a2, Vector3D u2) {\nthis.x = MathUtils.linearCombination(a1, u1.x, a2, u2.x);\nthis.y = MathUtils.linearCombination(a1, u1.y, a2, u2.y);\nthis.z = MathUtils.linearCombination(a1, u1.z, a2, u2.z);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:<init>(DLorg/apache/commons/math/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Vector3D(double a, Vector3D u) {\nthis.x = a * u.x;\nthis.y = a * u.y;\nthis.z = a * u.z;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:subtract(Lorg/apache/commons/math/geometry/Vector;)Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D subtract(final Vector<Euclidean3D> v) {\nfinal Vector3D v3 = (Vector3D) v;\nreturn new Vector3D(x - v3.x, y - v3.y, z - v3.z);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:crossProduct(Lorg/apache/commons/math/geometry/Vector;)Lorg/apache/commons/math/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D crossProduct(final Vector<Euclidean3D> v) {\nfinal Vector3D v3 = (Vector3D) v;\nreturn new Vector3D(MathUtils.linearCombination(y, v3.z, -z, v3.y),\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:dotProduct(Lorg/apache/commons/math/geometry/Vector;)D",
+            "method_body": "public double dotProduct(final Vector<Euclidean3D> v) {\nfinal Vector3D v3 = (Vector3D) v;\nreturn MathUtils.linearCombination(x, v3.x, y, v3.y, z, v3.z);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:linearCombination(DDDD)D",
+            "method_body": "public static double linearCombination(final double a1, final double b1,\nfinal double ca1        = SPLIT_FACTOR * a1;\nfinal double a1High     = ca1 - (ca1 - a1);\nfinal double a1Low      = a1 - a1High;\nfinal double cb1        = SPLIT_FACTOR * b1;\nfinal double b1High     = cb1 - (cb1 - b1);\nfinal double b1Low      = b1 - b1High;\nfinal double prod1High  = a1 * b1;\nfinal double prod1Low   = a1Low * b1Low - (((prod1High - a1High * b1High) - a1Low * b1High) - a1High * b1Low);\nfinal double ca2        = SPLIT_FACTOR * a2;\nfinal double a2High     = ca2 - (ca2 - a2);\nfinal double a2Low      = a2 - a2High;\nfinal double cb2        = SPLIT_FACTOR * b2;\nfinal double b2High     = cb2 - (cb2 - b2);\nfinal double b2Low      = b2 - b2High;\nfinal double prod2High  = a2 * b2;\nfinal double prod2Low   = a2Low * b2Low - (((prod2High - a2High * b2High) - a2Low * b2High) - a2High * b2Low);\nfinal double s12High    = prod1High + prod2High;\nfinal double s12Prime   = s12High - prod2High;\nfinal double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);\nreturn s12High + (prod1Low + prod2Low + s12Low);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:linearCombination(DDDDDD)D",
+            "method_body": "public static double linearCombination(final double a1, final double b1,\nfinal double ca1        = SPLIT_FACTOR * a1;\nfinal double a1High     = ca1 - (ca1 - a1);\nfinal double a1Low      = a1 - a1High;\nfinal double cb1        = SPLIT_FACTOR * b1;\nfinal double b1High     = cb1 - (cb1 - b1);\nfinal double b1Low      = b1 - b1High;\nfinal double prod1High  = a1 * b1;\nfinal double prod1Low   = a1Low * b1Low - (((prod1High - a1High * b1High) - a1Low * b1High) - a1High * b1Low);\nfinal double ca2        = SPLIT_FACTOR * a2;\nfinal double a2High     = ca2 - (ca2 - a2);\nfinal double a2Low      = a2 - a2High;\nfinal double cb2        = SPLIT_FACTOR * b2;\nfinal double b2High     = cb2 - (cb2 - b2);\nfinal double b2Low      = b2 - b2High;\nfinal double prod2High  = a2 * b2;\nfinal double prod2Low   = a2Low * b2Low - (((prod2High - a2High * b2High) - a2Low * b2High) - a2High * b2Low);\nfinal double ca3        = SPLIT_FACTOR * a3;\nfinal double a3High     = ca3 - (ca3 - a3);\nfinal double a3Low      = a3 - a3High;\nfinal double cb3        = SPLIT_FACTOR * b3;\nfinal double b3High     = cb3 - (cb3 - b3);\nfinal double b3Low      = b3 - b3High;\nfinal double prod3High  = a3 * b3;\nfinal double prod3Low   = a3Low * b3Low - (((prod3High - a3High * b3High) - a3Low * b3High) - a3High * b3Low);\nfinal double s12High    = prod1High + prod2High;\nfinal double s12Prime   = s12High - prod2High;\nfinal double s12Low     = (prod2High - (s12High - s12Prime)) + (prod1High - s12Prime);\nfinal double s123High   = s12High + prod3High;\nfinal double s123Prime  = s123High - prod3High;\nfinal double s123Low    = (prod3High - (s123High - s123Prime)) + (s12High - s123Prime);\nreturn s123High + (prod1Low + prod2Low + prod3Low + s12Low + s123Low);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:getX()D",
+            "method_body": "public double getX() {\nreturn x;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:getY()D",
+            "method_body": "public double getY() {\nreturn y;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:getZ()D",
+            "method_body": "public double getZ() {\nreturn z;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.geometry.euclidean.threed.Vector3D:<init>(DDD)V",
+            "method_body": "public Vector3D(double x, double y, double z) {\nthis.x = x;\nthis.y = y;\nthis.z = z;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 14
+        }
+    ]
+}

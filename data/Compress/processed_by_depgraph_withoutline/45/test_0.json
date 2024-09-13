@@ -1,0 +1,54 @@
+{
+    "bug_id": 45,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.tar.TarUtilsTest.testRoundTripOctalOrBinary8",
+    "test_body": "147: public void testRoundTripOctalOrBinary8() {\n148: testRoundTripOctalOrBinary(8);\n149: }\n",
+    "stack_trace": "java.lang.IllegalArgumentException: Value -72057594037927935 is too large for 8 byte field.\nat org.apache.commons.compress.archivers.tar.TarUtils.formatBigIntegerBinary(TarUtils.java:523)\nat org.apache.commons.compress.archivers.tar.TarUtils.formatLongOctalOrBinaryBytes(TarUtils.java:488)\nat org.apache.commons.compress.archivers.tar.TarUtilsTest.checkRoundTripOctalOrBinary(TarUtilsTest.java:141)\nat org.apache.commons.compress.archivers.tar.TarUtilsTest.testRoundTripOctalOrBinary(TarUtilsTest.java:163)\nat org.apache.commons.compress.archivers.tar.TarUtilsTest.testRoundTripOctalOrBinary8(TarUtilsTest.java:148)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:formatLongBinary(J[BIIZ)V",
+            "method_body": "private static void formatLongBinary(final long value, final byte[] buf,\nfinal int bits = (length - 1) * 8;\nfinal long max = 1l << bits;\nlong val = Math.abs(value); // Long.MIN_VALUE stays Long.MIN_VALUE\nif (val < 0 || val >= max) {\nif (negative) {\nval ^= max - 1;\nval++;\nval |= 0xffl << bits;\nfor (int i = offset + length - 1; i >= offset; i--) {\nbuf[i] = (byte) val;\nval >>= 8;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:formatLongOctalOrBinaryBytes(J[BII)I",
+            "method_body": "public static int formatLongOctalOrBinaryBytes(\nfinal long maxAsOctalChar = length == TarConstants.UIDLEN ? TarConstants.MAXID : TarConstants.MAXSIZE;\nfinal boolean negative = value < 0;\nif (!negative && value <= maxAsOctalChar) { // OK to store as octal chars\nreturn formatLongOctalBytes(value, buf, offset, length);\nif (length < 9) {\nformatLongBinary(value, buf, offset, length, negative);\nformatBigIntegerBinary(value, buf, offset, length, negative);\nbuf[offset] = (byte) (negative ? 0xff : 0x80);\nreturn offset + length;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:formatBigIntegerBinary(J[BIIZ)V",
+            "method_body": "private static void formatBigIntegerBinary(final long value, final byte[] buf,\nfinal BigInteger val = BigInteger.valueOf(value);\nfinal byte[] b = val.toByteArray();\nfinal int len = b.length;\nif (len > length - 1) {\nthrow new IllegalArgumentException(\"Value \" + value +\nfinal int off = offset + length - len;\nSystem.arraycopy(b, 0, buf, off, len);\nfinal byte fill = (byte) (negative ? 0xff : 0);\nfor (int i = offset + 1; i < off; i++) {\nbuf[i] = fill;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseBinaryLong([BIIZ)J",
+            "method_body": "private static long parseBinaryLong(final byte[] buffer, final int offset,\nif (length >= 9) {\nlong val = 0;\nfor (int i = 1; i < length; i++) {\nval = (val << 8) + (buffer[offset + i] & 0xff);\nif (negative) {\nval--;\nval ^= (long) Math.pow(2.0, (length - 1) * 8.0) - 1;\nreturn negative ? -val : val;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseOctalOrBinary([BII)J",
+            "method_body": "public static long parseOctalOrBinary(final byte[] buffer, final int offset,\nif ((buffer[offset] & 0x80) == 0) {\nreturn parseOctal(buffer, offset, length);\nfinal boolean negative = buffer[offset] == (byte) 0xff;\nif (length < 9) {\nreturn parseBinaryLong(buffer, offset, length, negative);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:parseOctal([BII)J",
+            "method_body": "public static long parseOctal(final byte[] buffer, final int offset, final int length) {\nlong    result = 0;\nint     end = offset + length;\nint     start = offset;\nif (length < 2){\nif (buffer[start] == 0) {\nwhile (start < end){\nif (buffer[start] == ' '){\nbyte trailer = buffer[end - 1];\nwhile (start < end && (trailer == 0 || trailer == ' ')) {\nend--;\ntrailer = buffer[end - 1];\nfor ( ;start < end; start++) {\nfinal byte currentByte = buffer[start];\nif (currentByte < '0' || currentByte > '7'){\nresult = (result << 3) + (currentByte - '0'); // convert from ASCII\nreturn result;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:formatUnsignedOctalString(J[BII)V",
+            "method_body": "public static void formatUnsignedOctalString(final long value, final byte[] buffer,\nint remaining = length;\nremaining--;\nif (value == 0) {\nbuffer[offset + remaining--] = (byte) '0';\nlong val = value;\nfor (; remaining >= 0 && val != 0; --remaining) {\nbuffer[offset + remaining] = (byte) ((byte) '0' + (byte) (val & 7));\nval = val >>> 3;\nif (val != 0){\nfor (; remaining >= 0; --remaining) { // leading zeros\nbuffer[offset + remaining] = (byte) '0';\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:formatLongOctalBytes(J[BII)I",
+            "method_body": "public static int formatLongOctalBytes(final long value, final byte[] buf, final int offset, final int length) {\nfinal int idx=length-1; // For space\nformatUnsignedOctalString(value, buf, offset, idx);\nbuf[offset + idx] = (byte) ' '; // Trailing space\nreturn offset + length;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarUtils:<clinit>()V",
+            "method_body": "private static final int BYTE_MASK = 255;\nstatic final ZipEncoding DEFAULT_ENCODING =\nstatic final ZipEncoding FALLBACK_ENCODING = new ZipEncoding() {\n};",
+            "method_id": 8
+        }
+    ]
+}

@@ -1,0 +1,54 @@
+{
+    "bug_id": 16,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.math.NumberUtilsTest.testCreateNumber",
+    "test_body": "public void testCreateNumber() {\n// a lot of things can go wrong\nassertEquals(\"createNumber(String) 1 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5\"));\nassertEquals(\"createNumber(String) 2 failed\", Integer.valueOf(\"12345\"), NumberUtils.createNumber(\"12345\"));\nassertEquals(\"createNumber(String) 3 failed\", Double.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5D\"));\nassertEquals(\"createNumber(String) 3 failed\", Double.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5d\"));\nassertEquals(\"createNumber(String) 4 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5F\"));\nassertEquals(\"createNumber(String) 4 failed\", Float.valueOf(\"1234.5\"), NumberUtils.createNumber(\"1234.5f\"));\nassertEquals(\"createNumber(String) 5 failed\", Long.valueOf(Integer.MAX_VALUE + 1L), NumberUtils.createNumber(\"\"\n+ (Integer.MAX_VALUE + 1L)));\nassertEquals(\"createNumber(String) 6 failed\", Long.valueOf(12345), NumberUtils.createNumber(\"12345L\"));\nassertEquals(\"createNumber(String) 6 failed\", Long.valueOf(12345), NumberUtils.createNumber(\"12345l\"));\nassertEquals(\"createNumber(String) 7 failed\", Float.valueOf(\"-1234.5\"), NumberUtils.createNumber(\"-1234.5\"));\nassertEquals(\"createNumber(String) 8 failed\", Integer.valueOf(\"-12345\"), NumberUtils.createNumber(\"-12345\"));\nassertTrue(\"createNumber(String) 9a failed\", 0xFADE == NumberUtils.createNumber(\"0xFADE\").intValue());\nassertTrue(\"createNumber(String) 9b failed\", 0xFADE == NumberUtils.createNumber(\"0Xfade\").intValue());\nassertTrue(\"createNumber(String) 10a failed\", -0xFADE == NumberUtils.createNumber(\"-0xFADE\").intValue());",
+    "stack_trace": "java.lang.NumberFormatException: 0Xfade is not a valid number.\nat org.apache.commons.lang3.math.NumberUtils.createNumber(NumberUtils.java:545)\nat org.apache.commons.lang3.math.NumberUtilsTest.testCreateNumber(NumberUtilsTest.java:197)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createDouble(Ljava/lang/String;)Ljava/lang/Double;",
+            "method_body": "public static Double createDouble(String str) {\nif (str == null) {\nreturn Double.valueOf(str);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createNumber(Ljava/lang/String;)Ljava/lang/Number;",
+            "method_body": "public static Number createNumber(String str) throws NumberFormatException {\nif (str == null) {\nif (StringUtils.isBlank(str)) {\nif (str.startsWith(\"--\")) {\nif (str.startsWith(\"0x\") || str.startsWith(\"-0x\")) {\nreturn createInteger(str);\nchar lastChar = str.charAt(str.length() - 1);\nint decPos = str.indexOf('.');\nint expPos = str.indexOf('e') + str.indexOf('E') + 1;\nif (decPos > -1) {\nif (expPos > -1) {\ndec = str.substring(decPos + 1);\nmant = str.substring(0, decPos);\nif (expPos > -1) {\nif (expPos > str.length()) {\nmant = str.substring(0, expPos);\nmant = str;\ndec = null;\nif (!Character.isDigit(lastChar) && lastChar != '.') {\nif (expPos > -1 && expPos < str.length() - 1) {\nexp = null;\nString numeric = str.substring(0, str.length() - 1);\nboolean allZeros = isAllZeros(mant) && isAllZeros(exp);\nswitch (lastChar) {\nif (dec == null\nreturn createLong(numeric);\nFloat f = NumberUtils.createFloat(numeric);\nif (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\nreturn f;\nDouble d = NumberUtils.createDouble(numeric);\nif (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {\nreturn d;\nthrow new NumberFormatException(str + \" is not a valid number.\");\nif (expPos > -1 && expPos < str.length() - 1) {\nexp = null;\nif (dec == null && exp == null) {\nreturn createInteger(str);\n} catch (NumberFormatException nfe) { // NOPMD\nreturn createLong(str);\nboolean allZeros = isAllZeros(mant) && isAllZeros(exp);\nFloat f = createFloat(str);\nif (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\nreturn f;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringUtils:isEmpty(Ljava/lang/CharSequence;)Z",
+            "method_body": "public static boolean isEmpty(CharSequence cs) {\nreturn cs == null || cs.length() == 0;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringUtils:isBlank(Ljava/lang/CharSequence;)Z",
+            "method_body": "public static boolean isBlank(CharSequence cs) {\nif (cs == null || (strLen = cs.length()) == 0) {\nfor (int i = 0; i < strLen; i++) {\nif ((Character.isWhitespace(cs.charAt(i)) == false)) {\nreturn false;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createFloat(Ljava/lang/String;)Ljava/lang/Float;",
+            "method_body": "public static Float createFloat(String str) {\nif (str == null) {\nreturn Float.valueOf(str);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createInteger(Ljava/lang/String;)Ljava/lang/Integer;",
+            "method_body": "public static Integer createInteger(String str) {\nif (str == null) {\nreturn Integer.decode(str);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:createLong(Ljava/lang/String;)Ljava/lang/Long;",
+            "method_body": "public static Long createLong(String str) {\nif (str == null) {\nreturn Long.valueOf(str);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:isDigits(Ljava/lang/String;)Z",
+            "method_body": "public static boolean isDigits(String str) {\nif (StringUtils.isEmpty(str)) {\nfor (int i = 0; i < str.length(); i++) {\nif (!Character.isDigit(str.charAt(i))) {\nreturn true;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.NumberUtils:isAllZeros(Ljava/lang/String;)Z",
+            "method_body": "private static boolean isAllZeros(String str) {\nif (str == null) {\nfor (int i = str.length() - 1; i >= 0; i--) {\nif (str.charAt(i) != '0') {\nreturn false;\n}",
+            "method_id": 8
+        }
+    ]
+}

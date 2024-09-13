@@ -1,0 +1,109 @@
+{
+    "bug_id": 8,
+    "test_id": 1,
+    "test_name": "org.apache.commons.lang3.time.FastDatePrinterTest.testCalendarTimezoneRespected",
+    "test_body": "public void testCalendarTimezoneRespected() {\nString[] availableZones = TimeZone.getAvailableIDs();\nTimeZone currentZone = TimeZone.getDefault();\n270: TimeZone anotherZone = null;\nfor (String zone : availableZones) {\nif (!zone.equals(currentZone.getID())) {\nanotherZone = TimeZone.getTimeZone(zone);\n}\n}\n277: assertNotNull(\"Cannot find another timezone\", anotherZone);\n279: final String pattern = \"h:mma z\";\nfinal Calendar cal = Calendar.getInstance(anotherZone);\n282: SimpleDateFormat sdf = new SimpleDateFormat(pattern);\nsdf.setTimeZone(anotherZone);\nString expectedValue = sdf.format(cal.getTime());\nString actualValue = FastDateFormat.getInstance(pattern).format(cal);\nassertEquals(expectedValue, actualValue);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<2:43PM [IC]T> but was:<2:43PM [PS]T>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.apache.commons.lang3.time.FastDatePrinterTest.testCalendarTimezoneRespected(FastDatePrinterTest.java:286)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter:getTimeZoneDisplay(Ljava/util/TimeZone;ZILjava/util/Locale;)Ljava/lang/String;",
+            "method_body": "static String getTimeZoneDisplay(TimeZone tz, boolean daylight, int style, Locale locale) {\nTimeZoneDisplayKey key = new TimeZoneDisplayKey(tz, daylight, style, locale);\nString value = cTimeZoneDisplayCache.get(key);\nif (value == null) {\nreturn value;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:getInstance(Ljava/lang/String;)Lorg/apache/commons/lang3/time/FastDateFormat;",
+            "method_body": "public static FastDateFormat getInstance(String pattern) {\nreturn cache.getInstance(pattern, null, null);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter:format(Ljava/util/Calendar;)Ljava/lang/String;",
+            "method_body": "public String format(Calendar calendar) {\nreturn format(calendar, new StringBuffer(mMaxLengthEstimate)).toString();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter:applyRules(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;",
+            "method_body": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\nfor (Rule rule : mRules) {\nrule.appendTo(buf, calendar);\nreturn buf;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache$MultipartKey:<init>([Ljava/lang/Object;)V",
+            "method_body": "public MultipartKey(Object... keys) {\nthis.keys = keys;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TextField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nbuffer.append(mValues[calendar.get(mField)]);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache:getInstance(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/text/Format;",
+            "method_body": "public F getInstance(String pattern, TimeZone timeZone, Locale locale) {\nif (pattern == null) {\nif (timeZone == null) {\ntimeZone = TimeZone.getDefault();\nif (locale == null) {\nlocale = Locale.getDefault();\nMultipartKey key = new MultipartKey(pattern, timeZone, locale);\nF format = cInstanceCache.get(key);\nif (format == null) {\nformat = createInstance(pattern, timeZone, locale);\nF previousValue= cInstanceCache.putIfAbsent(key, format);\nif (previousValue != null) {\nreturn format;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache$MultipartKey:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object obj) {\nreturn Arrays.equals(keys, ((MultipartKey)obj).keys);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 100) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(mField));\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(Ljava/util/Calendar;)Ljava/lang/String;",
+            "method_body": "public String format(Calendar calendar) {\nreturn printer.format(calendar);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TimeZoneDisplayKey:<init>(Ljava/util/TimeZone;ZILjava/util/Locale;)V",
+            "method_body": "TimeZoneDisplayKey(TimeZone timeZone,\nboolean daylight, int style, Locale locale) {\nmTimeZone = timeZone;\nif (daylight) {\nstyle |= 0x80000000;\nmStyle = style;\nmLocale = locale;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TimeZoneNameRule:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nif (zone.useDaylightTime()\nbuffer.append(getTimeZoneDisplay(zone, false, mStyle, mLocale));\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter:format(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;",
+            "method_body": "public StringBuffer format(Calendar calendar, StringBuffer buf) {\nreturn applyRules(calendar, buf);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TwelveHourField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nint value = calendar.get(Calendar.HOUR);\nif (value == 0) {\nmRule.appendTo(buffer, value);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TimeZoneDisplayKey:hashCode()I",
+            "method_body": "public int hashCode() {\nreturn (mStyle * 31 + mLocale.hashCode() ) * 31 + mTimeZone.hashCode();\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$TimeZoneDisplayKey:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object obj) {\nif (this == obj) {\nif (obj instanceof TimeZoneDisplayKey) {\nTimeZoneDisplayKey other = (TimeZoneDisplayKey)obj;\nreturn\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$UnpaddedNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 10) {\nbuffer.append((char)(value + '0'));\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDatePrinter$CharacterLiteral:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "void appendTo(StringBuffer buffer, int value);\nCharacterLiteral(char value) {\nmValue = value;\n}\nreturn 1;\nbuffer.append(mValue);\n}\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache$MultipartKey:hashCode()I",
+            "method_body": "public int hashCode() {\nif(hashCode==0) {\nint rc= 0;\nfor(Object key : keys) {\nif(key!=null) {\nrc= rc*7 + key.hashCode();\nhashCode= rc;\nreturn hashCode;\n}",
+            "method_id": 19
+        }
+    ]
+}

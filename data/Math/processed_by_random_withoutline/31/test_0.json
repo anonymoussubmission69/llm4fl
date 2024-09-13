@@ -1,0 +1,134 @@
+{
+    "bug_id": 31,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.distribution.BinomialDistributionTest.testMath718",
+    "test_body": "public void testMath718() {\n// for large trials the evaluation of ContinuedFraction was inaccurate\n// do a sweep over several large trials to test if the current implementation is\n// numerically stable.\n138: for (int trials = 500000; trials < 20000000; trials += 100000) {\nBinomialDistribution dist = new BinomialDistribution(trials, 0.5);\nint p = dist.inverseCumulativeProbability(0.5);\nAssert.assertEquals(trials / 2, p);",
+    "stack_trace": "org.apache.commons.math3.exception.ConvergenceException: illegal state: Continued fraction diverged to NaN for value 0.5\nat org.apache.commons.math3.util.ContinuedFraction.evaluate(ContinuedFraction.java:177)\nat org.apache.commons.math3.special.Beta.regularizedBeta(Beta.java:154)\nat org.apache.commons.math3.special.Beta.regularizedBeta(Beta.java:129)\nat org.apache.commons.math3.special.Beta.regularizedBeta(Beta.java:50)\nat org.apache.commons.math3.distribution.BinomialDistribution.cumulativeProbability(BinomialDistribution.java:101)\nat org.apache.commons.math3.distribution.AbstractIntegerDistribution.checkedCumulativeProbability(AbstractIntegerDistribution.java:201)\nat org.apache.commons.math3.distribution.AbstractIntegerDistribution.solveInverseCumulativeProbability(AbstractIntegerDistribution.java:143)\nat org.apache.commons.math3.distribution.AbstractIntegerDistribution.inverseCumulativeProbability(AbstractIntegerDistribution.java:116)\nat org.apache.commons.math3.distribution.BinomialDistributionTest.testMath718(BinomialDistributionTest.java:140)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:log(D[D)D",
+            "method_body": "private static double log(final double x, final double[] hiPrec) {\nif (x==0) { // Handle special case of +0/-0\nlong bits = Double.doubleToLongBits(x);\nif ((bits & 0x8000000000000000L) != 0 || x != x) {\nif (x == Double.POSITIVE_INFINITY) {\nint exp = (int)(bits >> 52)-1023;\nif ((bits & 0x7ff0000000000000L) == 0) {\nif (exp == -1 || exp == 0) {\nif (x < 1.01 && x > 0.99 && hiPrec == null) {\ndouble lnm[] = lnMant.LN_MANT[(int)((bits & 0x000ffc0000000000L) >> 42)];\ndouble epsilon = (bits & 0x3ffffffffffL) / (TWO_POWER_52 + (bits & 0x000ffc0000000000L));\ndouble lnza = 0.0;\ndouble lnzb = 0.0;\nif (hiPrec != null) {\nlnza = -0.16624882440418567;\nlnza = lnza * epsilon + 0.19999954120254515;\nlnza = lnza * epsilon + -0.2499999997677497;\nlnza = lnza * epsilon + 0.3333333333332802;\nlnza = lnza * epsilon + -0.5;\nlnza = lnza * epsilon + 1.0;\nlnza = lnza * epsilon;\ndouble a = LN_2_A*exp;\ndouble b = 0.0;\ndouble c = a+lnm[0];\ndouble d = -(c-a-lnm[0]);\na = c;\nb = b + d;\nc = a + lnza;\nd = -(c - a - lnza);\na = c;\nb = b + d;\nc = a + LN_2_B*exp;\nd = -(c - a - LN_2_B*exp);\na = c;\nb = b + d;\nc = a + lnm[1];\nd = -(c - a - lnm[1]);\na = c;\nb = b + d;\nc = a + lnzb;\nd = -(c - a - lnzb);\na = c;\nb = b + d;\nif (hiPrec != null) {\nreturn a + b;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:getNumericalVariance()D",
+            "method_body": "public double getNumericalVariance() {\nfinal double p = probabilityOfSuccess;\nreturn numberOfTrials * p * (1 - p);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta$1:getA(ID)D",
+            "method_body": "public static double regularizedBeta(double x,\nif (Double.isNaN(x) ||\n} else if (x > (a + 1.0) / (a + b + 2.0)) {\nret = 1.0 - regularizedBeta(1.0 - x, b, a, epsilon, maxIterations);\nContinuedFraction fraction = new ContinuedFraction() {\nif (n % 2 == 0) { // even\nm = n / 2.0;\nret = (m * (b - m) * x) /\nm = (n - 1.0) / 2.0;\nret = -((a + m) * (a + b + m) * x) /\nreturn ret;\nreturn 1.0;\nret = FastMath.exp((a * FastMath.log(x)) + (b * FastMath.log(1.0 - x)) -\nreturn ret;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.AbstractIntegerDistribution:solveInverseCumulativeProbability(DII)I",
+            "method_body": "protected int solveInverseCumulativeProbability(final double p, int lower, int upper) {\nwhile (lower + 1 < upper) {\nint xm = (lower + upper) / 2;\nif (xm < lower || xm > upper) {\ndouble pm = checkedCumulativeProbability(xm);\nif (pm >= p) {\nupper = xm;\nlower = xm;\n}\nreturn upper;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:getSupportUpperBound()I",
+            "method_body": "public int getSupportUpperBound() {\nreturn probabilityOfSuccess > 0.0 ? numberOfTrials : 0;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.ContinuedFraction:evaluate(DDI)D",
+            "method_body": "public double evaluate(double x, double epsilon, int maxIterations) {\nfinal double small = 1e-50;\ndouble hPrev = getA(0, x);\n\n// use the value of small as epsilon criteria for zero checks\nif (Precision.equals(hPrev, 0.0, small)) {\nhPrev = small;\n}\n\nint n = 1;\ndouble dPrev = 0.0;\ndouble p0 = 1.0;\ndouble q1 = 1.0;\ndouble cPrev = hPrev;\ndouble hN = hPrev;\n\nhN = cPrev * deltaN;\nif (Double.isNaN(hN)) {\nx);\nbreak;\ndPrev = q1;\ncPrev = cN / q2;\np0 = hPrev;\nhPrev = cN;\nq1 = q2;\nn++;\n\n\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:log(D)D",
+            "method_body": "public static double log(final double x) {\nreturn log(x, null);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta:regularizedBeta(DDD)D",
+            "method_body": "public static double regularizedBeta(double x, double a, double b) {\nreturn regularizedBeta(x, a, b, DEFAULT_EPSILON, Integer.MAX_VALUE);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta$1:getB(ID)D",
+            "method_body": "public static double regularizedBeta(double x,\nif (Double.isNaN(x) ||\n} else if (x > (a + 1.0) / (a + b + 2.0)) {\nret = 1.0 - regularizedBeta(1.0 - x, b, a, epsilon, maxIterations);\nContinuedFraction fraction = new ContinuedFraction() {\nif (n % 2 == 0) { // even\nm = n / 2.0;\nret = (m * (b - m) * x) /\nm = (n - 1.0) / 2.0;\nret = -((a + m) * (a + b + m) * x) /\nreturn ret;\nreturn 1.0;\nret = FastMath.exp((a * FastMath.log(x)) + (b * FastMath.log(1.0 - x)) -\nreturn ret;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:exp(DD[D)D",
+            "method_body": "private static double exp(double x, double extra, double[] hiPrec) {\nif (x < 0.0) {\nintVal = (int) -x;\nif (intVal > 746) {\nif (hiPrec != null) {\nreturn 0.0;\nif (intVal > 709) {\nif (intVal == 709) {\nintVal++;\nintPartA = ExpIntTable.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX-intVal];\nintPartB = ExpIntTable.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX-intVal];\nintVal = -intVal;\nfinal int intFrac = (int) ((x - intVal) * 1024.0);\nfinal double fracPartA = ExpFracTable.EXP_FRAC_TABLE_A[intFrac];\nfinal double fracPartB = ExpFracTable.EXP_FRAC_TABLE_B[intFrac];\nfinal double epsilon = x - (intVal + intFrac / 1024.0);\ndouble z = 0.04168701738764507;\nz = z * epsilon + 0.1666666505023083;\nz = z * epsilon + 0.5000000000042687;\nz = z * epsilon + 1.0;\nz = z * epsilon + -3.940510424527919E-20;\ndouble tempA = intPartA * fracPartA;\ndouble tempB = intPartA * fracPartB + intPartB * fracPartA + intPartB * fracPartB;\nfinal double tempC = tempB + tempA;\nif (extra != 0.0) {\nresult = tempC*z + tempB + tempA;\nif (hiPrec != null) {\nreturn result;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.AbstractIntegerDistribution:inverseCumulativeProbability(D)I",
+            "method_body": "public int inverseCumulativeProbability(final double p) throws OutOfRangeException {\nif (p < 0.0 || p > 1.0) {\nint lower = getSupportLowerBound();\nif (p == 0.0) {\nif (lower == Integer.MIN_VALUE) {\nlower -= 1; // this ensures cumulativeProbability(lower) < p, which\nint upper = getSupportUpperBound();\nif (p == 1.0) {\nfinal double mu = getNumericalMean();\nfinal double sigma = FastMath.sqrt(getNumericalVariance());\nfinal boolean chebyshevApplies = !(Double.isInfinite(mu) || Double.isNaN(mu) ||\nif (chebyshevApplies) {\ndouble k = FastMath.sqrt((1.0 - p) / p);\ndouble tmp = mu - k * sigma;\nif (tmp > lower) {\nlower = ((int) Math.ceil(tmp)) - 1;\nk = 1.0 / k;\ntmp = mu + k * sigma;\nif (tmp < upper) {\nupper = ((int) Math.ceil(tmp)) - 1;\nreturn solveInverseCumulativeProbability(p, lower, upper);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.ContinuedFraction:<init>()V",
+            "method_body": "protected ContinuedFraction() {\nsuper();\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta:logBeta(DDDI)D",
+            "method_body": "public static double logBeta(double a, double b,\nif (Double.isNaN(a) ||\nret = Gamma.logGamma(a) + Gamma.logGamma(b) -\nreturn ret;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.AbstractIntegerDistribution:checkedCumulativeProbability(I)D",
+            "method_body": "private double checkedCumulativeProbability(int argument)\ndouble result = Double.NaN;\nresult = cumulativeProbability(argument);\nif (Double.isNaN(result)) {\nreturn result;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:getSupportLowerBound()I",
+            "method_body": "public int getSupportLowerBound() {\nreturn probabilityOfSuccess < 1.0 ? 0 : numberOfTrials;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Gamma:lanczos(D)D",
+            "method_body": "public static double lanczos(final double x) {\ndouble sum = 0.0;\nfor (int i = LANCZOS.length - 1; i > 0; --i) {\nsum = sum + (LANCZOS[i] / (x + i));\nreturn sum + LANCZOS[0];\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta$1:<init>(DD)V",
+            "method_body": "public static double regularizedBeta(double x,\nif (Double.isNaN(x) ||\n} else if (x > (a + 1.0) / (a + b + 2.0)) {\nret = 1.0 - regularizedBeta(1.0 - x, b, a, epsilon, maxIterations);\nContinuedFraction fraction = new ContinuedFraction() {\nif (n % 2 == 0) { // even\nm = n / 2.0;\nret = (m * (b - m) * x) /\nm = (n - 1.0) / 2.0;\nret = -((a + m) * (a + b + m) * x) /\nreturn ret;\nreturn 1.0;\nret = FastMath.exp((a * FastMath.log(x)) + (b * FastMath.log(1.0 - x)) -\nreturn ret;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:getNumericalMean()D",
+            "method_body": "public double getNumericalMean() {\nreturn numberOfTrials * probabilityOfSuccess;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:exp(D)D",
+            "method_body": "public static double exp(double x) {\nreturn exp(x, 0.0, null);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Beta:regularizedBeta(DDDDI)D",
+            "method_body": "public static double regularizedBeta(double x,\nif (Double.isNaN(x) ||\n} else if (x > (a + 1.0) / (a + b + 2.0)) {\nret = 1.0 - regularizedBeta(1.0 - x, b, a, epsilon, maxIterations);\nContinuedFraction fraction = new ContinuedFraction() {\nif (n % 2 == 0) { // even\nm = n / 2.0;\nret = (m * (b - m) * x) /\nm = (n - 1.0) / 2.0;\nret = -((a + m) * (a + b + m) * x) /\nreturn ret;\nreturn 1.0;\nret = FastMath.exp((a * FastMath.log(x)) + (b * FastMath.log(1.0 - x)) -\nreturn ret;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math3.special.Gamma:logGamma(D)D",
+            "method_body": "public static double logGamma(double x) {\nif (Double.isNaN(x) || (x <= 0.0)) {\ndouble g = 607.0 / 128.0;\ndouble sum = lanczos(x);\ndouble tmp = x + g + .5;\nret = ((x + .5) * FastMath.log(tmp)) - tmp +\nreturn ret;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:cumulativeProbability(I)D",
+            "method_body": "public double cumulativeProbability(int x) {\nif (x < 0) {\n} else if (x >= numberOfTrials) {\nret = 1.0 - Beta.regularizedBeta(probabilityOfSuccess,\nreturn ret;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math3.distribution.BinomialDistribution:<init>(ID)V",
+            "method_body": "public BinomialDistribution(int trials, double p) {\nif (trials < 0) {\nif (p < 0 || p > 1) {\nprobabilityOfSuccess = p;\nnumberOfTrials = trials;\n}",
+            "method_id": 24
+        }
+    ]
+}

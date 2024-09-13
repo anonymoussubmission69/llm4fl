@@ -1,0 +1,23 @@
+{
+    "bug_id": 65,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang.time.DateUtilsTest.testTruncateLang59",
+            "test_body": "public void testTruncateLang59() throws Exception {\n898: // Set TimeZone to Mountain Time\nTimeZone MST_MDT = TimeZone.getTimeZone(\"MST7MDT\");\nTimeZone.setDefault(MST_MDT);\nDateFormat format = new SimpleDateFormat(\"yyyy-MM-dd HH:mm:ss.SSS z\");\nformat.setTimeZone(MST_MDT);\n904: Date oct31_01MDT = new Date(1099206000000L); \n906: Date oct31MDT             = new Date(oct31_01MDT.getTime()       - 3600000L); // - 1 hour\nDate oct31_01_02MDT       = new Date(oct31_01MDT.getTime()       + 120000L);  // + 2 minutes\nDate oct31_01_02_03MDT    = new Date(oct31_01_02MDT.getTime()    + 3000L);    // + 3 seconds\nDate oct31_01_02_03_04MDT = new Date(oct31_01_02_03MDT.getTime() + 4L);       // + 4 milliseconds\n911: assertEquals(\"Check 00:00:00.000\", \"2004-10-31 00:00:00.000 MDT\", format.format(oct31MDT));\nassertEquals(\"Check 01:00:00.000\", \"2004-10-31 01:00:00.000 MDT\", format.format(oct31_01MDT));\nassertEquals(\"Check 01:02:00.000\", \"2004-10-31 01:02:00.000 MDT\", format.format(oct31_01_02MDT));\nassertEquals(\"Check 01:02:03.000\", \"2004-10-31 01:02:03.000 MDT\", format.format(oct31_01_02_03MDT));\nassertEquals(\"Check 01:02:03.004\", \"2004-10-31 01:02:03.004 MDT\", format.format(oct31_01_02_03_04MDT));\n917: // ------- Demonstrate Problem -------\nCalendar gval = Calendar.getInstance();\ngval.setTime(new Date(oct31_01MDT.getTime()));\ngval.set(Calendar.MINUTE, gval.get(Calendar.MINUTE)); // set minutes to the same value\nassertEquals(\"Demonstrate Problem\", gval.getTime().getTime(), oct31_01MDT.getTime() + 3600000L);\n923: // ---------- Test Truncate ----------\nassertEquals(\"Truncate Calendar.MILLISECOND\",\noct31_01_02_03_04MDT, DateUtils.truncate(oct31_01_02_03_04MDT, Calendar.MILLISECOND));\n927: assertEquals(\"Truncate Calendar.SECOND\",\noct31_01_02_03MDT, DateUtils.truncate(oct31_01_02_03_04MDT, Calendar.SECOND));",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang.time.DateUtils:modify(Ljava/util/Calendar;IZ)V",
+                    "method_body": "private static void modify(Calendar val, int field, boolean round) {\nif (val.get(Calendar.YEAR) > 280000000) {\nboolean roundUp = false;\nfor (int i = 0; i < fields.length; i++) {\nfor (int j = 0; j < fields[i].length; j++) {\nif (fields[i][j] == field) {\nif (round && roundUp) {\nreturn;\nint offset = 0;\nboolean offsetSet = false;\nswitch (field) {\nif (!offsetSet) {\nint min = val.getActualMinimum(fields[i][0]);\nint max = val.getActualMaximum(fields[i][0]);\noffset = val.get(fields[i][0]) - min;\nroundUp = offset > ((max - min) / 2);\nval.set(fields[i][0], val.get(fields[i][0]) - offset);\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.time.DateUtils:truncate(Ljava/util/Date;I)Ljava/util/Date;",
+                    "method_body": "public static Date truncate(Date date, int field) {\nif (date == null) {\nCalendar gval = Calendar.getInstance();\ngval.setTime(date);\nmodify(gval, field, false);\nreturn gval.getTime();\n}",
+                    "method_id": 1
+                }
+            ],
+            "stack_trace": "junit.framework.AssertionFailedError: Truncate Calendar.SECOND expected:<Sun Oct 31 01:02:03 MDT 2004> but was:<Sun Oct 31 01:02:03 MST 2004>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.TestCase.assertEquals(TestCase.java:244)\nat org.apache.commons.lang.time.DateUtilsTest.testTruncateLang59(DateUtilsTest.java:927)",
+            "test_id": 0
+        }
+    ]
+}

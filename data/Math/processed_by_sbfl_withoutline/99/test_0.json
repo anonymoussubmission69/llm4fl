@@ -1,0 +1,24 @@
+{
+    "bug_id": 99,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.util.MathUtilsTest.testLcm",
+    "test_body": "public void testLcm() {\nint a = 30;\nint b = 50;\nint c = 77;\n570: assertEquals(0, MathUtils.lcm(0, b));\nassertEquals(0, MathUtils.lcm(a, 0));\nassertEquals(b, MathUtils.lcm(1, b));\nassertEquals(a, MathUtils.lcm(a, 1));\nassertEquals(150, MathUtils.lcm(a, b));\nassertEquals(150, MathUtils.lcm(-a, b));\nassertEquals(150, MathUtils.lcm(a, -b));\nassertEquals(150, MathUtils.lcm(-a, -b));\nassertEquals(2310, MathUtils.lcm(a, c));\n580: // Assert that no intermediate value overflows:\n// The naive implementation of lcm(a,b) would be (a*b)/gcd(a,b)\nassertEquals((1<<20)*15, MathUtils.lcm((1<<20)*3, (1<<20)*5));\n584: // Special case\nassertEquals(0, MathUtils.lcm(0, 0));\n587: try {\n// lcm == abs(MIN_VALUE) cannot be represented as a nonnegative int\nMathUtils.lcm(Integer.MIN_VALUE, 1);\nfail(\"Expecting ArithmeticException\");\n} catch (ArithmeticException ex) {",
+    "stack_trace": "junit.framework.AssertionFailedError: Expecting ArithmeticException\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat org.apache.commons.math.util.MathUtilsTest.testLcm(MathUtilsTest.java:590)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:lcm(II)I",
+            "method_body": "public static int lcm(int a, int b) {\nif (a==0 || b==0){\nreturn 0;\nint lcm = Math.abs(mulAndCheck(a / gcd(a, b), b));\nreturn lcm;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:gcd(II)I",
+            "method_body": "public static int gcd(final int p, final int q) {\nint u = p;\nint v = q;\nif ((u == 0) || (v == 0)) {\nreturn (Math.abs(u) + Math.abs(v));\nif (u > 0) {\nu = -u;\nif (v > 0) {\nv = -v;\nint k = 0;\nwhile ((u & 1) == 0 && (v & 1) == 0 && k < 31) { // while u and v are\nu /= 2;\nv /= 2;\nk++; // cast out twos.\nif (k == 31) {\nint t = ((u & 1) == 1) ? v : -(u / 2)/* B3 */;\nwhile ((t & 1) == 0) { // while t is even..\nt /= 2; // cast out twos\nif (t > 0) {\nu = -t;\nv = t;\nt = (v - u) / 2;\n} while (t != 0);\nreturn -u * (1 << k); // gcd is u*2^k\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:mulAndCheck(II)I",
+            "method_body": "public static int mulAndCheck(int x, int y) {\nlong m = ((long)x) * ((long)y);\nif (m < Integer.MIN_VALUE || m > Integer.MAX_VALUE) {\nreturn (int)m;\n}",
+            "method_id": 2
+        }
+    ]
+}

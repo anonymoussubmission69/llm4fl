@@ -1,0 +1,299 @@
+{
+    "bug_id": 3,
+    "test_id": 0,
+    "test_name": "org.apache.commons.csv.CSVParserTest.testBackslashEscaping",
+    "test_body": "public void testBackslashEscaping() throws IOException {\n285: // To avoid confusion over the need for escaping chars in java code,\n// We will test with a forward slash as the escape char, and a single\n// quote as the encapsulator.\n289: final String code =\n\"one,two,three\\n\" // 0\n+ \"'',''\\n\"       // 1) empty encapsulators\n+ \"/',/'\\n\"       // 2) single encapsulators\n+ \"'/'','/''\\n\"   // 3) single encapsulators encapsulated via escape\n+ \"'''',''''\\n\"   // 4) single encapsulators encapsulated via doubling\n+ \"/,,/,\\n\"       // 5) separator escaped\n+ \"//,//\\n\"       // 6) escape escaped\n+ \"'//','//'\\n\"   // 7) escape escaped in encapsulation\n+ \"   8   ,   \\\"quoted \\\"\\\" /\\\" // string\\\"   \\n\"     // don't eat spaces\n+ \"9,   /\\n   \\n\"  // escaped newline\n+ \"\";\nfinal String[][] res = {\n{\"one\", \"two\", \"three\"}, // 0\n{\"\", \"\"},                // 1\n{\"'\", \"'\"},              // 2\n{\"'\", \"'\"},              // 3\n{\"'\", \"'\"},              // 4\n{\",\", \",\"},              // 5\n{\"/\", \"/\"},              // 6\n{\"/\", \"/\"},              // 7\n{\"   8   \", \"   \\\"quoted \\\"\\\" /\\\" / string\\\"   \"},\n{\"9\", \"   \\n   \"},\n};\n314: 315: final CSVFormat format = CSVFormat.newBuilder(',').withQuoteChar('\\'').withEscape('/')\n.withIgnoreEmptyLines(true).withRecordSeparator(CRLF).build();\n318: final CSVParser parser = new CSVParser(code, format);\nfinal List<CSVRecord> records = parser.getRecords();\nassertTrue(records.size() > 0);\n322: Utils.compare(\"Records do not match expected result\", res, records);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: Records do not match expected result (entry 8): arrays first differed at element [1]; expected:<   \"quoted \"\" [/]\" / string\"   > but was:<   \"quoted \"\" []\" / string\"   >\nat org.junit.internal.ComparisonCriteria.arrayEquals(ComparisonCriteria.java:50)\nat org.junit.Assert.internalArrayEquals(Assert.java:473)\nat org.junit.Assert.assertArrayEquals(Assert.java:265)\nat org.apache.commons.csv.Utils.compare(Utils.java:59)\nat org.apache.commons.csv.CSVParserTest.testBackslashEscaping(CSVParserTest.java:322)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:readEscape()I",
+            "method_body": "int readEscape() throws IOException {\nfinal int c = in.read();\nswitch (c) {\nreturn c;\nreturn c;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVLexer:parseSimpleToken(Lorg/apache/commons/csv/Token;I)Lorg/apache/commons/csv/Token;",
+            "method_body": "private Token parseSimpleToken(final Token tkn, int c) throws IOException {\nif (readEndOfLine(c)) {\ntkn.type = EORECORD;\nbreak;\n} else if (isEndOfFile(c)) {\ntkn.type = EOF;\ntkn.isReady = true; // There is data at EOF\nbreak;\n} else if (isDelimiter(c)) {\ntkn.type = TOKEN;\nbreak;\n} else if (isEscape(c)) {\nfinal int unescaped = readEscape();\nif (unescaped == Constants.END_OF_STREAM) { // unexpected char after escape\ntkn.content.append((char) unescaped);\nc = in.read(); // continue\n} else {\ntkn.content.append((char) c);\nc = in.read(); // continue\nif (ignoreSurroundingSpaces) {\nreturn tkn;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isStartOfLine(I)Z",
+            "method_body": "boolean isStartOfLine(final int c) {\nreturn c == LF || c == CR || c == UNDEFINED;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isEscape(I)Z",
+            "method_body": "boolean isEscape(final int c) {\nreturn c == escape;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isQuoteChar(I)Z",
+            "method_body": "boolean isQuoteChar(final int c) {\nreturn c == quoteChar;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isCommentStart(I)Z",
+            "method_body": "boolean isCommentStart(final int c) {\nreturn c == commmentStart;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:<init>(Lorg/apache/commons/csv/CSVFormat;Lorg/apache/commons/csv/ExtendedBufferedReader;)V",
+            "method_body": "Lexer(final CSVFormat format, final ExtendedBufferedReader in) {\nthis.format = format;\nthis.in = in;\nthis.delimiter = format.getDelimiter();\nthis.escape = mapNullToDisabled(format.getEscape());\nthis.quoteChar = mapNullToDisabled(format.getQuoteChar());\nthis.commmentStart = mapNullToDisabled(format.getCommentStart());\nthis.ignoreSurroundingSpaces = format.getIgnoreSurroundingSpaces();\nthis.ignoreEmptyLines = format.getIgnoreEmptyLines();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:mapNullToDisabled(Ljava/lang/Character;)C",
+            "method_body": "private final char mapNullToDisabled(final Character c) {\nreturn c == null ? DISABLED : c.charValue();\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:readEndOfLine(I)Z",
+            "method_body": "boolean readEndOfLine(int c) throws IOException {\nif (c == CR && in.lookAhead() == LF) {\nreturn c == LF || c == CR;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isEndOfFile(I)Z",
+            "method_body": "boolean isEndOfFile(final int c) {\nreturn c == END_OF_STREAM;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:isDelimiter(I)Z",
+            "method_body": "boolean isDelimiter(final int c) {\nreturn c == delimiter;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVLexer:<init>(Lorg/apache/commons/csv/CSVFormat;Lorg/apache/commons/csv/ExtendedBufferedReader;)V",
+            "method_body": "CSVLexer(final CSVFormat format, final ExtendedBufferedReader in) {\nsuper(format, in);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVLexer:nextToken(Lorg/apache/commons/csv/Token;)Lorg/apache/commons/csv/Token;",
+            "method_body": "Token nextToken(final Token token) throws IOException {\nint lastChar = in.getLastChar();\nint c = in.read();\nboolean eol = readEndOfLine(c);\nif (ignoreEmptyLines) {\nwhile (eol && isStartOfLine(lastChar)) {\nif (isEndOfFile(lastChar) || (!isDelimiter(lastChar) && isEndOfFile(c))) {\ntoken.type = EOF;\nreturn token;\nif (isStartOfLine(lastChar) && isCommentStart(c)) {\nwhile (token.type == INVALID) {\nif (ignoreSurroundingSpaces) {\nif (isDelimiter(c)) {\n} else if (eol) {\n} else if (isQuoteChar(c)) {\nparseEncapsulatedToken(token);\n} else if (isEndOfFile(c)) {\nparseSimpleToken(token, c);\nreturn token;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getIgnoreSurroundingSpaces()Z",
+            "method_body": "public boolean getIgnoreSurroundingSpaces() {\nreturn ignoreSurroundingSpaces;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getEscape()Ljava/lang/Character;",
+            "method_body": "public Character getEscape() {\nreturn escape;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getIgnoreEmptyLines()Z",
+            "method_body": "public boolean getIgnoreEmptyLines() {\nreturn ignoreEmptyLines;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.csv.ExtendedBufferedReader:getLastChar()I",
+            "method_body": "int getLastChar() {\nreturn lastChar;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Token$Type:<clinit>()V",
+            "method_body": "private static final int INITIAL_TOKEN_LENGTH = 50;\nenum Type {\nINVALID,\nTOKEN,\nEOF,\nEORECORD,\nCOMMENT\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.csv.ExtendedBufferedReader:read()I",
+            "method_body": "public int read() throws IOException {\nfinal int current = super.read();\nif (current == CR || (current == LF && lastChar != CR)) {\nlineCounter++;\nlastChar = current;\nreturn lastChar;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getCommentStart()Ljava/lang/Character;",
+            "method_body": "public Character getCommentStart() {\nreturn commentStart;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.csv.ExtendedBufferedReader:<init>(Ljava/io/Reader;)V",
+            "method_body": "ExtendedBufferedReader(final Reader reader) {\nsuper(reader);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getQuoteChar()Ljava/lang/Character;",
+            "method_body": "public Character getQuoteChar() {\nreturn quoteChar;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getDelimiter()C",
+            "method_body": "public char getDelimiter() {\nreturn delimiter;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:<init>(CLjava/lang/Character;Lorg/apache/commons/csv/Quote;Ljava/lang/Character;Ljava/lang/Character;ZZLjava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
+            "method_body": "CSVFormatBuilder(final char delimiter, final Character quoteChar,\nString nullToString, final String[] header) {\nif (isLineBreak(delimiter)) {\nthis.delimiter = delimiter;\nthis.quoteChar = quoteChar;\nthis.quotePolicy = quotePolicy;\nthis.commentStart = commentStart;\nthis.escape = escape;\nthis.ignoreSurroundingSpaces = ignoreSurroundingSpaces;\nthis.ignoreEmptyLines = ignoreEmptyLines;\nthis.recordSeparator = recordSeparator;\nthis.nullToString = nullToString;\nthis.header = header;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:build()Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat build() {\nvalidate();\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:validate()V",
+            "method_body": "private void validate() throws IllegalStateException {\nif (quoteChar != null && delimiter == quoteChar.charValue()) {\nif (escape != null && delimiter == escape.charValue()) {\nif (commentStart != null && delimiter == commentStart.charValue()) {\nif (quoteChar != null && quoteChar.equals(commentStart)) {\nif (escape != null && escape.equals(commentStart)) {\nif (escape == null && quotePolicy == Quote.NONE) {\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withDelimiter(C)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withDelimiter(final char delimiter) {\nif (isLineBreak(delimiter)) {\nthis.delimiter = delimiter;\nreturn this;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withEscape(C)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withEscape(final char escape) {\nreturn withEscape(Character.valueOf(escape));\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withEscape(Ljava/lang/Character;)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withEscape(final Character escape) {\nif (isLineBreak(escape)) {\nthis.escape = escape;\nreturn this;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withIgnoreEmptyLines(Z)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withIgnoreEmptyLines(final boolean ignoreEmptyLines) {\nthis.ignoreEmptyLines = ignoreEmptyLines;\nreturn this;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withIgnoreSurroundingSpaces(Z)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withIgnoreSurroundingSpaces(final boolean ignoreSurroundingSpaces) {\nthis.ignoreSurroundingSpaces = ignoreSurroundingSpaces;\nreturn this;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withQuoteChar(Ljava/lang/Character;)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withQuoteChar(final Character quoteChar) {\nif (isLineBreak(quoteChar)) {\nthis.quoteChar = quoteChar;\nreturn this;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withRecordSeparator(C)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withRecordSeparator(final char recordSeparator) {\nreturn withRecordSeparator(String.valueOf(recordSeparator));\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withRecordSeparator(Ljava/lang/String;)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withRecordSeparator(final String recordSeparator) {\nthis.recordSeparator = recordSeparator;\nreturn this;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:<init>(CLjava/lang/Character;Lorg/apache/commons/csv/Quote;Ljava/lang/Character;Ljava/lang/Character;ZZLjava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V",
+            "method_body": "CSVFormat(final char delimiter, final Character quoteChar,\nString nullToString, final String[] header) {\nif (isLineBreak(delimiter)) {\nthis.delimiter = delimiter;\nthis.quoteChar = quoteChar;\nthis.quotePolicy = quotePolicy;\nthis.commentStart = commentStart;\nthis.escape = escape;\nthis.ignoreSurroundingSpaces = ignoreSurroundingSpaces;\nthis.ignoreEmptyLines = ignoreEmptyLines;\nthis.recordSeparator = recordSeparator;\nthis.nullToString = nullToString;\nthis.header = header == null ? null : header.clone();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:<clinit>()V",
+            "method_body": "public static final CSVFormat DEFAULT =\npublic static final CSVFormat EXCEL =\npublic static final CSVFormat TDF =\npublic static final CSVFormat MYSQL =\nreturn c == LF || c == CR;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isLineBreak(Ljava/lang/Character;)Z",
+            "method_body": "static boolean isLineBreak(final Character c) {\nreturn c != null && isLineBreak(c.charValue());\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:newBuilder()Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public static CSVFormatBuilder newBuilder() {\nreturn new CSVFormatBuilder(COMMA, DOUBLE_QUOTE_CHAR, null, null, null, false, true, CRLF, Constants.EMPTY,\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isLineBreak(C)Z",
+            "method_body": "static boolean isLineBreak(final char c) {\nreturn c == LF || c == CR;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Constants:<clinit>()V",
+            "method_body": "static final char BACKSPACE = '\\b';\nstatic final Character DOUBLE_QUOTE_CHAR = Character.valueOf('\"');\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:getRecords()Ljava/util/List;",
+            "method_body": "public List<CSVRecord> getRecords() throws IOException {\nfinal List<CSVRecord> records = new ArrayList<CSVRecord>();\nwhile ((rec = nextRecord()) != null) {\nrecords.add(rec);\nreturn records;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVRecord:values()[Ljava/lang/String;",
+            "method_body": "String[] values() {\nreturn values;\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:<init>(Ljava/lang/String;Lorg/apache/commons/csv/CSVFormat;)V",
+            "method_body": "public CSVParser(final String input, final CSVFormat format) throws IOException {\nthis(new StringReader(input), format);\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVLexer:parseEncapsulatedToken(Lorg/apache/commons/csv/Token;)Lorg/apache/commons/csv/Token;",
+            "method_body": "private Token parseEncapsulatedToken(final Token tkn) throws IOException {\nfinal long startLineNumber = getLineNumber();\nc = in.read();\nif (isEscape(c)) {\nfinal int unescaped = readEscape();\nif (unescaped == Constants.END_OF_STREAM) { // unexpected char after escape\ntkn.content.append((char) unescaped);\n} else if (isQuoteChar(c)) {\nif (isQuoteChar(in.lookAhead())) {\nc = in.read();\ntkn.content.append((char) c);\nc = in.read();\nif (isDelimiter(c)) {\ntkn.type = TOKEN;\nreturn tkn;\n} else if (isEndOfFile(c)) {\n} else if (readEndOfLine(c)) {\ntkn.type = EORECORD;\nreturn tkn;\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:<init>(C)V",
+            "method_body": "CSVFormatBuilder(final char delimiter){\nthis(delimiter, null, null, null, null, false, false, null, Constants.EMPTY, null);\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat$CSVFormatBuilder:withQuoteChar(C)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public CSVFormatBuilder withQuoteChar(final char quoteChar) {\nreturn withQuoteChar(Character.valueOf(quoteChar));\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:newBuilder(C)Lorg/apache/commons/csv/CSVFormat$CSVFormatBuilder;",
+            "method_body": "public static CSVFormatBuilder newBuilder(final char delimiter) {\nreturn new CSVFormatBuilder(delimiter);\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Lexer:getLineNumber()J",
+            "method_body": "long getLineNumber() {\nreturn in.getLineNumber();\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.csv.ExtendedBufferedReader:getLineNumber()J",
+            "method_body": "long getLineNumber() {\nreturn lineCounter;\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.csv.ExtendedBufferedReader:lookAhead()I",
+            "method_body": "int lookAhead() throws IOException {\nsuper.mark(1);\nfinal int c = super.read();\nsuper.reset();\nreturn c;\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:<init>(Ljava/io/Reader;Lorg/apache/commons/csv/CSVFormat;)V",
+            "method_body": "private final Lexer lexer;\nprivate final List<String> record = new ArrayList<String>();\nprivate final Token reusableToken = new Token();\n* CSV parser using the default {@link CSVFormat}.",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:nextRecord()Lorg/apache/commons/csv/CSVRecord;",
+            "method_body": "CSVRecord nextRecord() throws IOException {\nCSVRecord result = null;\nrecord.clear();\nStringBuilder sb = null;\nreusableToken.reset();\nlexer.nextToken(reusableToken);\nswitch (reusableToken.type) {\nrecord.add(reusableToken.content.toString());\nbreak;\nrecord.add(reusableToken.content.toString());\nbreak;\nif (reusableToken.isReady) {\n} while (reusableToken.type == TOKEN);\nif (!record.isEmpty()) {\nrecordNumber++;\nfinal String comment = sb == null ? null : sb.toString();\nresult = new CSVRecord(record.toArray(new String[record.size()]), headerMap, comment, this.recordNumber);\nreturn result;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:initializeHeader(Lorg/apache/commons/csv/CSVFormat;)Ljava/util/Map;",
+            "method_body": "private Map<String, Integer> initializeHeader(final CSVFormat format) throws IOException {\nMap<String, Integer> hdrMap = null;\nif (format.getHeader() != null) {\nreturn hdrMap;\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.csv.Token:reset()V",
+            "method_body": "void reset() {\ncontent.setLength(0);\ntype = INVALID;\nisReady = false;\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser$2:<clinit>()V",
+            "method_body": "CSVRecord nextRecord() throws IOException {\nCSVRecord result = null;\nrecord.clear();\nStringBuilder sb = null;\nreusableToken.reset();\nlexer.nextToken(reusableToken);\nswitch (reusableToken.type) {\nrecord.add(reusableToken.content.toString());\nbreak;\nrecord.add(reusableToken.content.toString());\nbreak;\nif (reusableToken.isReady) {\n} while (reusableToken.type == TOKEN);\nif (!record.isEmpty()) {\nrecordNumber++;\nfinal String comment = sb == null ? null : sb.toString();\nresult = new CSVRecord(record.toArray(new String[record.size()]), headerMap, comment, this.recordNumber);\nreturn result;\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getHeader()[Ljava/lang/String;",
+            "method_body": "String[] getHeader() {\nreturn header;\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVRecord:<init>([Ljava/lang/String;Ljava/util/Map;Ljava/lang/String;J)V",
+            "method_body": "CSVRecord(final String[] values, final Map<String, Integer> mapping,\nfinal String comment, final long recordNumber) {\nthis.recordNumber = recordNumber;\nthis.values = values != null ? values : EMPTY_STRING_ARRAY;\nthis.mapping = mapping;\nthis.comment = comment;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVRecord:<clinit>()V",
+            "method_body": "private static final long serialVersionUID = 1L;\nprivate static final String[] EMPTY_STRING_ARRAY = new String[0];\nfinal String comment, final long recordNumber) {\nthis.recordNumber = recordNumber;\nthis.values = values != null ? values : EMPTY_STRING_ARRAY;\nthis.mapping = mapping;\nthis.comment = comment;\n}",
+            "method_id": 57
+        }
+    ]
+}

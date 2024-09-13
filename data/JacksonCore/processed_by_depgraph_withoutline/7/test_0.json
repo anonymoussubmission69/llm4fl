@@ -1,0 +1,84 @@
+{
+    "bug_id": 7,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.json.GeneratorFailTest.testFailOnWritingStringNotFieldNameBytes",
+    "test_body": "public void testFailOnWritingStringNotFieldNameBytes() throws Exception {\n_testFailOnWritingStringNotFieldName(F, false);\n}\nprivate void _testFailOnWritingStringNotFieldName(JsonFactory f, boolean useReader) throws Exception{JsonGenerator gen;ByteArrayOutputStream bout = new ByteArrayOutputStream();if (useReader) {gen = f.createGenerator(new OutputStreamWriter(bout, \"UTF-8\"));} else {gen = f.createGenerator(bout, JsonEncoding.UTF8);}gen.writeStartObject();try {gen.writeString(\"a\");gen.flush();String json = bout.toString(\"UTF-8\");fail(\"Should not have let \"+gen.getClass().getName()+\".writeString() be used in place of 'writeFieldName()': output = \"+json);} catch (JsonProcessingException e) {verifyException(e, \"can not write a String\");}gen.close();}",
+    "stack_trace": "junit.framework.AssertionFailedError: Should not have let com.fasterxml.jackson.core.json.UTF8JsonGenerator.writeString() be used in place of 'writeFieldName()': output = {:\"a\"\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.core.json.GeneratorFailTest._testFailOnWritingStringNotFieldName(GeneratorFailTest.java:79)\nat com.fasterxml.jackson.core.json.GeneratorFailTest.testFailOnWritingStringNotFieldNameBytes(GeneratorFailTest.java:27)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:<init>(Lcom/fasterxml/jackson/core/io/IOContext;ILcom/fasterxml/jackson/core/ObjectCodec;Ljava/io/OutputStream;)V",
+            "method_body": "public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,\nsuper(ctxt, features, codec);\n_outputStream = out;\n_bufferRecyclable = true;\n_outputBuffer = ctxt.allocWriteEncodingBuffer();\n_outputEnd = _outputBuffer.length;\n_outputMaxContiguous = _outputEnd >> 3;\n_charBuffer = ctxt.allocConcatBuffer();\n_charBufferLength = _charBuffer.length;\nif (isEnabled(Feature.ESCAPE_NON_ASCII)) {\n_cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:createGenerator(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/JsonEncoding;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)\nIOContext ctxt = _createContext(out, false);\nctxt.setEncoding(enc);\nif (enc == JsonEncoding.UTF8) {\nreturn _createUTF8Generator(_decorate(out, ctxt), ctxt);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createUTF8Generator(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/io/IOContext;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {\nUTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,\nif (_characterEscapes != null) {\nSerializableString rootSep = _rootValueSeparator;\nif (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {\nreturn gen;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.JsonWriteContext:writeValue()I",
+            "method_body": "public int writeValue() {\nif (_type == TYPE_OBJECT) {\n_gotName = false;\n++_index;\nreturn STATUS_OK_AFTER_COLON;\nif (_type == TYPE_ARRAY) {\n++_index;\nreturn (_index == 0) ? STATUS_OK_AS_IS : STATUS_OK_AFTER_SPACE;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.JsonWriteContext:createChildObjectContext()Lcom/fasterxml/jackson/core/json/JsonWriteContext;",
+            "method_body": "public JsonWriteContext createChildObjectContext() {\nJsonWriteContext ctxt = _child;\nif (ctxt == null) {\n_child = ctxt = new JsonWriteContext(TYPE_OBJECT, this, (_dups == null) ? null : _dups.child());\nreturn ctxt;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_decorate(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/io/IOContext;)Ljava/io/OutputStream;",
+            "method_body": "protected final OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException {\nif (_outputDecorator != null) {\nreturn out;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_getBufferRecycler()Lcom/fasterxml/jackson/core/util/BufferRecycler;",
+            "method_body": "public BufferRecycler _getBufferRecycler()\nSoftReference<BufferRecycler> ref = _recyclerRef.get();\nBufferRecycler br = (ref == null) ? null : ref.get();\nif (br == null) {\nbr = new BufferRecycler();\n_recyclerRef.set(new SoftReference<BufferRecycler>(br));\nreturn br;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:<init>(Lcom/fasterxml/jackson/core/io/IOContext;ILcom/fasterxml/jackson/core/ObjectCodec;Ljava/io/OutputStream;[BIZ)V",
+            "method_body": "protected byte[] _outputBuffer;\nprotected int _outputTail = 0;\nsuper(ctxt, features, codec);\n_outputStream = out;\n_bufferRecyclable = true;\n_outputBuffer = ctxt.allocWriteEncodingBuffer();\n_outputEnd = _outputBuffer.length;\n_outputMaxContiguous = _outputEnd >> 3;\n_charBuffer = ctxt.allocConcatBuffer();\n_charBufferLength = _charBuffer.length;\nif (isEnabled(Feature.ESCAPE_NON_ASCII)) {\n_cfgUnqNames = !Feature.QUOTE_FIELD_NAMES.enabledIn(features);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.JsonWriteContext:createRootContext(Lcom/fasterxml/jackson/core/json/DupDetector;)Lcom/fasterxml/jackson/core/json/JsonWriteContext;",
+            "method_body": "public static JsonWriteContext createRootContext(DupDetector dd) {\nreturn new JsonWriteContext(TYPE_ROOT, null, dd);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.JsonWriteContext:<init>(ILcom/fasterxml/jackson/core/json/JsonWriteContext;Lcom/fasterxml/jackson/core/json/DupDetector;)V",
+            "method_body": "protected JsonWriteContext(int type, JsonWriteContext parent, DupDetector dups) {\nsuper();\n_type = type;\n_parent = parent;\n_dups = dups;\n_index = -1;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createContext(Ljava/lang/Object;Z)Lcom/fasterxml/jackson/core/io/IOContext;",
+            "method_body": "protected IOContext _createContext(Object srcRef, boolean resourceManaged) {\nreturn new IOContext(_getBufferRecycler(), srcRef, resourceManaged);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:setEncoding(Lcom/fasterxml/jackson/core/JsonEncoding;)V",
+            "method_body": "public void setEncoding(JsonEncoding enc) {\n_encoding = enc;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>()V",
+            "method_body": "public BufferRecycler() {\nthis(4, 4);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>(II)V",
+            "method_body": "protected BufferRecycler(int bbCount, int cbCount) {\n_byteBuffers = new byte[bbCount][];\n_charBuffers = new char[cbCount][];\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:<init>(Lcom/fasterxml/jackson/core/util/BufferRecycler;Ljava/lang/Object;Z)V",
+            "method_body": "protected final Object _sourceRef;\nprotected byte[] _readIOBuffer = null;\nprotected byte[] _writeEncodingBuffer = null;\nprotected byte[] _base64Buffer = null;\nprotected char[] _tokenCBuffer = null;\nprotected char[] _concatCBuffer = null;\nprotected char[] _nameCopyBuffer = null;\n{\n_bufferRecycler = br;\n_sourceRef = sourceRef;\n_managedResource = managedResource;\n}",
+            "method_id": 14
+        }
+    ]
+}

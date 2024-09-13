@@ -1,0 +1,109 @@
+{
+    "bug_id": 81,
+    "test_id": 0,
+    "test_name": "org.jsoup.helper.DataUtilTest.supportsXmlCharsetDeclaration",
+    "test_body": "public void supportsXmlCharsetDeclaration() throws IOException {\nString encoding = \"iso-8859-1\";\nInputStream soup = new ByteArrayInputStream((\n\"<?xml version=\\\"1.0\\\" encoding=\\\"iso-8859-1\\\"?>\" +\n\"<!DOCTYPE html PUBLIC \\\"-//W3C//DTD XHTML 1.0 Strict//EN\\\" \\\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\\\">\" +\n\"<html xmlns=\\\"http://www.w3.org/1999/xhtml\\\" lang=\\\"en\\\" xml:lang=\\\"en\\\">Hell\u00c3\u00b6 W\u00c3\u00b6rld!</html>\"\n).getBytes(encoding));\n177: Document doc = Jsoup.parse(soup, null, \"\");\nassertEquals(\"Hell\u00c3\u00b6 W\u00c3\u00b6rld!\", doc.body().text());\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<Hell[\u00f6 W\u00f6]rld!> but was:<Hell[\ufffd W\ufffd]rld!>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.helper.DataUtilTest.supportsXmlCharsetDeclaration(DataUtilTest.java:178)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:<init>()V",
+            "method_body": "Or() {\nsuper();\n}",
+            "method_id": 300
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:add(Lorg/jsoup/select/Evaluator;)V",
+            "method_body": "public void add(Evaluator e) {\nevaluators.add(e);\nupdateNumEvaluators();\n}",
+            "method_id": 301
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public boolean matches(Element root, Element node) {\nfor (int i = 0; i < num; i++) {\nEvaluator s = evaluators.get(i);\nif (s.matches(root, node))\nreturn false;\n}",
+            "method_id": 302
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Attribute:<init>(Ljava/lang/String;)V",
+            "method_body": "public Attribute(String key) {\nthis.key = key;\n}",
+            "method_id": 303
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:<clinit>()V",
+            "method_body": "private static final Pattern charsetPattern = Pattern.compile(\"(?i)\\\\bcharset=\\\\s*(?:[\\\"'])?([^\\\\s,;\\\"']*)\");\nprivate static final char[] mimeBoundaryChars =\nprivate DataUtil() {}",
+            "method_id": 304
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:load(Ljava/io/InputStream;Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public static Document load(InputStream in, String charsetName, String baseUri) throws IOException {\nreturn parseInputStream(in, charsetName, baseUri, Parser.htmlParser());\n}",
+            "method_id": 305
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:parseInputStream(Ljava/io/InputStream;Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/Parser;)Lorg/jsoup/nodes/Document;",
+            "method_body": "static Document parseInputStream(InputStream input, String charsetName, String baseUri, Parser parser) throws IOException  {\nif (input == null) // empty body\ninput = ConstrainableInputStream.wrap(input, bufferSize, 0);\nDocument doc = null;\nboolean fullyRead = false;\ninput.mark(bufferSize);\nByteBuffer firstBytes = readToByteBuffer(input, firstReadBufferSize - 1); // -1 because we read one more to see if completed. First read is < buffer size, so can't be invalid.\nfullyRead = input.read() == -1;\ninput.reset();\nBomCharset bomCharset = detectCharsetFromBom(firstBytes);\nif (bomCharset != null)\nif (charsetName == null) { // determine from meta. safe first parse as UTF-8\nString docData = Charset.forName(defaultCharset).decode(firstBytes).toString();\ndoc = parser.parseInput(docData, baseUri);\nElements metaElements = doc.select(\"meta[http-equiv=content-type], meta[charset]\");\nString foundCharset = null; // if not found, will keep utf-8 as best attempt\nfor (Element meta : metaElements) {\nif (foundCharset == null && doc.childNodeSize() > 0) {\nNode first = doc.childNode(0);\nXmlDeclaration decl = null;\nif (first instanceof XmlDeclaration)\nif (decl != null) {\nfoundCharset = validateCharset(foundCharset);\nif (foundCharset != null && !foundCharset.equalsIgnoreCase(defaultCharset)) { // need to re-decode. (case insensitive check here to match how validate works)\n} else if (!fullyRead) {\n} else { // specified by content type header (or by user on file load)\nif (doc == null) {\ninput.close();\nreturn doc;\n}",
+            "method_id": 306
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:readToByteBuffer(Ljava/io/InputStream;I)Ljava/nio/ByteBuffer;",
+            "method_body": "public static ByteBuffer readToByteBuffer(InputStream inStream, int maxSize) throws IOException {\nValidate.isTrue(maxSize >= 0, \"maxSize must be 0 (unlimited) or larger\");\nfinal ConstrainableInputStream input = ConstrainableInputStream.wrap(inStream, bufferSize, maxSize);\nreturn input.readToByteBuffer(maxSize);\n}",
+            "method_id": 307
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:validateCharset(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "private static String validateCharset(String cs) {\nif (cs == null || cs.length() == 0) return null;\n}",
+            "method_id": 308
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:detectCharsetFromBom(Ljava/nio/ByteBuffer;)Lorg/jsoup/helper/DataUtil$BomCharset;",
+            "method_body": "private static BomCharset detectCharsetFromBom(final ByteBuffer byteData) {\nfinal Buffer buffer = byteData; // .mark and rewind used to return Buffer, now ByteBuffer, so cast for backward compat\nbuffer.mark();\nbyte[] bom = new byte[4];\nif (byteData.remaining() >= bom.length) {\nbyteData.get(bom);\nbuffer.rewind();\nif (bom[0] == 0x00 && bom[1] == 0x00 && bom[2] == (byte) 0xFE && bom[3] == (byte) 0xFF || // BE\n} else if (bom[0] == (byte) 0xFE && bom[1] == (byte) 0xFF || // BE\n} else if (bom[0] == (byte) 0xEF && bom[1] == (byte) 0xBB && bom[2] == (byte) 0xBF) {\nreturn null;\n}",
+            "method_id": 309
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:<init>(Ljava/io/InputStream;II)V",
+            "method_body": "private ConstrainableInputStream(InputStream in, int bufferSize, int maxSize) {\nsuper(in, bufferSize);\nValidate.isTrue(maxSize >= 0);\nthis.maxSize = maxSize;\nremaining = maxSize;\ncapped = maxSize != 0;\nstartTime = System.nanoTime();\n}",
+            "method_id": 310
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:wrap(Ljava/io/InputStream;II)Lorg/jsoup/internal/ConstrainableInputStream;",
+            "method_body": "public static ConstrainableInputStream wrap(InputStream in, int bufferSize, int maxSize) {\nreturn in instanceof ConstrainableInputStream\n}",
+            "method_id": 311
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:read([BII)I",
+            "method_body": "public int read(byte[] b, int off, int len) throws IOException {\nif (interrupted || capped && remaining <= 0)\nif (Thread.interrupted()) {\nif (expired())\nif (capped && len > remaining)\nfinal int read = super.read(b, off, len);\nremaining -= read;\nreturn read;\n}",
+            "method_id": 312
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:readToByteBuffer(I)Ljava/nio/ByteBuffer;",
+            "method_body": "public ByteBuffer readToByteBuffer(int max) throws IOException {\nValidate.isTrue(max >= 0, \"maxSize must be 0 (unlimited) or larger\");\nfinal boolean localCapped = max > 0; // still possibly capped in total stream\nfinal int bufferSize = localCapped && max < DefaultSize ? max : DefaultSize;\nfinal byte[] readBuffer = new byte[bufferSize];\nfinal ByteArrayOutputStream outStream = new ByteArrayOutputStream(bufferSize);\nint remaining = max;\nread = read(readBuffer);\nif (read == -1) break;\nif (localCapped) { // this local byteBuffer cap may be smaller than the overall maxSize (like when reading first bytes)\nif (read >= remaining) {\nremaining -= read;\noutStream.write(readBuffer, 0, read);\nreturn ByteBuffer.wrap(outStream.toByteArray());\n}",
+            "method_id": 313
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:reset()V",
+            "method_body": "public void reset() throws IOException {\nsuper.reset();\nremaining = maxSize - markpos;\n}",
+            "method_id": 314
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:expired()Z",
+            "method_body": "private boolean expired() {\nif (timeout == 0)\nreturn false;\n}",
+            "method_id": 315
+        },
+        {
+            "method_signature": "org.jsoup.nodes.DocumentType:<init>(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public DocumentType(String name, String publicId, String systemId) {\nValidate.notNull(name);\nValidate.notNull(publicId);\nValidate.notNull(systemId);\nattr(NAME, name);\nattr(PUBLIC_ID, publicId);\nif (has(PUBLIC_ID)) {\nattr(PUB_SYS_KEY, PUBLIC_KEY);\nattr(SYSTEM_ID, systemId);\n}",
+            "method_id": 316
+        },
+        {
+            "method_signature": "org.jsoup.nodes.DocumentType:setPubSysKey(Ljava/lang/String;)V",
+            "method_body": "public void setPubSysKey(String value) {\nif (value != null)\nattr(PUB_SYS_KEY, value);\n}",
+            "method_id": 317
+        },
+        {
+            "method_signature": "org.jsoup.nodes.DocumentType:nodeName()Ljava/lang/String;",
+            "method_body": "public String nodeName() {\nreturn \"#doctype\";\n}",
+            "method_id": 318
+        },
+        {
+            "method_signature": "org.jsoup.nodes.DocumentType:has(Ljava/lang/String;)Z",
+            "method_body": "private boolean has(final String attribute) {\nreturn !StringUtil.isBlank(attr(attribute));\n}",
+            "method_id": 319
+        }
+    ]
+}

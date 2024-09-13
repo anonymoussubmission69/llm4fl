@@ -1,0 +1,259 @@
+{
+    "bug_id": 33,
+    "test_id": 0,
+    "test_name": "org.jsoup.parser.HtmlParserTest.handlesKnownEmptyBlocks",
+    "test_body": "@Test public void handlesKnownEmptyBlocks() {\n// if a known tag, allow self closing outside of spec, but force an end tag. unknown tags can be self closing.\nString h = \"<div id='1' /><script src='/foo' /><div id=2><img /><img></div><a id=3 /><i /><foo /><foo>One</foo> <hr /> hr text <hr> hr text two\";\nDocument doc = Jsoup.parse(h);\nassertEquals(\"<div id=\\\"1\\\"></div><script src=\\\"/foo\\\"></script><div id=\\\"2\\\"><img /><img /></div><a id=\\\"3\\\"></a><i></i><foo /><foo>One</foo> <hr /> hr text <hr /> hr text two\", TextUtil.stripNewlines(doc.body().html()));\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<...src=\"/foo\"></script>[<div id=\"2\"><img /><img /></div><a id=\"3\"></a><i></i><foo /><foo>One</foo> <hr /> hr text <hr />] hr text two> but was:<...src=\"/foo\"></script>[&lt;div id=2&gt;&lt;img /&gt;&lt;img&gt;&lt;/div&gt;&lt;a id=3 /&gt;&lt;i /&gt;&lt;foo /&gt;&lt;foo&gt;One&lt;/foo&gt; &lt;hr /&gt; hr text &lt;hr&gt;] hr text two>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.parser.HtmlParserTest.handlesKnownEmptyBlocks(HtmlParserTest.java:331)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.Jsoup:parse(Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public static Document parse(String html) {\nreturn Parser.parse(html, \"\");\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.jsoup.parser.Parser:parse(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public static Document parse(String html, String baseUri) {\nTreeBuilder treeBuilder = new HtmlTreeBuilder();\nreturn treeBuilder.parse(html, baseUri, ParseErrorList.noTracking());\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:initialiseParse(Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/ParseErrorList;)V",
+            "method_body": "protected void initialiseParse(String input, String baseUri, ParseErrorList errors) {\nValidate.notNull(input, \"String input must not be null\");\nValidate.notNull(baseUri, \"BaseURI must not be null\");\ndoc = new Document(baseUri);\nreader = new CharacterReader(input);\nthis.errors = errors;\ntokeniser = new Tokeniser(reader, errors);\nstack = new DescendableLinkedList<Element>();\nthis.baseUri = baseUri;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:parse(Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/ParseErrorList;)Lorg/jsoup/nodes/Document;",
+            "method_body": "Document parse(String input, String baseUri, ParseErrorList errors) {\ninitialiseParse(input, baseUri, errors);\nrunParser();\nreturn doc;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:runParser()V",
+            "method_body": "protected void runParser() {\nToken token = tokeniser.read();\nprocess(token);\nif (token.type == Token.TokenType.EOF)\nbreak;\n}\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:currentElement()Lorg/jsoup/nodes/Element;",
+            "method_body": "protected abstract boolean process(Token token);\nreturn stack.getLast();\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:<init>()V",
+            "method_body": "private HtmlTreeBuilderState state; // the current state\nprivate boolean baseUriSetFromDoc = false;\nprivate DescendableLinkedList<Element> formattingElements = new DescendableLinkedList<Element>(); // active (open) formatting elements\nprivate List<Token.Character> pendingTableCharacters = new ArrayList<Token.Character>(); // chars in table to be shifted out\nprivate boolean framesetOk = true; // if ok to go into frameset\nprivate boolean fosterInserts = false; // if next inserts should be fostered\nprivate boolean fragmentParsing = false; // if parsing a fragment of html\nHtmlTreeBuilder() {}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:parse(Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/ParseErrorList;)Lorg/jsoup/nodes/Document;",
+            "method_body": "Document parse(String input, String baseUri, ParseErrorList errors) {\nstate = HtmlTreeBuilderState.Initial;\nreturn super.parse(input, baseUri, errors);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:process(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "protected boolean process(Token token) {\ncurrentToken = token;\nreturn this.state.process(token, this);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilderState;)Z",
+            "method_body": "boolean process(Token token, HtmlTreeBuilderState state) {\ncurrentToken = token;\nreturn state.process(token, this);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:transition(Lorg/jsoup/parser/HtmlTreeBuilderState;)V",
+            "method_body": "void transition(HtmlTreeBuilderState state) {\nthis.state = state;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:markInsertionMode()V",
+            "method_body": "void markInsertionMode() {\noriginalState = state;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:originalState()Lorg/jsoup/parser/HtmlTreeBuilderState;",
+            "method_body": "HtmlTreeBuilderState originalState() {\nreturn originalState;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:framesetOk(Z)V",
+            "method_body": "void framesetOk(boolean framesetOk) {\nthis.framesetOk = framesetOk;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insert(Lorg/jsoup/parser/Token$StartTag;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insert(Token.StartTag startTag) {\nif (startTag.isSelfClosing()) {\nElement el = insertEmpty(startTag);\nstack.add(el);\ntokeniser.emit(new Token.EndTag(el.tagName()));  // ensure we get out of whatever state we are in. emitted for yielded processing\nreturn el;\nElement el = new Element(Tag.valueOf(startTag.name()), baseUri, startTag.attributes);\ninsert(el);\nreturn el;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insert(Ljava/lang/String;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insert(String startTagName) {\nElement el = new Element(Tag.valueOf(startTagName), baseUri);\ninsert(el);\nreturn el;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insert(Lorg/jsoup/nodes/Element;)V",
+            "method_body": "void insert(Element el) {\ninsertNode(el);\nstack.add(el);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insertEmpty(Lorg/jsoup/parser/Token$StartTag;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insertEmpty(Token.StartTag startTag) {\nTag tag = Tag.valueOf(startTag.name());\nElement el = new Element(tag, baseUri, startTag.attributes);\ninsertNode(el);\nif (startTag.isSelfClosing()) {\nif (tag.isKnownTag()) {\nif (tag.isSelfClosing()) tokeniser.acknowledgeSelfClosingFlag(); // if not acked, promulagates error\nreturn el;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insert(Lorg/jsoup/parser/Token$Character;)V",
+            "method_body": "void insert(Token.Character characterToken) {\nif (StringUtil.in(currentElement().tagName(), \"script\", \"style\"))\nnode = new TextNode(characterToken.getData(), baseUri);\ncurrentElement().appendChild(node); // doesn't use insertNode, because we don't foster these; and will always have a stack.\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:insertNode(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "private void insertNode(Node node) {\nif (stack.size() == 0)\ndoc.appendChild(node);\nelse if (isFosterInserts())\ncurrentElement().appendChild(node);\nif (node instanceof Element && ((Element) node).tag().isFormListed()) {\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:pop()Lorg/jsoup/nodes/Element;",
+            "method_body": "Element pop() {\nif (stack.peekLast().nodeName().equals(\"td\") && !state.name().equals(\"InCell\"))\nif (stack.peekLast().nodeName().equals(\"html\"))\nreturn stack.pollLast();\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:popStackToClose(Ljava/lang/String;)V",
+            "method_body": "void popStackToClose(String elName) {\nIterator<Element> it = stack.descendingIterator();\nwhile (it.hasNext()) {\nElement next = it.next();\nif (next.nodeName().equals(elName)) {\nit.remove();\nbreak;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:inSpecificScope(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)Z",
+            "method_body": "private boolean inSpecificScope(String targetName, String[] baseTypes, String[] extraTypes) {\nreturn inSpecificScope(new String[]{targetName}, baseTypes, extraTypes);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:inSpecificScope([Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;)Z",
+            "method_body": "private boolean inSpecificScope(String[] targetNames, String[] baseTypes, String[] extraTypes) {\nIterator<Element> it = stack.descendingIterator();\nwhile (it.hasNext()) {\nElement el = it.next();\nString elName = el.nodeName();\nif (StringUtil.in(elName, targetNames))\nreturn true;\nif (StringUtil.in(elName, baseTypes))\nreturn false;\nif (extraTypes != null && StringUtil.in(elName, extraTypes))\n}\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:inScope(Ljava/lang/String;)Z",
+            "method_body": "boolean inScope(String targetName) {\nreturn inScope(targetName, null);\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:inScope(Ljava/lang/String;[Ljava/lang/String;)Z",
+            "method_body": "boolean inScope(String targetName, String[] extras) {\nreturn inSpecificScope(targetName, new String[]{\"applet\", \"caption\", \"html\", \"table\", \"td\", \"th\", \"marquee\", \"object\"}, extras);\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:inButtonScope(Ljava/lang/String;)Z",
+            "method_body": "boolean inButtonScope(String targetName) {\nreturn inScope(targetName, new String[]{\"button\"});\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:setHeadElement(Lorg/jsoup/nodes/Element;)V",
+            "method_body": "void setHeadElement(Element headElement) {\nthis.headElement = headElement;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:isFosterInserts()Z",
+            "method_body": "boolean isFosterInserts() {\nreturn fosterInserts;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:generateImpliedEndTags(Ljava/lang/String;)V",
+            "method_body": "void generateImpliedEndTags(String excludeTag) {\nwhile ((excludeTag != null && !currentElement().nodeName().equals(excludeTag)) &&\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:generateImpliedEndTags()V",
+            "method_body": "void generateImpliedEndTags() {\ngenerateImpliedEndTags(null);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilder:reconstructFormattingElements()V",
+            "method_body": "void reconstructFormattingElements() {\nint size = formattingElements.size();\nif (size == 0 || formattingElements.getLast() == null || onStack(formattingElements.getLast()))\nreturn;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:<init>()V",
+            "method_body": "public DescendableLinkedList() {\nsuper();\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:peekLast()Ljava/lang/Object;",
+            "method_body": "public E peekLast() {\nreturn size() == 0 ? null : getLast();\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:pollLast()Ljava/lang/Object;",
+            "method_body": "public E pollLast() {\nreturn size() == 0 ? null : removeLast();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:descendingIterator()Ljava/util/Iterator;",
+            "method_body": "public Iterator<E> descendingIterator() {\nreturn new DescendingIterator<E>(size());\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.jsoup.parser.ParseErrorList:<init>(II)V",
+            "method_body": "ParseErrorList(int initialCapacity, int maxSize) {\nsuper(initialCapacity);\nthis.maxSize = maxSize;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.jsoup.parser.ParseErrorList:canAddError()Z",
+            "method_body": "boolean canAddError() {\nreturn size() < maxSize;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.jsoup.parser.ParseErrorList:noTracking()Lorg/jsoup/parser/ParseErrorList;",
+            "method_body": "static ParseErrorList noTracking() {\nreturn new ParseErrorList(0, 0);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState:<init>(Ljava/lang/String;I)V",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (isWhitespace(t)) {\nswitch (t.type) {\nToken.StartTag start = t.asStartTag();\nString name = start.name();\nif (name.equals(\"html\")) {\n} else if (StringUtil.in(name, \"base\", \"basefont\", \"bgsound\", \"command\", \"link\")) {\n} else if (name.equals(\"meta\")) {\n} else if (name.equals(\"title\")) {\n} else if (StringUtil.in(name, \"noframes\", \"style\")) {\n} else if (name.equals(\"noscript\")) {\n} else if (name.equals(\"script\")) {\ntb.tokeniser.transition(TokeniserState.ScriptData);\ntb.markInsertionMode();\ntb.transition(Text);\ntb.insert(start);\n} else if (name.equals(\"head\")) {\nreturn anythingElse(t, tb);\nToken.EndTag end = t.asEndTag();\nname = end.name();\nif (name.equals(\"head\")) {\ntb.pop();\ntb.transition(AfterHead);\nreturn anythingElse(t, tb);\nreturn true;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState:isWhitespace(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "abstract boolean process(Token t, HtmlTreeBuilder tb);\nif (t.isCharacter()) {\nString data = t.asCharacter().getData();\nfor (int i = 0; i < data.length(); i++) {\nchar c = data.charAt(i);\nif (!StringUtil.isWhitespace(c))\nreturn false;\nreturn false;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$1:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (isWhitespace(t)) {\n} else if (t.isComment()) {\n} else if (t.isDoctype()) {\ntb.transition(BeforeHtml);\nreturn tb.process(t); // re-process token\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$2:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (t.isDoctype()) {\n} else if (t.isComment()) {\n} else if (isWhitespace(t)) {\n} else if (t.isStartTag() && t.asStartTag().name().equals(\"html\")) {\n} else if (t.isEndTag() && (StringUtil.in(t.asEndTag().name(), \"head\", \"body\", \"html\", \"br\"))) {\n} else if (t.isEndTag()) {\nreturn anythingElse(t, tb);\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$2:anythingElse(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "private boolean anythingElse(Token t, HtmlTreeBuilder tb) {\ntb.insert(\"html\");\ntb.transition(BeforeHead);\nreturn tb.process(t);\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$3:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (isWhitespace(t)) {\n} else if (t.isComment()) {\n} else if (t.isDoctype()) {\n} else if (t.isStartTag() && t.asStartTag().name().equals(\"html\")) {\n} else if (t.isStartTag() && t.asStartTag().name().equals(\"head\")) {\nElement head = tb.insert(t.asStartTag());\ntb.setHeadElement(head);\ntb.transition(InHead);\n} else if (t.isEndTag() && (StringUtil.in(t.asEndTag().name(), \"head\", \"body\", \"html\", \"br\"))) {\n} else if (t.isEndTag()) {\ntb.process(new Token.StartTag(\"head\"));\nreturn tb.process(t);\nreturn true;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$4:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (isWhitespace(t)) {\nswitch (t.type) {\nToken.StartTag start = t.asStartTag();\nString name = start.name();\nif (name.equals(\"html\")) {\n} else if (StringUtil.in(name, \"base\", \"basefont\", \"bgsound\", \"command\", \"link\")) {\n} else if (name.equals(\"meta\")) {\n} else if (name.equals(\"title\")) {\n} else if (StringUtil.in(name, \"noframes\", \"style\")) {\n} else if (name.equals(\"noscript\")) {\n} else if (name.equals(\"script\")) {\ntb.tokeniser.transition(TokeniserState.ScriptData);\ntb.markInsertionMode();\ntb.transition(Text);\ntb.insert(start);\n} else if (name.equals(\"head\")) {\nreturn anythingElse(t, tb);\nToken.EndTag end = t.asEndTag();\nname = end.name();\nif (name.equals(\"head\")) {\ntb.pop();\ntb.transition(AfterHead);\nreturn anythingElse(t, tb);\nreturn true;\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$4:anythingElse(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/TreeBuilder;)Z",
+            "method_body": "private boolean anythingElse(Token t, TreeBuilder tb) {\ntb.process(new Token.EndTag(\"head\"));\nreturn tb.process(t);\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$6:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nif (isWhitespace(t)) {\n} else if (t.isComment()) {\n} else if (t.isDoctype()) {\n} else if (t.isStartTag()) {\nToken.StartTag startTag = t.asStartTag();\nString name = startTag.name();\nif (name.equals(\"html\")) {\n} else if (name.equals(\"body\")) {\ntb.insert(startTag);\ntb.framesetOk(false);\ntb.transition(InBody);\n} else if (name.equals(\"frameset\")) {\n} else if (StringUtil.in(name, \"base\", \"basefont\", \"bgsound\", \"link\", \"meta\", \"noframes\", \"script\", \"style\", \"title\")) {\n} else if (name.equals(\"head\")) {\nanythingElse(t, tb);\n} else if (t.isEndTag()) {\nreturn true;\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$6:anythingElse(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "private boolean anythingElse(Token t, HtmlTreeBuilder tb) {\ntb.process(new Token.StartTag(\"body\"));\ntb.framesetOk(true);\nreturn tb.process(t);\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.jsoup.parser.HtmlTreeBuilderState$7:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/HtmlTreeBuilder;)Z",
+            "method_body": "boolean process(Token t, HtmlTreeBuilder tb) {\nswitch (t.type) {\nToken.Character c = t.asCharacter();\nif (c.getData().equals(nullString)) {\n} else if (isWhitespace(c)) {\ntb.reconstructFormattingElements();\ntb.insert(c);\ntb.framesetOk(false);\nbreak;\nToken.StartTag startTag = t.asStartTag();\nString name = startTag.name();\nif (name.equals(\"html\")) {\n} else if (StringUtil.in(name, \"base\", \"basefont\", \"bgsound\", \"command\", \"link\", \"meta\", \"noframes\", \"script\", \"style\", \"title\")) {\nreturn tb.process(t, InHead);\n} else if (name.equals(\"body\")) {\n} else if (name.equals(\"frameset\")) {\n} else if (StringUtil.in(name,\nif (tb.inButtonScope(\"p\")) {\ntb.insert(startTag);\nToken.EndTag endTag = t.asEndTag();\nname = endTag.name();\nif (name.equals(\"body\")) {\n} else if (name.equals(\"html\")) {\n} else if (StringUtil.in(name,\nif (!tb.inScope(name)) {\ntb.generateImpliedEndTags();\nif (!tb.currentElement().nodeName().equals(name))\ntb.popStackToClose(name);\nreturn true;\n}",
+            "method_id": 49
+        }
+    ]
+}

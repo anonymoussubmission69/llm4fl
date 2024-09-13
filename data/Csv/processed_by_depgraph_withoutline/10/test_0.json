@@ -1,0 +1,79 @@
+{
+    "bug_id": 10,
+    "test_id": 0,
+    "test_name": "org.apache.commons.csv.CSVPrinterTest.testHeader",
+    "test_body": "private final String recordSeparator = CSVFormat.DEFAULT.getRecordSeparator();\npublic void testHeader() throws IOException {\nfinal StringWriter sw = new StringWriter();\nfinal CSVPrinter printer = new CSVPrinter(sw, CSVFormat.DEFAULT.withQuoteChar(null)\n.withHeader(\"C1\", \"C2\", \"C3\"));\nprinter.printRecord(\"a\", \"b\", \"c\");\nprinter.printRecord(\"x\", \"y\", \"z\");\nassertEquals(\"C1,C2,C3\\r\\na,b,c\\r\\nx,y,z\\r\\n\", sw.toString());\nprinter.close();",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<[C1,C2,C3\n]a,b,c\nx,y,z\n> but was:<[]a,b,c\nx,y,z\n>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.apache.commons.csv.CSVPrinterTest.testHeader(CSVPrinterTest.java:495)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.csv.CSVPrinter:print(Ljava/lang/Object;Ljava/lang/CharSequence;II)V",
+            "method_body": "private void print(final Object object, final CharSequence value,\nif (!newRecord) {\nout.append(format.getDelimiter());\nif (format.isQuoting()) {\n} else if (format.isEscaping()) {\nout.append(value, offset, offset + len);\nnewRecord = false;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVPrinter:<init>(Ljava/lang/Appendable;Lorg/apache/commons/csv/CSVFormat;)V",
+            "method_body": "/*** Creates a printer that will print values to the given stream following the CSVFormat.* <p>* Currently, only a pure encapsulation format or a pure escaping format is supported. Hybrid formats (encapsulation* and escaping with a different character) are not supported.* </p>* * @param out*        stream to which to print. Must not be null.* @param format*        the CSV format. Must not be null.* @throws IOException*         thrown if the optional header cannot be printed.* @throws IllegalArgumentException*         thrown if the parameters of the format are inconsistent or if either out or format are null.*/\npublic CSVPrinter(final Appendable out, final CSVFormat format) throws IOException {\nAssertions.notNull(out, \"out\");\nAssertions.notNull(format, \"format\");\nthis.out = out;\nthis.format = format;\nthis.format.validate();\n// TODO: Is it a good idea to do this here instead of on the first call to a print method?// It seems a pain to have to track whether the header has already been printed or not.}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVPrinter:println()V",
+            "method_body": "private void printAndQuote(final Object object, final CharSequence value,\nfinal String recordSeparator = format.getRecordSeparator();\nif (recordSeparator != null) {\nout.append(recordSeparator);\nnewRecord = true;\n}\nfor (final Object value : values) {\nprint(value);\nprintln();\n}\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:<init>(CLjava/lang/Character;Lorg/apache/commons/csv/Quote;Ljava/lang/Character;Ljava/lang/Character;ZZLjava/lang/String;Ljava/lang/String;[Ljava/lang/String;Z)V",
+            "method_body": "public static final CSVFormat DEFAULT = new CSVFormat(COMMA, DOUBLE_QUOTE_CHAR, null, null, null, false, true, CRLF, null, null, false);\nprivate CSVFormat(final char delimiter, final Character quoteChar,\nfinal String nullString, final String[] header, final boolean skipHeaderRecord) {\nif (isLineBreak(delimiter)) {\nthis.delimiter = delimiter;\nthis.quoteChar = quoteChar;\nthis.quotePolicy = quotePolicy;\nthis.commentStart = commentStart;\nthis.escape = escape;\nthis.ignoreSurroundingSpaces = ignoreSurroundingSpaces;\nthis.ignoreEmptyLines = ignoreEmptyLines;\nthis.recordSeparator = recordSeparator;\nthis.nullString = nullString;\nif (header == null) {\nthis.header = null;\nSet<String> dupCheck = new HashSet<String>();\nfor(String hdr : header) {\nif (!dupCheck.add(hdr)) {\nthis.header = header.clone();\nthis.skipHeaderRecord = skipHeaderRecord;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVPrinter:printRecord([Ljava/lang/Object;)V",
+            "method_body": "private void printAndQuote(final Object object, final CharSequence value,\nfinal String recordSeparator = format.getRecordSeparator();\nif (recordSeparator != null) {\nout.append(recordSeparator);\nnewRecord = true;\n}\nfor (final Object value : values) {\nprint(value);\nprintln();\n}\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVPrinter:print(Ljava/lang/Object;)V",
+            "method_body": "public void print(final Object value) throws IOException {\nif (value == null) {\nstrValue = value.toString();\nthis.print(value, strValue, 0, strValue.length());\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:withQuoteChar(Ljava/lang/Character;)Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat withQuoteChar(final Character quoteChar) {\nif (isLineBreak(quoteChar)) {\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isEscaping()Z",
+            "method_body": "public boolean isEscaping() {\nreturn escape != null;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:withHeader([Ljava/lang/String;)Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat withHeader(final String... header) {\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getRecordSeparator()Ljava/lang/String;",
+            "method_body": "public String getRecordSeparator() {\nreturn recordSeparator;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isQuoting()Z",
+            "method_body": "public boolean isQuoting() {\nreturn quoteChar != null;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:getDelimiter()C",
+            "method_body": "public char getDelimiter() {\nreturn delimiter;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isLineBreak(C)Z",
+            "method_body": "private static boolean isLineBreak(final char c) {\nreturn c == LF || c == CR;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:isLineBreak(Ljava/lang/Character;)Z",
+            "method_body": "private static boolean isLineBreak(final Character c) {\nreturn c != null && isLineBreak(c.charValue());\n}",
+            "method_id": 13
+        }
+    ]
+}

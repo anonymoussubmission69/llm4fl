@@ -1,0 +1,154 @@
+{
+    "bug_id": 34,
+    "test_id": 15,
+    "test_name": "org.apache.commons.lang3.builder.ToStringBuilderTest.testReflectionhortArrayArray",
+    "test_body": "255: public void testReflectionhortArrayArray() {\n256: short[][] array = new short[][] { { 1, 2 }, null, { 5 } };\n257: String baseStr = this.toBaseString(array);\n258: assertEquals(baseStr + \"[{{1,2},<null>,{5}}]\", ToStringBuilder.reflectionToString(array));\n259: array = null;\n260: assertReflectionArray(\"<null>\", array);\n261: this.validateNullToStringStyleRegistry();\n262: }\n",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected: <null> but was: {}\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.assertTrue(Assert.java:22)\nat junit.framework.Assert.assertNull(Assert.java:277)\nat junit.framework.Assert.assertNull(Assert.java:268)\nat junit.framework.TestCase.assertNull(TestCase.java:438)\nat org.apache.commons.lang3.builder.ToStringBuilderTest.validateNullToStringStyleRegistry(ToStringBuilderTest.java:586)\nat org.apache.commons.lang3.builder.ToStringBuilderTest.testReflectionhortArrayArray(ToStringBuilderTest.java:261)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendDetail(Ljava/lang/StringBuffer;Ljava/lang/String;[S)V",
+            "method_body": "protected void appendDetail(StringBuffer buffer, String fieldName, short[] array) {\nbuffer.append(arrayStart);\nfor (int i = 0; i < array.length; i++) {\nif (i > 0) {\nbuffer.append(arraySeparator);\nappendDetail(buffer, fieldName, array[i]);\nbuffer.append(arrayEnd);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:reflectionAppendArrayDetail(Ljava/lang/StringBuffer;Ljava/lang/String;Ljava/lang/Object;)V",
+            "method_body": "protected void reflectionAppendArrayDetail(StringBuffer buffer, String fieldName, Object array) {\nbuffer.append(arrayStart);\nint length = Array.getLength(array);\nfor (int i = 0; i < length; i++) {\nObject item = Array.get(array, i);\nif (i > 0) {\nbuffer.append(arraySeparator);\nif (item == null) {\nappendNullText(buffer, fieldName);\nappendInternal(buffer, fieldName, item, arrayContentDetail);\nbuffer.append(arrayEnd);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:appendFieldsIn(Ljava/lang/Class;)V",
+            "method_body": "protected void appendFieldsIn(Class<?> clazz) {\nif (clazz.isArray()) {\nthis.reflectionAppendArray(this.getObject());\nreturn;\nField[] fields = clazz.getDeclaredFields();\nAccessibleObject.setAccessible(fields, true);\nfor (Field field : fields) {\nString fieldName = field.getName();\nif (this.accept(field)) {\nObject fieldValue = this.getValue(field);\nthis.append(fieldName, fieldValue);\n}\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:toString()Ljava/lang/String;",
+            "method_body": "public String toString() {\nif (this.getObject() == null) {\nClass<?> clazz = this.getObject().getClass();\nthis.appendFieldsIn(clazz);\nwhile (clazz.getSuperclass() != null && clazz != this.getUpToClass()) {\nclazz = clazz.getSuperclass();\nthis.appendFieldsIn(clazz);\nreturn super.toString();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:removeLastFieldSeparator(Ljava/lang/StringBuffer;)V",
+            "method_body": "protected void removeLastFieldSeparator(StringBuffer buffer) {\nint len = buffer.length();\nint sepLen = fieldSeparator.length();\nif (len > 0 && sepLen > 0 && len >= sepLen) {\nboolean match = true;\nfor (int i = 0; i < sepLen; i++) {\nif (buffer.charAt(len - 1 - i) != fieldSeparator.charAt(sepLen - 1 - i)) {\nmatch = false;\nbreak;\nif (match) {\nbuffer.setLength(len - sepLen);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:<init>(Ljava/lang/Object;Lorg/apache/commons/lang3/builder/ToStringStyle;Ljava/lang/StringBuffer;)V",
+            "method_body": "public ToStringBuilder(Object object, ToStringStyle style, StringBuffer buffer) {\nif (style == null) {\nstyle = getDefaultStyle();\nif (buffer == null) {\nbuffer = new StringBuffer(512);\nthis.buffer = buffer;\nthis.style = style;\nthis.object = object;\nstyle.appendStart(buffer, object);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendDetail(Ljava/lang/StringBuffer;Ljava/lang/String;S)V",
+            "method_body": "protected void appendDetail(StringBuffer buffer, String fieldName, short value) {\nbuffer.append(value);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:<init>(Ljava/lang/Object;Lorg/apache/commons/lang3/builder/ToStringStyle;Ljava/lang/StringBuffer;Ljava/lang/Class;ZZ)V",
+            "method_body": "private boolean appendStatics = false;\nprivate boolean appendTransients = false;\nprivate Class<?> upToClass = null;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:unregister(Ljava/lang/Object;)V",
+            "method_body": "static void unregister(Object value) {\nif (value != null) {\nsynchronized (ToStringStyle.class) {\nm = REGISTRY.get();\nif (m != null) {\nm.remove(value);\nif (m.isEmpty()) {\nREGISTRY.remove();\n}\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:register(Ljava/lang/Object;)V",
+            "method_body": "static void register(Object value) {\nif (value != null) {\nsynchronized (ToStringStyle.class) {\nm = REGISTRY.get();\nif (m == null) {\nm = new WeakHashMap<Object, Object>();\nREGISTRY.set(m);\n}\nm.put(value, null);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendStart(Ljava/lang/StringBuffer;Ljava/lang/Object;)V",
+            "method_body": "public void appendStart(StringBuffer buffer, Object object) {\nif (object != null) {\nappendClassName(buffer, object);\nappendIdentityHashCode(buffer, object);\nappendContentStart(buffer);\nif (fieldSeparatorAtStart) {\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendIdentityHashCode(Ljava/lang/StringBuffer;Ljava/lang/Object;)V",
+            "method_body": "protected void appendIdentityHashCode(StringBuffer buffer, Object object) {\nif (this.isUseIdentityHashCode() && object!=null) {\nregister(object);\nbuffer.append('@');\nbuffer.append(Integer.toHexString(System.identityHashCode(object)));\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendClassName(Ljava/lang/StringBuffer;Ljava/lang/Object;)V",
+            "method_body": "protected void appendClassName(StringBuffer buffer, Object object) {\nif (useClassName && object != null) {\nregister(object);\nif (useShortClassName) {\nbuffer.append(object.getClass().getName());\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendEnd(Ljava/lang/StringBuffer;Ljava/lang/Object;)V",
+            "method_body": "public void appendEnd(StringBuffer buffer, Object object) {\nif (this.fieldSeparatorAtEnd == false) {\nremoveLastFieldSeparator(buffer);\nappendContentEnd(buffer);\nunregister(object);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:reflectionAppendArray(Ljava/lang/Object;)Lorg/apache/commons/lang3/builder/ReflectionToStringBuilder;",
+            "method_body": "public ReflectionToStringBuilder reflectionAppendArray(Object array) {\nthis.getStyle().reflectionAppendArrayDetail(this.getStringBuffer(), null, array);\nreturn this;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:toString()Ljava/lang/String;",
+            "method_body": "public String toString() {\nif (this.getObject() == null) {\nstyle.appendEnd(this.getStringBuffer(), this.getObject());\nreturn this.getStringBuffer().toString();\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendNullText(Ljava/lang/StringBuffer;Ljava/lang/String;)V",
+            "method_body": "protected void appendNullText(StringBuffer buffer, String fieldName) {\nbuffer.append(nullText);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:isRegistered(Ljava/lang/Object;)Z",
+            "method_body": "static boolean isRegistered(Object value) {\nMap<Object, Object> m = getRegistry();\nreturn m.containsKey(value);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendContentEnd(Ljava/lang/StringBuffer;)V",
+            "method_body": "protected void appendContentEnd(StringBuffer buffer) {\nbuffer.append(contentEnd);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:appendContentStart(Ljava/lang/StringBuffer;)V",
+            "method_body": "protected void appendContentStart(StringBuffer buffer) {\nbuffer.append(contentStart);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:getObject()Ljava/lang/Object;",
+            "method_body": "public Object getObject() {\nreturn object;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:getStringBuffer()Ljava/lang/StringBuffer;",
+            "method_body": "public StringBuffer getStringBuffer() {\nreturn buffer;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:getRegistry()Ljava/util/Map;",
+            "method_body": "static Map<Object, Object> getRegistry() {\nreturn REGISTRY.get() != null ? REGISTRY.get() : Collections.<Object, Object>emptyMap();\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:toString(Ljava/lang/Object;Lorg/apache/commons/lang3/builder/ToStringStyle;ZZLjava/lang/Class;)Ljava/lang/String;",
+            "method_body": "public static <T> String toString(\nreturn new ReflectionToStringBuilder(object, style, null, reflectUpToClass, outputTransients, outputStatics)\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:toString(Ljava/lang/Object;)Ljava/lang/String;",
+            "method_body": "public static String toString(Object object) {\nreturn toString(object, null, false, false, null);\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:reflectionToString(Ljava/lang/Object;)Ljava/lang/String;",
+            "method_body": "public static String reflectionToString(Object object) {\nreturn ReflectionToStringBuilder.toString(object);\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ReflectionToStringBuilder:getUpToClass()Ljava/lang/Class;",
+            "method_body": "public Class<?> getUpToClass() {\nreturn this.upToClass;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringStyle:isUseIdentityHashCode()Z",
+            "method_body": "protected boolean isUseIdentityHashCode() {\nreturn useIdentityHashCode;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.ToStringBuilder:getStyle()Lorg/apache/commons/lang3/builder/ToStringStyle;",
+            "method_body": "public ToStringStyle getStyle() {\nreturn style;\n}",
+            "method_id": 28
+        }
+    ]
+}

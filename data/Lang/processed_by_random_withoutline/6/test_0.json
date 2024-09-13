@@ -1,0 +1,34 @@
+{
+    "bug_id": 6,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.StringUtilsTest.testEscapeSurrogatePairs",
+    "test_body": "public void testEscapeSurrogatePairs() throws Exception {\nassertEquals(\"\\uD83D\\uDE30\", StringEscapeUtils.escapeCsv(\"\\uD83D\\uDE30\"));\n// Examples from https://en.wikipedia.org/wiki/UTF-16",
+    "stack_trace": "java.lang.StringIndexOutOfBoundsException: String index out of range: 2\nat java.lang.String.charAt(String.java:658)\nat java.lang.Character.codePointAt(Character.java:4884)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:95)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:59)\nat org.apache.commons.lang3.StringEscapeUtils.escapeCsv(StringEscapeUtils.java:556)\nat org.apache.commons.lang3.StringUtilsTest.testEscapeSurrogatePairs(StringUtilsTest.java:2187)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.StringUtils:containsNone(Ljava/lang/CharSequence;[C)Z",
+            "method_body": "public static boolean containsNone(CharSequence cs, char... searchChars) {\nif (cs == null || searchChars == null) {\nint csLen = cs.length();\nint csLast = csLen - 1;\nint searchLen = searchChars.length;\nint searchLast = searchLen - 1;\nfor (int i = 0; i < csLen; i++) {\nchar ch = cs.charAt(i);\nfor (int j = 0; j < searchLen; j++) {\nif (searchChars[j] == ch) {\nreturn true;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringEscapeUtils:escapeCsv(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static final String escapeCsv(String input) {\nreturn ESCAPE_CSV.translate(input);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.StringEscapeUtils$CsvEscaper:translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",
+            "method_body": "public int translate(CharSequence input, int index, Writer out) throws IOException {\nif(index != 0) {\nif (StringUtils.containsNone(input.toString(), CSV_SEARCH_CHARS)) {\nout.write(input.toString());\nreturn input.length();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;)Ljava/lang/String;",
+            "method_body": "public abstract int translate(CharSequence input, int index, Writer out) throws IOException;\nif (input == null) {\nStringWriter writer = new StringWriter(input.length() * 2);\ntranslate(input, writer);\nreturn writer.toString();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V",
+            "method_body": "public final void translate(CharSequence input, Writer out) throws IOException {\nif (out == null) {\nif (input == null) {\nint pos = 0;\nint len = input.length();\nwhile (pos < len) {\nint consumed = translate(input, pos, out);\nif (consumed == 0) {\nfor (int pt = 0; pt < consumed; pt++) {\npos += Character.charCount(Character.codePointAt(input, pos));\n}",
+            "method_id": 4
+        }
+    ]
+}

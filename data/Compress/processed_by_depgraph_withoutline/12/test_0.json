@@ -1,0 +1,69 @@
+{
+    "bug_id": 12,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.TarTestCase.testCOMPRESS178",
+    "test_body": "304: public void testCOMPRESS178() throws Exception {\n305: final File input = getFile(\"COMPRESS-178.tar\");\n306: final InputStream is = new FileInputStream(input);\n307: final ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(\"tar\", is);\n308: try {\n309: in.getNextEntry();\n310: fail(\"Expected IOException\");",
+    "stack_trace": "java.lang.IllegalArgumentException: Invalid byte 0 at offset 2 in '00{NUL}0765{NUL}' len=8\nat org.apache.commons.compress.archivers.tar.TarUtils.parseOctal(TarUtils.java:99)\nat org.apache.commons.compress.archivers.tar.TarUtils.parseOctalOrBinary(TarUtils.java:130)\nat org.apache.commons.compress.archivers.tar.TarArchiveEntry.parseTarHeader(TarArchiveEntry.java:815)\nat org.apache.commons.compress.archivers.tar.TarArchiveEntry.<init>(TarArchiveEntry.java:314)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextTarEntry(TarArchiveInputStream.java:198)\nat org.apache.commons.compress.archivers.tar.TarArchiveInputStream.getNextEntry(TarArchiveInputStream.java:395)\nat org.apache.commons.compress.archivers.TarTestCase.testCOMPRESS178(TarTestCase.java:309)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:readBlock()Z",
+            "method_body": "private boolean readBlock() throws IOException {\nif (inStream == null) {\ncurrRecIdx = 0;\nint offset = 0;\nint bytesNeeded = blockSize;\nwhile (bytesNeeded > 0) {\nlong numBytes = inStream.read(blockBuffer, offset,\nif (numBytes == -1) {\noffset += numBytes;\nbytesNeeded -= numBytes;\nif (numBytes != blockSize) {\n}\ncurrBlkIdx++;\nreturn true;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>()V",
+            "method_body": "private TarArchiveEntry () {\nthis.magic = MAGIC_POSIX;\nthis.version = VERSION_POSIX;\nthis.name = \"\";\nthis.linkName = \"\";\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userId = 0;\nthis.groupId = 0;\nthis.userName = user;\nthis.groupName = \"\";\nthis.file = null;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:readRecord()[B",
+            "method_body": "public byte[] readRecord() throws IOException {\nif (inStream == null) {\nif (currRecIdx >= recsPerBlock && !readBlock()) {\nbyte[] result = new byte[recordSize];\nSystem.arraycopy(blockBuffer,\ncurrRecIdx++;\nreturn result;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getNextTarEntry()Lorg/apache/commons/compress/archivers/tar/TarArchiveEntry;",
+            "method_body": "public TarArchiveEntry getNextTarEntry() throws IOException {\nif (hasHitEOF) {\nif (currEntry != null) {\nbyte[] headerBuf = getRecord();\nif (hasHitEOF) {\ncurrEntry = new TarArchiveEntry(headerBuf);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getRecord()[B",
+            "method_body": "private byte[] getRecord() throws IOException {\nif (hasHitEOF) {\nbyte[] headerBuf = buffer.readRecord();\nif (headerBuf == null) {\n} else if (buffer.isEOFRecord(headerBuf)) {\nreturn hasHitEOF ? null : headerBuf;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>([B)V",
+            "method_body": "public TarArchiveEntry(byte[] headerBuf) {\nthis();\nparseTarHeader(headerBuf);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;II)V",
+            "method_body": "public TarArchiveInputStream(InputStream is, int blockSize, int recordSize) {\nthis.buffer = new TarBuffer(is, blockSize, recordSize);\nthis.readBuf = null;\nthis.hasHitEOF = false;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:isEOFRecord([B)Z",
+            "method_body": "public boolean isEOFRecord(byte[] record) {\nfor (int i = 0, sz = getRecordSize(); i < sz; ++i) {\nif (record[i] != 0) {\nreturn false;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public TarArchiveInputStream(InputStream is) {\nthis(is, TarBuffer.DEFAULT_BLKSIZE, TarBuffer.DEFAULT_RCDSIZE);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:getNextEntry()Lorg/apache/commons/compress/archivers/ArchiveEntry;",
+            "method_body": "public ArchiveEntry getNextEntry() throws IOException {\nreturn getNextTarEntry();\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarBuffer:getRecordSize()I",
+            "method_body": "public int getRecordSize() {\nreturn this.recordSize;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveInputStream(Ljava/lang/String;Ljava/io/InputStream;)Lorg/apache/commons/compress/archivers/ArchiveInputStream;",
+            "method_body": "public ArchiveInputStream createArchiveInputStream(\nif (archiverName == null) {\nif (in == null) {\nif (AR.equalsIgnoreCase(archiverName)) {\nif (ZIP.equalsIgnoreCase(archiverName)) {\nif (TAR.equalsIgnoreCase(archiverName)) {\nreturn new TarArchiveInputStream(in);\n}",
+            "method_id": 11
+        }
+    ]
+}

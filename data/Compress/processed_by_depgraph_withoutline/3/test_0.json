@@ -1,0 +1,119 @@
+{
+    "bug_id": 3,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.ArchiveOutputStreamTest.testFinish",
+    "test_body": "24: public void testFinish() throws Exception {\n25: OutputStream out1 = new ByteArrayOutputStream();\n26: 27: ArchiveOutputStream aos1 = factory.createArchiveOutputStream(\"zip\", out1);\n28: aos1.putArchiveEntry(new ZipArchiveEntry(\"dummy\"));\n29: try {\n30: aos1.finish();\n31: fail(\"After putArchive should follow closeArchive\");\n32: } catch (IOException io) {\n33: // Exception expected\n34: }\n35: 36: aos1 = factory.createArchiveOutputStream(\"jar\", out1);\n37: aos1.putArchiveEntry(new JarArchiveEntry(\"dummy\"));\n38: try {\n39: aos1.finish();\n40: fail(\"After putArchive should follow closeArchive\");\n41: } catch (IOException io) {\n42: // Exception expected\n43: }\n44: 45: aos1 = factory.createArchiveOutputStream(\"ar\", out1);\n46: aos1.putArchiveEntry(new ArArchiveEntry(\"dummy\", 100));\n47: try {\n48: aos1.finish();\n49: fail(\"After putArchive should follow closeArchive\");\n50: } catch (IOException io) {\n51: // Exception expected\n52: }\n53: 54: aos1 = factory.createArchiveOutputStream(\"cpio\", out1);\n55: aos1.putArchiveEntry(new CpioArchiveEntry(\"dummy\"));\n56: try {\n57: aos1.finish();\n58: fail(\"After putArchive should follow closeArchive\");\n59: } catch (IOException io) {\n60: // Exception expected\n61: }\n62: 63: aos1 = factory.createArchiveOutputStream(\"tar\", out1);\n64: aos1.putArchiveEntry(new TarArchiveEntry(\"dummy\"));\n65: try {\n66: aos1.finish();\n67: fail(\"After putArchive should follow closeArchive\");\n68: } catch (IOException io) {",
+    "stack_trace": "junit.framework.AssertionFailedError: After putArchive should follow closeArchive\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat org.apache.commons.compress.archivers.ArchiveOutputStreamTest.testFinish(ArchiveOutputStreamTest.java:67)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:putArchiveEntry(Lorg/apache/commons/compress/archivers/ArchiveEntry;)V",
+            "method_body": "public void putArchiveEntry(ArchiveEntry archiveEntry) throws IOException {\nTarArchiveEntry entry = (TarArchiveEntry) archiveEntry;\nif (entry.getName().length() >= TarConstants.NAMELEN) {\nentry.writeEntryHeader(recordBuf);\nbuffer.writeRecord(recordBuf);\ncurrBytes = 0;\nif (entry.isDirectory()) {\ncurrSize = entry.getSize();\ncurrName = entry.getName();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveOutputStream(Ljava/lang/String;Ljava/io/OutputStream;)Lorg/apache/commons/compress/archivers/ArchiveOutputStream;",
+            "method_body": "public ArchiveOutputStream createArchiveOutputStream(\nif (archiverName == null || out == null) {\nif (\"ar\".equalsIgnoreCase(archiverName)) {\nreturn new ArArchiveOutputStream(out);\n} else if (\"zip\".equalsIgnoreCase(archiverName)) {\nreturn new ZipArchiveOutputStream(out);\n} else if (\"tar\".equalsIgnoreCase(archiverName)) {\nreturn new TarArchiveOutputStream(out);\n} else if (\"jar\".equalsIgnoreCase(archiverName)) {\nreturn new JarArchiveOutputStream(out);\n} else if (\"cpio\".equalsIgnoreCase(archiverName)) {\nreturn new CpioArchiveOutputStream(out);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:<init>(Ljava/io/OutputStream;II)V",
+            "method_body": "public TarArchiveOutputStream(OutputStream os, int blockSize, int recordSize) {\nout = os;\nthis.buffer = new TarBuffer(os, blockSize, recordSize);\nthis.assemLen = 0;\nthis.assemBuf = new byte[recordSize];\nthis.recordBuf = new byte[recordSize];\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>(Ljava/lang/String;)V",
+            "method_body": "public TarArchiveEntry(String name) {\nthis();\nname = normalizeFileName(name);\nboolean isDir = name.endsWith(\"/\");\nthis.devMajor = 0;\nthis.devMinor = 0;\nthis.name = name;\nthis.mode = isDir ? DEFAULT_DIR_MODE : DEFAULT_FILE_MODE;\nthis.linkFlag = isDir ? LF_DIR : LF_NORMAL;\nthis.userId = 0;\nthis.groupId = 0;\nthis.size = 0;\nthis.modTime = (new Date()).getTime() / MILLIS_PER_SECOND;\nthis.linkName = \"\";\nthis.userName = \"\";\nthis.groupName = \"\";\nthis.devMajor = 0;\nthis.devMinor = 0;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:finish()V",
+            "method_body": "public void finish() throws IOException {\nwriteEOFRecord();\nwriteEOFRecord();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>()V",
+            "method_body": "private TarArchiveEntry () {\nthis.magic = MAGIC_POSIX;\nthis.version = VERSION_POSIX;\nthis.name = \"\";\nthis.linkName = \"\";\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userId = 0;\nthis.groupId = 0;\nthis.userName = user;\nthis.groupName = \"\";\nthis.file = null;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:<init>(Ljava/lang/String;JIIIJ)V",
+            "method_body": "public ArArchiveEntry(String name, long length, int userId, int groupId, int mode, long lastModified) {\nthis.name = name;\nthis.length = length;\nthis.userId = userId;\nthis.groupId = groupId;\nthis.mode = mode;\nthis.lastModified = lastModified;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:writeEOFRecord()V",
+            "method_body": "private void writeEOFRecord() throws IOException {\nfor (int i = 0; i < recordBuf.length; ++i) {\nrecordBuf[i] = 0;\nbuffer.writeRecord(recordBuf);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:<init>(Ljava/io/OutputStream;S)V",
+            "method_body": "public CpioArchiveOutputStream(final OutputStream out, final short format) {\nthis.out = new FilterOutputStream(out);\nswitch (format) {\nbreak;\nthis.entryFormat = format;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public ArArchiveOutputStream( final OutputStream pOut ) {\nthis.out = pOut;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public JarArchiveOutputStream(final OutputStream out) {\nsuper(out);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveEntry:<init>(S)V",
+            "method_body": "public CpioArchiveEntry(final short format) {\nswitch (format) {\nthis.headerSize = 110;\nthis.alignmentBoundary = 4;\nbreak;\nthis.fileFormat = format;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream:<init>(Ljava/io/File;)V",
+            "method_body": "private ZipEncoding zipEncoding =\nprotected final Deflater def = new Deflater(level, true);\nprivate final byte[] buf = new byte[BUFFER_SIZE];\nprivate boolean useEFS = true;\nprivate boolean fallbackToUTF8 = false;\nprivate UnicodeExtraFieldPolicy createUnicodeExtraFields =\npublic ZipArchiveOutputStream(OutputStream out) {\nthis.out = out;\nthis.raf = null;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveEntry:<init>(Ljava/lang/String;)V",
+            "method_body": "public CpioArchiveEntry(final String name) {\nthis(FORMAT_NEW);\nthis.name = name;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public TarArchiveOutputStream(OutputStream os) {\nthis(os, TarBuffer.DEFAULT_BLKSIZE, TarBuffer.DEFAULT_RCDSIZE);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public ZipArchiveOutputStream(OutputStream out) {\nthis.out = out;\nthis.raf = null;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveEntry:<init>(Ljava/lang/String;)V",
+            "method_body": "public JarArchiveEntry(String name) {\nsuper(name);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public CpioArchiveOutputStream(final OutputStream out) {\nthis(out, FORMAT_NEW);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:<init>(Ljava/lang/String;J)V",
+            "method_body": "public ArArchiveEntry(String name, long length) {\nthis(name, length, 0, 0, DEFAULT_MODE, System.currentTimeMillis());\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveEntry:<init>(Ljava/util/jar/JarEntry;)V",
+            "method_body": "private Attributes manifestAttributes = null;\nprivate Certificate[] certificates = null;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<init>()V",
+            "method_body": "public static final int PLATFORM_UNIX = 3;\nprivate int internalAttributes = 0;\nprivate int platform = PLATFORM_FAT;\nprivate long externalAttributes = 0;\nprivate LinkedHashMap/*<ZipShort, ZipExtraField>*/ extraFields = null;\nprivate String name = null;\nsuper(name);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<init>(Ljava/lang/String;)V",
+            "method_body": "public ZipArchiveEntry(String name) {\nsuper(name);\n}",
+            "method_id": 21
+        }
+    ]
+}

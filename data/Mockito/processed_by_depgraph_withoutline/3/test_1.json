@@ -1,0 +1,109 @@
+{
+    "bug_id": 3,
+    "test_id": 1,
+    "test_name": "org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest.shouldVerifyCorrectlyNumberOfInvocationsWithVarargs",
+    "test_body": "public void shouldVerifyCorrectlyNumberOfInvocationsWithVarargs() {\n//when\ntable.newRow(\"qux\", \"foo\", \"bar\", \"baz\");\ntable.newRow(\"abc\", \"def\");\n49: //then\nverify(table).newRow(anyString(), eq(\"foo\"), anyString(), anyString());\nverify(table).newRow(anyString(), anyString());",
+    "stack_trace": "java.lang.ArrayIndexOutOfBoundsException: 2\nat org.mockito.internal.invocation.InvocationMatcher.captureArgumentsFrom(InvocationMatcher.java:130)\nat org.mockito.internal.invocation.InvocationMarker.markVerified(InvocationMarker.java:22)\nat org.mockito.internal.invocation.InvocationMarker.markVerified(InvocationMarker.java:16)\nat org.mockito.internal.verification.checkers.NumberOfInvocationsChecker.check(NumberOfInvocationsChecker.java:48)\nat org.mockito.internal.verification.Times.verify(Times.java:39)\nat org.mockito.internal.verification.MockAwareVerificationMode.verify(MockAwareVerificationMode.java:21)\nat org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:76)\nat org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29)\nat org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:37)\nat org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.doIntercept(MockMethodInterceptor.java:82)\nat org.mockito.internal.creation.bytebuddy.MockMethodInterceptor.interceptAbstract(MockMethodInterceptor.java:70)\nat org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest$TableBuilder$MockitoMock$1005420061.newRow(Unknown Source)\nat org.mockitousage.bugs.varargs.VarargsAndAnyObjectPicksUpExtraInvocationsTest.shouldVerifyCorrectlyNumberOfInvocationsWithVarargs(VarargsAndAnyObjectPicksUpExtraInvocationsTest.java:50)",
+    "covered_methods": [
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:captureArgumentsFrom(Lorg/mockito/invocation/Invocation;)V",
+            "method_body": "public void captureArgumentsFrom(Invocation invocation) {\nif (invocation.getMethod().isVarArgs()) {\nint indexOfVararg = invocation.getRawArguments().length - 1;\nfor (int position = 0; position < indexOfVararg; position++) {\nMatcher m = matchers.get(position);\nif (m instanceof CapturesArguments) {\n((CapturesArguments) m).captureFrom(invocation.getArgumentAt(position, Object.class));\nfor (int position = indexOfVararg; position < matchers.size(); position++) {\nMatcher m = matchers.get(position);\nif (m instanceof CapturesArguments) {\n((CapturesArguments) m).captureFrom(invocation.getRawArguments()[position - indexOfVararg]);\n} else {\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:hasSameMethod(Lorg/mockito/invocation/Invocation;)Z",
+            "method_body": "public boolean hasSameMethod(Invocation candidate) {\nMethod m1 = invocation.getMethod();\nMethod m2 = candidate.getMethod();\nif (m1.getName() != null && m1.getName().equals(m2.getName())) {\nClass[] params1 = m1.getParameterTypes();\nClass[] params2 = m2.getParameterTypes();\nif (params1.length == params2.length) {\nfor (int i = 0; i < params1.length; i++) {\nif (params1[i] != params2[i])\nreturn true;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:matches(Lorg/mockito/invocation/Invocation;)Z",
+            "method_body": "public boolean matches(Invocation actual) {\nreturn invocation.getMock().equals(actual.getMock())\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:getMethod()Ljava/lang/reflect/Method;",
+            "method_body": "public Method getMethod() {\nreturn invocation.getMethod();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:getInvocation()Lorg/mockito/invocation/Invocation;",
+            "method_body": "public Invocation getInvocation() {\nreturn this.invocation;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:<init>(Lorg/mockito/invocation/Invocation;Ljava/util/List;)V",
+            "method_body": "public InvocationMatcher(Invocation invocation, List<Matcher> matchers) {\nthis.invocation = invocation;\nif (matchers.isEmpty()) {\nthis.matchers = ArgumentsProcessor.argumentsToMatchers(invocation.getArguments());\nthis.matchers = matchers;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.mockito.internal.invocation.InvocationMatcher:getMatchers()Ljava/util/List;",
+            "method_body": "public List<Matcher> getMatchers() {\nreturn this.matchers;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.mockito.Matchers:reportMatcher(Lorg/hamcrest/Matcher;)Lorg/mockito/internal/progress/HandyReturnValues;",
+            "method_body": "private static HandyReturnValues reportMatcher(Matcher<?> matcher) {\nreturn MOCKING_PROGRESS.getArgumentMatcherStorage().reportMatcher(matcher);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.mockito.Mockito:verify(Ljava/lang/Object;)Ljava/lang/Object;",
+            "method_body": "public static <T> T verify(T mock) {\nreturn MOCKITO_CORE.verify(mock, times(1));\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.mockito.internal.MockitoCore:verify(Ljava/lang/Object;Lorg/mockito/verification/VerificationMode;)Ljava/lang/Object;",
+            "method_body": "public <T> T verify(T mock, VerificationMode mode) {\nif (mock == null) {\n} else if (!mockUtil.isMock(mock)) {\nmockingProgress.verificationStarted(new MockAwareVerificationMode(mock, mode));\nreturn mock;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.mockito.internal.matchers.LocalizedMatcher:<init>(Lorg/hamcrest/Matcher;)V",
+            "method_body": "public LocalizedMatcher(Matcher actualMatcher) {\nthis.actualMatcher = actualMatcher;\nthis.location = new LocationImpl();\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.HandyReturnValues:returnFor(Ljava/lang/Class;)Ljava/lang/Object;",
+            "method_body": "public <T> T returnFor(Class<T> clazz) {\nif (isPrimitiveOrWrapper(clazz)) {\nreturn defaultValueForPrimitiveOrWrapper(clazz);\nreturn null;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.mockito.internal.util.Primitives:isPrimitiveOrWrapper(Ljava/lang/Class;)Z",
+            "method_body": "public static boolean isPrimitiveOrWrapper(Class<?> type) {\nreturn PRIMITIVE_OR_WRAPPER_DEFAULT_VALUES.containsKey(type);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.mockito.internal.verification.VerificationModeFactory:times(I)Lorg/mockito/internal/verification/Times;",
+            "method_body": "public static Times times(int wantedNumberOfInvocations) {\nreturn new Times(wantedNumberOfInvocations);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.mockito.Mockito:times(I)Lorg/mockito/verification/VerificationMode;",
+            "method_body": "public static VerificationMode times(int wantedNumberOfInvocations) {\nreturn VerificationModeFactory.times(wantedNumberOfInvocations);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.mockito.internal.util.MockUtil:isMock(Ljava/lang/Object;)Z",
+            "method_body": "public boolean isMock(Object mock) {\nreturn isMockitoMock(mock);\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.mockito.internal.util.MockUtil:isMockitoMock(Ljava/lang/Object;)Z",
+            "method_body": "private <T> boolean isMockitoMock(T mock) {\nreturn mockMaker.getHandler(mock) != null;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.mockito.internal.verification.Times:<init>(I)V",
+            "method_body": "public Times(int wantedNumberOfInvocations) {\nif (wantedNumberOfInvocations < 0) {\nthis.wantedCount = wantedNumberOfInvocations;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.mockito.internal.matchers.Equals:<init>(Ljava/lang/Object;)V",
+            "method_body": "public Equals(Object wanted) {\nthis.wanted = wanted;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.mockito.internal.verification.MockAwareVerificationMode:<init>(Ljava/lang/Object;Lorg/mockito/verification/VerificationMode;)V",
+            "method_body": "public MockAwareVerificationMode(Object mock, VerificationMode mode) {\nthis.mock = mock;\nthis.mode = mode;\n}",
+            "method_id": 19
+        }
+    ]
+}

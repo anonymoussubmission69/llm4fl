@@ -1,0 +1,74 @@
+{
+    "bug_id": 19,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.zip.ZipFileTest.testExcessDataInZip64ExtraField",
+    "test_body": "232: public void testExcessDataInZip64ExtraField() throws Exception {\n233: File archive = getFile(\"COMPRESS-228.zip\");\n234: zf = new ZipFile(archive);\n235: // actually, if we get here, the test already has passed",
+    "stack_trace": "java.util.zip.ZipException: central directory zip64 extended information extra field's length doesn't match central directory data.  Expected length 16 but is 28\nat org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField.reparseCentralDirectoryData(Zip64ExtendedInformationExtraField.java:260)\nat org.apache.commons.compress.archivers.zip.ZipFile.setSizesAndOffsetFromZip64Extra(ZipFile.java:619)\nat org.apache.commons.compress.archivers.zip.ZipFile.readCentralDirectoryEntry(ZipFile.java:584)\nat org.apache.commons.compress.archivers.zip.ZipFile.populateFromCentralDirectory(ZipFile.java:499)\nat org.apache.commons.compress.archivers.zip.ZipFile.<init>(ZipFile.java:217)\nat org.apache.commons.compress.archivers.zip.ZipFile.<init>(ZipFile.java:193)\nat org.apache.commons.compress.archivers.zip.ZipFile.<init>(ZipFile.java:154)\nat org.apache.commons.compress.archivers.zip.ZipFileTest.testExcessDataInZip64ExtraField(ZipFileTest.java:234)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipFile:<init>(Ljava/io/File;Ljava/lang/String;Z)V",
+            "method_body": "private long headerOffset = -1;\nprivate long dataOffset = -1;\nprivate final byte[] DWORD_BUF = new byte[DWORD];\nprivate final byte[] WORD_BUF = new byte[WORD];\nprivate final byte[] CFH_BUF = new byte[CFH_LEN];\nprivate final byte[] SHORT_BUF = new byte[SHORT];\nthis(f, ZipEncodingHelper.UTF8);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:parseFromLocalFileData([BII)V",
+            "method_body": "public void parseFromLocalFileData(byte[] buffer, int offset, int length)\nif (length == 0) {\nif (length < 2 * DWORD) {\nsize = new ZipEightByteInteger(buffer, offset);\noffset += DWORD;\ncompressedSize = new ZipEightByteInteger(buffer, offset);\noffset += DWORD;\nint remaining = length - 2 * DWORD;\nif (remaining >= DWORD) {\nrelativeHeaderOffset = new ZipEightByteInteger(buffer, offset);\noffset += DWORD;\nremaining -= DWORD;\nif (remaining >= WORD) {\ndiskStart = new ZipLong(buffer, offset);\noffset += WORD;\nremaining -= WORD;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:reparseCentralDirectoryData(ZZZZ)V",
+            "method_body": "public void reparseCentralDirectoryData(boolean hasUncompressedSize,\nif (rawCentralDirectoryData != null) {\nint expectedLength = (hasUncompressedSize ? DWORD : 0)\nif (rawCentralDirectoryData.length != expectedLength) {\nthrow new ZipException(\"central directory zip64 extended\"\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:parseFromCentralDirectoryData([BII)V",
+            "method_body": "public void parseFromCentralDirectoryData(byte[] buffer, int offset,\nrawCentralDirectoryData = new byte[length];\nSystem.arraycopy(buffer, offset, rawCentralDirectoryData, 0, length);\nif (length >= 3 * DWORD + WORD) {\nparseFromLocalFileData(buffer, offset, length);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:getLocalFileDataData()[B",
+            "method_body": "public byte[] getLocalFileDataData() {\nif (size != null || compressedSize != null) {\nif (size == null || compressedSize == null) {\nbyte[] data = new byte[2 * DWORD];\naddSizes(data);\nreturn data;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:addSizes([B)I",
+            "method_body": "private int addSizes(byte[] data) {\nint off = 0;\nif (size != null) {\nSystem.arraycopy(size.getBytes(), 0, data, 0, DWORD);\noff += DWORD;\nif (compressedSize != null) {\nSystem.arraycopy(compressedSize.getBytes(), 0, data, off, DWORD);\noff += DWORD;\nreturn off;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipFile:<init>(Ljava/io/File;)V",
+            "method_body": "public ZipFile(File f) throws IOException {\nthis(f, ZipEncodingHelper.UTF8);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipFile:<init>(Ljava/io/File;Ljava/lang/String;)V",
+            "method_body": "public ZipFile(File f, String encoding) throws IOException {\nthis(f, encoding, true);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getSize()J",
+            "method_body": "public long getSize() {\nreturn size;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:getLocalFileDataLength()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getLocalFileDataLength() {\nreturn new ZipShort(size != null ? 2 * DWORD : 0);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:<clinit>()V",
+            "method_body": "static final ZipShort HEADER_ID = new ZipShort(0x0001);\nprivate static final byte[] EMPTY = new byte[0];\n* parseFromCentralDirectoryData} so it can be reused when ZipFile",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:<init>()V",
+            "method_body": "public Zip64ExtendedInformationExtraField() { }\npublic Zip64ExtendedInformationExtraField() { }",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraField:getHeaderId()Lorg/apache/commons/compress/archivers/zip/ZipShort;",
+            "method_body": "public ZipShort getHeaderId() {\nreturn HEADER_ID;\n}",
+            "method_id": 12
+        }
+    ]
+}

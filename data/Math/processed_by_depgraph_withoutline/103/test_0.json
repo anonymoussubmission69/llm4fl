@@ -1,0 +1,79 @@
+{
+    "bug_id": 103,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.distribution.NormalDistributionTest.testExtremeValues",
+    "test_body": "public void testExtremeValues() throws Exception {\nNormalDistribution distribution = (NormalDistribution) getDistribution();\ndistribution.setMean(0);\ndistribution.setStandardDeviation(1);\nfor (int i = 0; i < 100; i+=5) { // make sure no convergence exception\ndouble lowerTail = distribution.cumulativeProbability((double)-i);\ndouble upperTail = distribution.cumulativeProbability((double) i);",
+    "stack_trace": "org.apache.commons.math.MaxIterationsExceededException: Maximal number of iterations (10,000) exceeded\nat org.apache.commons.math.special.Gamma.regularizedGammaP(Gamma.java:180)\nat org.apache.commons.math.special.Erf.erf(Erf.java:56)\nat org.apache.commons.math.distribution.NormalDistributionImpl.cumulativeProbability(NormalDistributionImpl.java:109)\nat org.apache.commons.math.distribution.NormalDistributionTest.testExtremeValues(NormalDistributionTest.java:133)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.distribution.NormalDistributionImpl:cumulativeProbability(D)D",
+            "method_body": "public double cumulativeProbability(double x) throws MathException {\nreturn 0.5 * (1.0 + Erf.erf((x - mean) /\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.distribution.NormalDistributionImpl:setStandardDeviation(D)V",
+            "method_body": "public void setStandardDeviation(double sd) {\nif (sd <= 0.0) {\nstandardDeviation = sd;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.distribution.NormalDistributionImpl:setMean(D)V",
+            "method_body": "public void setMean(double mean) {\nthis.mean = mean;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.distribution.NormalDistributionImpl:<init>(DD)V",
+            "method_body": "public NormalDistributionImpl(double mean, double sd){\nsuper();\nsetMean(mean);\nsetStandardDeviation(sd);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.MaxIterationsExceededException:<init>(I)V",
+            "method_body": "public MaxIterationsExceededException(int maxIterations) {\nsuper(\"Maximal number of iterations ({0}) exceeded\",\nthis.maxIterations = maxIterations;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergenceException:<init>(Ljava/lang/String;[Ljava/lang/Object;)V",
+            "method_body": "public ConvergenceException(String pattern, Object[] arguments) {\nsuper(pattern, arguments);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.special.Erf:erf(D)D",
+            "method_body": "public static double erf(double x) throws MathException {\ndouble ret = Gamma.regularizedGammaP(0.5, x * x, 1.0e-15, 10000);\nif (x < 0) {\nret = -ret;\nreturn ret;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.MathException:<init>(Ljava/lang/String;[Ljava/lang/Object;)V",
+            "method_body": "public MathException(String pattern, Object[] arguments) {\nsuper(buildMessage(pattern, arguments, Locale.US));\nthis.pattern   = pattern;\nthis.arguments = arguments;\nthis.rootCause = null;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.MathException:translate(Ljava/lang/String;Ljava/util/Locale;)Ljava/lang/String;",
+            "method_body": "private static String translate(String s, Locale locale) {\nif ((cachedResources == null) || (! cachedResources.getLocale().equals(locale))) {\ncachedResources =\n} catch (MissingResourceException mre) {\nreturn s;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.MathException:buildMessage(Ljava/lang/String;[Ljava/lang/Object;Ljava/util/Locale;)Ljava/lang/String;",
+            "method_body": "private static String buildMessage(String pattern, Object[] arguments, Locale locale) {\nMessageFormat mf = new MessageFormat(translate(pattern, locale));\nmf.setLocale(locale);\nreturn mf.format(arguments);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.special.Gamma:regularizedGammaP(DDDI)D",
+            "method_body": "public static double regularizedGammaP(double a,\nif (Double.isNaN(a) || Double.isNaN(x) || (a <= 0.0) || (x < 0.0)) {\n} else if (x == 0.0) {\nret = 0.0;\n} else if (a >= 1.0 && x > a) {\ndouble n = 0.0; // current element index\ndouble an = 1.0 / a; // n-th element in the series\ndouble sum = an; // partial sum\nwhile (Math.abs(an) > epsilon && n < maxIterations) {\nn = n + 1.0;\nan = an * (x / (a + n));\nsum = sum + an;\nif (n >= maxIterations) {\nthrow new MaxIterationsExceededException(maxIterations);\nret = Math.exp(-x + (a * Math.log(x)) - logGamma(a)) * sum;\nreturn ret;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.special.Gamma:logGamma(D)D",
+            "method_body": "public static double logGamma(double x) {\nif (Double.isNaN(x) || (x <= 0.0)) {\ndouble g = 607.0 / 128.0;\ndouble sum = 0.0;\nfor (int i = lanczos.length - 1; i > 0; --i) {\nsum = sum + (lanczos[i] / (x + i));\nsum = sum + lanczos[0];\ndouble tmp = x + g + .5;\nret = ((x + .5) * Math.log(tmp)) - tmp +\nreturn ret;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.distribution.AbstractContinuousDistribution:<init>()V",
+            "method_body": "protected AbstractContinuousDistribution() {\nsuper();\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.distribution.AbstractDistribution:<init>()V",
+            "method_body": "protected AbstractDistribution() {\nsuper();\n}",
+            "method_id": 13
+        }
+    ]
+}

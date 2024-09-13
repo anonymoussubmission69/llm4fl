@@ -1,0 +1,204 @@
+{
+    "bug_id": 47,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest.properlyMarksEntriesAsUnreadableIfUncompressedSizeIsUnknown",
+    "test_body": "330: public void properlyMarksEntriesAsUnreadableIfUncompressedSizeIsUnknown() throws Exception {\n331: // we never read any data\n332: try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(new byte[0]))) {\n333: ZipArchiveEntry e = new ZipArchiveEntry(\"test\");\n334: e.setMethod(ZipMethod.DEFLATED.getCode());\n335: assertTrue(zis.canReadEntryData(e));\n336: e.setMethod(ZipMethod.ENHANCED_DEFLATED.getCode());\n337: assertTrue(zis.canReadEntryData(e));\n338: e.setMethod(ZipMethod.BZIP2.getCode());\n339: assertFalse(zis.canReadEntryData(e));\n340: }",
+    "stack_trace": "junit.framework.AssertionFailedError\nat org.junit.Assert.fail(Assert.java:86)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.junit.Assert.assertFalse(Assert.java:64)\nat org.junit.Assert.assertFalse(Assert.java:74)\nat org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest.properlyMarksEntriesAsUnreadableIfUncompressedSizeIsUnknown(ZipArchiveInputStreamTest.java:339)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:<clinit>()V",
+            "method_body": "static final String UTF8 = \"UTF8\";\nstatic final ZipEncoding UTF8_ZIP_ENCODING = getZipEncoding(UTF8);\n* @param name The name of the zip encoding. Specify {@code null} for",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:getZipEncoding(Ljava/lang/String;)Lorg/apache/commons/compress/archivers/zip/ZipEncoding;",
+            "method_body": "public static ZipEncoding getZipEncoding(final String name) {\nCharset cs = Charset.defaultCharset();\nif (name != null) {\ncs = Charset.forName(name);\n}\nboolean useReplacement = isUTF8(cs.name());\nreturn new NioZipEncoding(cs, useReplacement);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipEncodingHelper:isUTF8(Ljava/lang/String;)Z",
+            "method_body": "static boolean isUTF8(String charsetName) {\nif (charsetName == null) {\nif (Charsets.UTF_8.name().equalsIgnoreCase(charsetName)) {\nreturn true;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.Charsets:<clinit>()V",
+            "method_body": "public static final Charset ISO_8859_1 = Charset.forName(CharsetNames.ISO_8859_1);\npublic static final Charset US_ASCII = Charset.forName(CharsetNames.US_ASCII);\npublic static final Charset UTF_16 = Charset.forName(CharsetNames.UTF_16);\npublic static final Charset UTF_16BE = Charset.forName(CharsetNames.UTF_16BE);\npublic static final Charset UTF_16LE = Charset.forName(CharsetNames.UTF_16LE);\npublic static final Charset UTF_8 = Charset.forName(CharsetNames.UTF_8);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.NioZipEncoding:<init>(Ljava/nio/charset/Charset;Z)V",
+            "method_body": "NioZipEncoding(final Charset charset, boolean useReplacement) {\nthis.charset = charset;\nthis.useReplacement = useReplacement;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.NioZipEncoding:<clinit>()V",
+            "method_body": "private static final String REPLACEMENT_STRING = String.valueOf(REPLACEMENT);\nprivate static final char[] HEX_CHARS = new char[] {\n};",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.ByteUtils:toLittleEndian([BJII)V",
+            "method_body": "public static void toLittleEndian(final byte[] b, final long value, final int off, final int length) {\nlong num = value;\nfor (int i = 0; i < length; i++) {\nb[off + i] = (byte) (num & 0xff);\nnum >>= 8;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public ZipArchiveInputStream(final InputStream inputStream) {\nthis(inputStream, ZipEncodingHelper.UTF8);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;)V",
+            "method_body": "public ZipArchiveInputStream(final InputStream inputStream, final String encoding) {\nthis(inputStream, encoding, true);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;Z)V",
+            "method_body": "public ZipArchiveInputStream(final InputStream inputStream, final String encoding, final boolean useUnicodeExtraFields) {\nthis(inputStream, encoding, useUnicodeExtraFields, false);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<init>(Ljava/io/InputStream;Ljava/lang/String;ZZ)V",
+            "method_body": "public ZipArchiveInputStream(final InputStream inputStream,\nfinal boolean allowStoredEntriesWithDataDescriptor) {\nthis.encoding = encoding;\nzipEncoding = ZipEncodingHelper.getZipEncoding(encoding);\nthis.useUnicodeExtraFields = useUnicodeExtraFields;\nin = new PushbackInputStream(inputStream, buf.capacity());\nthis.allowStoredEntriesWithDataDescriptor =\nbuf.limit(0);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:<clinit>()V",
+            "method_body": "private static final byte[] LFH = ZipLong.LFH_SIG.getBytes();\nprivate static final byte[] CFH = ZipLong.CFH_SIG.getBytes();\nprivate static final byte[] DD = ZipLong.DD_SIG.getBytes();\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:canReadEntryData(Lorg/apache/commons/compress/archivers/ArchiveEntry;)Z",
+            "method_body": "public boolean canReadEntryData(final ArchiveEntry ae) {\nif (ae instanceof ZipArchiveEntry) {\nfinal ZipArchiveEntry ze = (ZipArchiveEntry) ae;\nreturn ZipUtil.canHandleEntryData(ze)\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (!closed) {\nclosed = true;\nin.close();\ninf.end();\n}\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:supportsDataDescriptorFor(Lorg/apache/commons/compress/archivers/zip/ZipArchiveEntry;)Z",
+            "method_body": "private boolean supportsDataDescriptorFor(final ZipArchiveEntry entry) {\nreturn !entry.getGeneralPurposeBit().usesDataDescriptor()\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>(J)V",
+            "method_body": "public ZipLong(final long value) {\nthis.value = value;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<clinit>()V",
+            "method_body": "private static final long serialVersionUID = 1L;\npublic static final ZipLong CFH_SIG = new ZipLong(0X02014B50L);\npublic static final ZipLong LFH_SIG = new ZipLong(0X04034B50L);\npublic static final ZipLong DD_SIG = new ZipLong(0X08074B50L);\nstatic final ZipLong ZIP64_MAGIC = new ZipLong(ZipConstants.ZIP64_MAGIC);\npublic static final ZipLong SINGLE_SEGMENT_SPLIT_MARKER =\npublic static final ZipLong AED_SIG = new ZipLong(0X08064B50L);\npublic ZipLong(final long value) {\nthis.value = value;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes()[B",
+            "method_body": "public byte[] getBytes() {\nreturn ZipLong.getBytes(value);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes(J)[B",
+            "method_body": "public static byte[] getBytes(final long value) {\nfinal byte[] result = new byte[WORD];\nputLong(value, result, 0);\nreturn result;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:putLong(J[BI)V",
+            "method_body": "public static void putLong(final long value, final byte[] buf, int offset) {\nByteUtils.toLittleEndian(buf, value, offset, 4);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<init>(Ljava/lang/String;)V",
+            "method_body": "public ZipArchiveEntry(final String name) {\nsuper(name);\nsetName(name);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<init>(Ljava/util/zip/ZipEntry;)V",
+            "method_body": "private long size = SIZE_UNKNOWN;\nprivate int internalAttributes = 0;\nprivate int platform = PLATFORM_FAT;\nprivate long externalAttributes = 0;\nprivate int alignment = 0;\nprivate UnparseableExtraFieldData unparseableExtra = null;\nprivate String name = null;\nprivate byte[] rawName = null;\nprivate GeneralPurposeBit gpb = new GeneralPurposeBit();\nprivate static final ZipExtraField[] noExtraFields = new ZipExtraField[0];\nprivate long localHeaderOffset = OFFSET_UNKNOWN;\nprivate long dataOffset = OFFSET_UNKNOWN;\nprivate boolean isStreamContiguous = false;\nprivate NameSource nameSource = NameSource.NAME;\nprivate CommentSource commentSource = CommentSource.COMMENT;\nsuper(name);\nsetName(name);\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:<clinit>()V",
+            "method_body": "public static final int PLATFORM_UNIX = 3;\nprivate static final byte[] EMPTY = new byte[0];\npublic enum NameSource {\nNAME,\nNAME_WITH_EFS_FLAG,\nUNICODE_EXTRA_FIELD\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getMethod()I",
+            "method_body": "public int getMethod() {\nreturn method;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setMethod(I)V",
+            "method_body": "public void setMethod(final int method) {\nif (method < 0) {\nthis.method = method;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getPlatform()I",
+            "method_body": "public int getPlatform() {\nreturn platform;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:setName(Ljava/lang/String;)V",
+            "method_body": "protected void setName(String name) {\nif (name != null && getPlatform() == PLATFORM_FAT\nname = name.replace('\\\\', '/');\nthis.name = name;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry:getGeneralPurposeBit()Lorg/apache/commons/compress/archivers/zip/GeneralPurposeBit;",
+            "method_body": "public GeneralPurposeBit getGeneralPurposeBit() {\nreturn gpb;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.GeneralPurposeBit:<init>()V",
+            "method_body": "public GeneralPurposeBit() {\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.GeneralPurposeBit:usesDataDescriptor()Z",
+            "method_body": "public boolean usesDataDescriptor() {\nreturn dataDescriptorFlag;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.GeneralPurposeBit:usesEncryption()Z",
+            "method_body": "public boolean usesEncryption() {\nreturn encryptionFlag;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry$NameSource:<clinit>()V",
+            "method_body": "public static final int PLATFORM_UNIX = 3;\nprivate static final byte[] EMPTY = new byte[0];\npublic enum NameSource {\nNAME,\nNAME_WITH_EFS_FLAG,\nUNICODE_EXTRA_FIELD\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:<clinit>()V",
+            "method_body": "private static final byte[] DOS_TIME_MIN = ZipLong.getBytes(0x00002100L);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:canHandleEntryData(Lorg/apache/commons/compress/archivers/zip/ZipArchiveEntry;)Z",
+            "method_body": "static boolean canHandleEntryData(final ZipArchiveEntry entry) {\nreturn supportsEncryptionOf(entry) && supportsMethodOf(entry);\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:supportsEncryptionOf(Lorg/apache/commons/compress/archivers/zip/ZipArchiveEntry;)Z",
+            "method_body": "private static boolean supportsEncryptionOf(final ZipArchiveEntry entry) {\nreturn !entry.getGeneralPurposeBit().usesEncryption();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipUtil:supportsMethodOf(Lorg/apache/commons/compress/archivers/zip/ZipArchiveEntry;)Z",
+            "method_body": "private static boolean supportsMethodOf(final ZipArchiveEntry entry) {\nreturn entry.getMethod() == ZipEntry.STORED\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipMethod:<init>(Ljava/lang/String;I)V",
+            "method_body": "private ZipMethod() {\nthis(UNKNOWN_CODE);\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipMethod:<init>(Ljava/lang/String;II)V",
+            "method_body": "ZipMethod(final int code) {\nthis.code = code;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipMethod:getCode()I",
+            "method_body": "public int getCode() {\nreturn code;\n}",
+            "method_id": 38
+        }
+    ]
+}

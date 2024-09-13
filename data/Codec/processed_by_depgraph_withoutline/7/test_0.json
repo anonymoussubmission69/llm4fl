@@ -1,0 +1,129 @@
+{
+    "bug_id": 7,
+    "test_id": 0,
+    "test_name": "org.apache.commons.codec.binary.Base64Test.testByteToStringVariations",
+    "test_body": "public void testByteToStringVariations() throws DecoderException {\nBase64 base64 = new Base64(0);\nbyte[] b1 = StringUtils.getBytesUtf8(\"Hello World\");\nbyte[] b2 = new byte[0];\nbyte[] b3 = null;\nbyte[] b4 = Hex.decodeHex(\"2bf7cc2701fe4397b49ebeed5acc7090\".toCharArray());  // for url-safe tests\n1128: assertEquals(\"byteToString Hello World\", \"SGVsbG8gV29ybGQ=\", base64.encodeToString(b1));\nassertEquals(\"byteToString static Hello World\", \"SGVsbG8gV29ybGQ=\", Base64.encodeBase64String(b1));\nassertEquals(\"byteToString \\\"\\\"\", \"\", base64.encodeToString(b2));",
+    "stack_trace": "junit.framework.ComparisonFailure: byteToString static Hello World expected:<SGVsbG8gV29ybGQ=[]> but was:<SGVsbG8gV29ybGQ=[\n]>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.TestCase.assertEquals(TestCase.java:261)\nat org.apache.commons.codec.binary.Base64Test.testByteToStringVariations(Base64Test.java:1129)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Hex:decodeHex([C)[B",
+            "method_body": "public static byte[] decodeHex(char[] data) throws DecoderException {\nint len = data.length;\nif ((len & 0x01) != 0) {\nbyte[] out = new byte[len >> 1];\nfor (int i = 0, j = 0; j < len; i++) {\nint f = toDigit(data[j], j) << 4;\nj++;\nf = f | toDigit(data[j], j);\nj++;\nout[i] = (byte) (f & 0xFF);\nreturn out;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encodeToString([B)Ljava/lang/String;",
+            "method_body": "public String encodeToString(byte[] pArray) {\nreturn StringUtils.newStringUtf8(encode(pArray));\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Hex:toDigit(CI)I",
+            "method_body": "protected static int toDigit(char ch, int index) throws DecoderException {\nint digit = Character.digit(ch, 16);\nif (digit == -1) {\nreturn digit;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:getEncodeLength([BI[B)J",
+            "method_body": "private static long getEncodeLength(byte[] pArray, int chunkSize, byte[] chunkSeparator) {\nchunkSize = (chunkSize / 4) * 4;\nlong len = (pArray.length * 4) / 3;\nlong mod = len % 4;\nif (mod != 0) {\nlen += 4 - mod;\nif (chunkSize > 0) {\nboolean lenChunksPerfectly = len % chunkSize == 0;\nlen += (len / chunkSize) * chunkSeparator.length;\nif (!lenChunksPerfectly) {\nlen += chunkSeparator.length;\nreturn len;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encode([B)[B",
+            "method_body": "public byte[] encode(byte[] pArray) {\nreset();\nif (pArray == null || pArray.length == 0) {\nlong len = getEncodeLength(pArray, lineLength, lineSeparator);\nbyte[] buf = new byte[(int) len];\nsetInitialBuffer(buf, 0, buf.length);\nencode(pArray, 0, pArray.length);\nencode(pArray, 0, -1); // Notify encoder of EOF.\nif (buffer != buf) {\nif (isUrlSafe() && pos < buf.length) {\nreturn buf;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encodeBase64([BZZI)[B",
+            "method_body": "public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe, int maxResultSize) {\nif (binaryData == null || binaryData.length == 0) {\nreturn binaryData;\nlong len = getEncodeLength(binaryData, MIME_CHUNK_SIZE, CHUNK_SEPARATOR);\nif (len > maxResultSize) {\nBase64 b64 = isChunked ? new Base64(urlSafe) : new Base64(0, CHUNK_SEPARATOR, urlSafe);\nreturn b64.encode(binaryData);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[BZ)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {\nif (lineSeparator == null) {\nthis.lineLength = lineLength > 0 ? (lineLength / 4) * 4 : 0;\nthis.lineSeparator = new byte[lineSeparator.length];\nSystem.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);\nif (lineLength > 0) {\nthis.encodeSize = 4 + lineSeparator.length;\nthis.encodeSize = 4;\nthis.decodeSize = this.encodeSize - 1;\nif (containsBase64Byte(lineSeparator)) {\nthis.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:reset()V",
+            "method_body": "private void reset() {\nbuffer = null;\npos = 0;\nreadPos = 0;\ncurrentLinePos = 0;\nmodulus = 0;\neof = false;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encodeBase64String([B)Ljava/lang/String;",
+            "method_body": "public static String encodeBase64String(byte[] binaryData) {\nreturn StringUtils.newStringUtf8(encodeBase64(binaryData, true));\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:setInitialBuffer([BII)V",
+            "method_body": "void setInitialBuffer(byte[] out, int outPos, int outAvail) {\nif (out != null && out.length == outAvail) {\nbuffer = out;\npos = outPos;\nreadPos = outPos;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:newStringUtf8([B)Ljava/lang/String;",
+            "method_body": "public static String newStringUtf8(byte[] bytes) {\nreturn StringUtils.newString(bytes, CharEncoding.UTF_8);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(Z)V",
+            "method_body": "public Base64(boolean urlSafe) {\nthis(MIME_CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:newString([BLjava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String newString(byte[] bytes, String charsetName) {\nif (bytes == null) {\nreturn new String(bytes, charsetName);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Hex:<clinit>()V",
+            "method_body": "public static final String DEFAULT_CHARSET_NAME = CharEncoding.UTF_8;\nprivate static final char[] DIGITS_LOWER = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<clinit>()V",
+            "method_body": "public static final int PEM_CHUNK_SIZE = 64;\nstatic final byte[] CHUNK_SEPARATOR = {'\\r', '\\n'};",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I)V",
+            "method_body": "public Base64(int lineLength) {\nthis(lineLength, CHUNK_SEPARATOR);\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[B)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator) {\nthis(lineLength, lineSeparator, false);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:containsBase64Byte([B)Z",
+            "method_body": "private static boolean containsBase64Byte(byte[] arrayOctet) {\nfor (int i = 0; i < arrayOctet.length; i++) {\nif (isBase64(arrayOctet[i])) {\nreturn false;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encodeBase64([BZ)[B",
+            "method_body": "public static byte[] encodeBase64(byte[] binaryData, boolean isChunked) {\nreturn encodeBase64(binaryData, isChunked, false);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encodeBase64([BZZ)[B",
+            "method_body": "public static byte[] encodeBase64(byte[] binaryData, boolean isChunked, boolean urlSafe) {\nreturn encodeBase64(binaryData, isChunked, urlSafe, Integer.MAX_VALUE);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUnchecked(Ljava/lang/String;Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUnchecked(String string, String charsetName) {\nif (string == null) {\nreturn string.getBytes(charsetName);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isUrlSafe()Z",
+            "method_body": "public boolean isUrlSafe() {\nreturn this.encodeTable == URL_SAFE_ENCODE_TABLE;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUtf8(Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUtf8(String string) {\nreturn StringUtils.getBytesUnchecked(string, CharEncoding.UTF_8);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isBase64(B)Z",
+            "method_body": "public static boolean isBase64(byte octet) {\nreturn octet == PAD || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);\n}",
+            "method_id": 23
+        }
+    ]
+}

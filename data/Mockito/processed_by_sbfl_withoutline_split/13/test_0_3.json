@@ -1,0 +1,84 @@
+{
+    "bug_id": 13,
+    "test_id": 0,
+    "test_name": "org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest.shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine",
+    "test_body": "public void shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine() {\n//given\nwhen(mock.otherMethod()).thenReturn(\"foo\");\n26: //when\nmockTwo.simpleMethod(\"foo\");\n29: //then\nverify(mockTwo).simpleMethod(mock.otherMethod());\ntry {\nverify(mockTwo, never()).simpleMethod(mock.otherMethod());\nfail();\n} catch (NeverWantedButInvoked e) {}",
+    "stack_trace": "junit.framework.AssertionFailedError\nat junit.framework.Assert.fail(Assert.java:55)\nat junit.framework.Assert.fail(Assert.java:64)\nat org.mockitousage.bugs.VerifyingWithAnExtraCallToADifferentMockTest.shouldAllowVerifyingWhenOtherMockCallIsInTheSameLine(VerifyingWithAnExtraCallToADifferentMockTest.java:33)",
+    "covered_methods": [
+        {
+            "method_signature": "org.mockito.internal.configuration.DefaultAnnotationEngine:process(Ljava/lang/Class;Ljava/lang/Object;)V",
+            "method_body": "public void process(Class<?> clazz, Object testClass) {\nField[] fields = clazz.getDeclaredFields();\nfor (Field field : fields) {\nboolean alreadyAssigned = false;\nfor(Annotation annotation : field.getAnnotations()) {\nObject mock = createMockFor(annotation, field);\nif (mock != null) {\nthrowIfAlreadyAssigned(field, alreadyAssigned);\nalreadyAssigned = true;\nnew FieldSetter(testClass, field).set(mock);\n}\n}",
+            "method_id": 150
+        },
+        {
+            "method_signature": "org.mockito.MockitoAnnotations:processAnnotationDeprecatedWay(Lorg/mockito/configuration/AnnotationEngine;Ljava/lang/Object;Ljava/lang/reflect/Field;)V",
+            "method_body": "static void processAnnotationDeprecatedWay(AnnotationEngine annotationEngine, Object testClass, Field field) {\nboolean alreadyAssigned = false;\nfor(Annotation annotation : field.getAnnotations()) {\nObject mock = annotationEngine.createMockFor(annotation, field);\nif (mock != null) {\nthrowIfAlreadyAssigned(field, alreadyAssigned);\nalreadyAssigned = true;\nnew FieldSetter(testClass, field).set(mock);\n}\n}",
+            "method_id": 151
+        },
+        {
+            "method_signature": "org.mockito.configuration.DefaultMockitoConfiguration:getAnnotationEngine()Lorg/mockito/configuration/AnnotationEngine;",
+            "method_body": "public AnnotationEngine getAnnotationEngine() {\nreturn new InjectingAnnotationEngine();\n}",
+            "method_id": 152
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.GlobalConfiguration:getIt()Lorg/mockito/configuration/IMockitoConfiguration;",
+            "method_body": "IMockitoConfiguration getIt() {\nreturn globalConfiguration.get();\n}",
+            "method_id": 153
+        },
+        {
+            "method_signature": "org.mockito.MockitoAnnotations:initMocks(Ljava/lang/Object;)V",
+            "method_body": "public static void initMocks(Object testClass) {\nif (testClass == null) {\nClass<?> clazz = testClass.getClass();\nwhile (clazz != Object.class) {\nscan(testClass, clazz);\nclazz = clazz.getSuperclass();\n}",
+            "method_id": 154
+        },
+        {
+            "method_signature": "org.mockito.MockitoAnnotations:scan(Ljava/lang/Object;Ljava/lang/Class;)V",
+            "method_body": "static void scan(Object testClass, Class<?> clazz) {\nAnnotationEngine annotationEngine = new GlobalConfiguration().getAnnotationEngine();\nField[] fields = clazz.getDeclaredFields();\nfor (Field field : fields) {\nif (annotationEngine.getClass() != new DefaultMockitoConfiguration().getAnnotationEngine().getClass()) {\nprocessAnnotationDeprecatedWay(annotationEngine, testClass, field);\nannotationEngine.process(clazz, testClass);\n}",
+            "method_id": 155
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.GlobalConfiguration:getAnnotationEngine()Lorg/mockito/configuration/AnnotationEngine;",
+            "method_body": "public AnnotationEngine getAnnotationEngine() {\nreturn globalConfiguration.get().getAnnotationEngine();\n}",
+            "method_id": 156
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.GlobalConfiguration:<init>()V",
+            "method_body": "public GlobalConfiguration() {\nif (globalConfiguration.get() == null) {\n}",
+            "method_id": 157
+        },
+        {
+            "method_signature": "org.mockito.internal.configuration.GlobalConfiguration:validate()V",
+            "method_body": "public static void validate() {\nnew GlobalConfiguration();\n}",
+            "method_id": 158
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.ThreadSafeMockingProgress:threadSafely()Lorg/mockito/internal/progress/MockingProgress;",
+            "method_body": "static MockingProgress threadSafely() {\nif (mockingProgress.get() == null) {\nreturn mockingProgress.get();\n}",
+            "method_id": 159
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.ThreadSafeMockingProgress:validateState()V",
+            "method_body": "public void validateState() {\nthreadSafely().validateState();\n}",
+            "method_id": 160
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.MockingProgressImpl:validateState()V",
+            "method_body": "public void validateState() {\nGlobalConfiguration.validate();\nif (verificationMode != null) {\nif (stubbingInProgress != null) {\ngetArgumentMatcherStorage().validateState();\n}",
+            "method_id": 161
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.MockingProgressImpl:getArgumentMatcherStorage()Lorg/mockito/internal/progress/ArgumentMatcherStorage;",
+            "method_body": "public ArgumentMatcherStorage getArgumentMatcherStorage() {\nreturn argumentMatcherStorage;\n}",
+            "method_id": 162
+        },
+        {
+            "method_signature": "org.mockito.internal.progress.ArgumentMatcherStorageImpl:validateState()V",
+            "method_body": "public void validateState() {\nif (!matcherStack.isEmpty()) {\n}",
+            "method_id": 163
+        },
+        {
+            "method_signature": "org.mockito.internal.creation.jmock.ClassImposterizer$3:<init>(Lorg/mockito/internal/creation/jmock/ClassImposterizer;)V",
+            "method_body": "private Class<?> createProxyClass(Class<?> mockedType, Class<?>...interfaces) {\nif (mockedType == Object.class) {\nEnhancer enhancer = new Enhancer() {\nenhancer.setClassLoader(SearchingClassLoader.combineLoadersOf(mockedType));\nenhancer.setUseFactory(true);\nif (mockedType.isInterface()) {\nenhancer.setSuperclass(Object.class);\nenhancer.setInterfaces(prepend(mockedType, interfaces));\nenhancer.setCallbackTypes(new Class[]{MethodInterceptor.class, NoOp.class});\nenhancer.setCallbackFilter(IGNORE_BRIDGE_METHODS);\nif (mockedType.getSigners() != null) {\nenhancer.setNamingPolicy(MockitoNamingPolicy.INSTANCE);\nreturn enhancer.createClass();\n}",
+            "method_id": 164
+        }
+    ]
+}

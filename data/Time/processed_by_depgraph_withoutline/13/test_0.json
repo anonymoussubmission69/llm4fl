@@ -1,0 +1,314 @@
+{
+    "bug_id": 13,
+    "test_id": 0,
+    "test_name": "org.joda.time.format.TestISOPeriodFormat.testFormatStandard_negative",
+    "test_body": "public void testFormatStandard_negative() {\nPeriod p = new Period(-1, -2, -3, -4, -5, -6, -7, -8);\nassertEquals(\"P-1Y-2M-3W-4DT-5H-6M-7.008S\", ISOPeriodFormat.standard().print(p));\n122: p = Period.years(-54);\nassertEquals(\"P-54Y\", ISOPeriodFormat.standard().print(p));\n125: p = Period.seconds(4).withMillis(-8);\nassertEquals(\"PT3.992S\", ISOPeriodFormat.standard().print(p));\n128: p = Period.seconds(-4).withMillis(8);\nassertEquals(\"PT-3.992S\", ISOPeriodFormat.standard().print(p));\n131: p = Period.seconds(-23);\nassertEquals(\"PT-23S\", ISOPeriodFormat.standard().print(p));\n134: p = Period.millis(-8);\nassertEquals(\"PT-0.008S\", ISOPeriodFormat.standard().print(p));\n}\n",
+    "stack_trace": "junit.framework.ComparisonFailure: expected:<PT[-]0.008S> but was:<PT[]0.008S>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat org.joda.time.format.TestISOPeriodFormat.testFormatStandard_negative(TestISOPeriodFormat.java:135)",
+    "covered_methods": [
+        {
+            "method_signature": "org.joda.time.Period:withMillis(I)Lorg/joda/time/Period;",
+            "method_body": "public Period withMillis(int millis) {\nint[] values = getValues();  // cloned\ngetPeriodType().setIndexedField(this, PeriodType.MILLI_INDEX, values, millis);\nreturn new Period(values, getPeriodType());\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:printTo(Ljava/lang/StringBuffer;Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(StringBuffer buf, ReadablePeriod period, Locale locale) {\nlong valueLong = getFieldValue(period);\nif (valueLong == Long.MAX_VALUE) {\nreturn;\nint value = (int) valueLong;\nif (iFieldType >= SECONDS_MILLIS) {\nvalue = (int) (valueLong / DateTimeConstants.MILLIS_PER_SECOND);\nif (iPrefix != null) {\nint minDigits = iMinPrintedDigits;\nif (minDigits <= 1) {\nFormatUtils.appendUnpaddedInteger(buf, value);\nif (iFieldType >= SECONDS_MILLIS) {\nint dp = (int) (Math.abs(valueLong) % DateTimeConstants.MILLIS_PER_SECOND);\nif (iFieldType == SECONDS_MILLIS || dp > 0) {\nbuf.append('.');\nFormatUtils.appendPaddedInteger(buf, dp, 3);\nif (iSuffix != null) {\niSuffix.printTo(buf, value);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:calculatePrintedLength(Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)I",
+            "method_body": "public int calculatePrintedLength(ReadablePeriod period, Locale locale) {\nlong valueLong = getFieldValue(period);\nif (valueLong == Long.MAX_VALUE) {\nreturn 0;\nint sum = Math.max(FormatUtils.calculateDigitCount(valueLong), iMinPrintedDigits);\nif (iFieldType >= SECONDS_MILLIS) {\nsum = Math.max(sum, 4);\nsum++;\nif (iFieldType == SECONDS_OPTIONAL_MILLIS &&\nsum -= 4; // remove three digits and decimal point\nvalueLong = valueLong / DateTimeConstants.MILLIS_PER_SECOND;\nint value = (int) valueLong;\nif (iPrefix != null) {\nif (iSuffix != null) {\nsum += iSuffix.calculatePrintedLength(value);\nreturn sum;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:getFieldValue(Lorg/joda/time/ReadablePeriod;)J",
+            "method_body": "long getFieldValue(ReadablePeriod period) {\nif (iPrintZeroSetting == PRINT_ZERO_ALWAYS) {\ntype = period.getPeriodType();\nif (type != null && isSupported(type, iFieldType) == false) {\nswitch (iFieldType) {\nvalue = period.get(DurationFieldType.years());\nbreak;\nvalue = period.get(DurationFieldType.months());\nbreak;\nvalue = period.get(DurationFieldType.weeks());\nbreak;\nvalue = period.get(DurationFieldType.days());\nbreak;\nvalue = period.get(DurationFieldType.hours());\nbreak;\nvalue = period.get(DurationFieldType.minutes());\nbreak;\nint seconds = period.get(DurationFieldType.seconds());\nint millis = period.get(DurationFieldType.millis());\nvalue = (seconds * (long) DateTimeConstants.MILLIS_PER_SECOND) + millis;\nif (value == 0) {\nswitch (iPrintZeroSetting) {\nif (isZero(period) && iFieldFormatters[iFieldType] == this) {\nreturn Long.MAX_VALUE;\nreturn value;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.joda.time.format.ISOPeriodFormat:standard()Lorg/joda/time/format/PeriodFormatter;",
+            "method_body": "public static PeriodFormatter standard() {\nif (cStandard == null) {\nreturn cStandard;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.joda.time.PeriodType:setIndexedField(Lorg/joda/time/ReadablePeriod;I[II)Z",
+            "method_body": "boolean setIndexedField(ReadablePeriod period, int index, int[] values, int newValue) {\nint realIndex = iIndices[index];\nif (realIndex == -1) {\nvalues[realIndex] = newValue;\nreturn true;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatter:print(Lorg/joda/time/ReadablePeriod;)Ljava/lang/String;",
+            "method_body": "public String print(ReadablePeriod period) {\ncheckPrinter();\ncheckPeriod(period);\nPeriodPrinter printer = getPrinter();\nStringBuffer buf = new StringBuffer(printer.calculatePrintedLength(period, iLocale));\nprinter.printTo(buf, period, iLocale);\nreturn buf.toString();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.joda.time.Period:millis(I)Lorg/joda/time/Period;",
+            "method_body": "public static Period millis(int millis) {\nreturn new Period(new int[] {0, 0, 0, 0, 0, 0, 0, millis}, PeriodType.standard());\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.joda.time.Period:seconds(I)Lorg/joda/time/Period;",
+            "method_body": "public static Period seconds(int seconds) {\nreturn new Period(new int[] {0, 0, 0, 0, 0, 0, seconds, 0}, PeriodType.standard());\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:isSupported(Lorg/joda/time/PeriodType;I)Z",
+            "method_body": "boolean isSupported(PeriodType type, int field) {\nswitch (field) {\nreturn type.isSupported(DurationFieldType.years());\nreturn type.isSupported(DurationFieldType.months());\nreturn type.isSupported(DurationFieldType.weeks());\nreturn type.isSupported(DurationFieldType.days());\nreturn type.isSupported(DurationFieldType.hours());\nreturn type.isSupported(DurationFieldType.minutes());\nreturn type.isSupported(DurationFieldType.seconds()) ||\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:countFieldsToPrint(Lorg/joda/time/ReadablePeriod;ILjava/util/Locale;)I",
+            "method_body": "public int countFieldsToPrint(ReadablePeriod period, int stopAt, Locale locale) {\nif (stopAt <= 0) {\nif (iPrintZeroSetting == PRINT_ZERO_ALWAYS || getFieldValue(period) != Long.MAX_VALUE) {\nreturn 1;\nreturn 0;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.joda.time.Period:<init>([ILorg/joda/time/PeriodType;)V",
+            "method_body": "private Period(int[] values, PeriodType type) {\nsuper(values, type);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatter:checkPrinter()V",
+            "method_body": "private void checkPrinter() {\nif (iPrinter == null) {\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.joda.time.Period:years(I)Lorg/joda/time/Period;",
+            "method_body": "public static Period years(int years) {\nreturn new Period(new int[] {years, 0, 0, 0, 0, 0, 0, 0, 0}, PeriodType.standard());\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatter:checkPeriod(Lorg/joda/time/ReadablePeriod;)V",
+            "method_body": "private void checkPeriod(ReadablePeriod period) {\nif (period == null) {\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$FieldFormatter:isZero(Lorg/joda/time/ReadablePeriod;)Z",
+            "method_body": "boolean isZero(ReadablePeriod period) {\nfor (int i = 0, isize = period.size(); i < isize; i++) {\nif (period.getValue(i) != 0) {\nreturn false;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.joda.time.PeriodType:standard()Lorg/joda/time/PeriodType;",
+            "method_body": "public static PeriodType standard() {\nPeriodType type = cStandard;\nif (type == null) {\nreturn type;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.joda.time.Period:<init>(IIIIIIII)V",
+            "method_body": "public Period(int years, int months, int weeks, int days,\nsuper(years, months, weeks, days, hours, minutes, seconds, millis, PeriodType.standard());\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:weeks()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType weeks() {\nreturn WEEKS_TYPE;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:seconds()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType seconds() {\nreturn SECONDS_TYPE;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:millis()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType millis() {\nreturn MILLIS_TYPE;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:minutes()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType minutes() {\nreturn MINUTES_TYPE;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:years()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType years() {\nreturn YEARS_TYPE;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:hours()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType hours() {\nreturn HOURS_TYPE;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:months()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType months() {\nreturn MONTHS_TYPE;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:days()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType days() {\nreturn DAYS_TYPE;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatter:getPrinter()Lorg/joda/time/format/PeriodPrinter;",
+            "method_body": "public PeriodPrinter getPrinter() {\nreturn iPrinter;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$SimpleAffix:calculatePrintedLength(I)I",
+            "method_body": "int calculatePrintedLength(int value);\nreturn iText.length();\nbuf.append(iText);\n}\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$SimpleAffix:printTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "int calculatePrintedLength(int value);\nreturn iText.length();\nbuf.append(iText);\n}\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Literal:calculatePrintedLength(Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)I",
+            "method_body": "public int calculatePrintedLength(ReadablePeriod period, Locale locale) {\nreturn iText.length();\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Literal:printTo(Ljava/lang/StringBuffer;Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(StringBuffer buf, ReadablePeriod period, Locale locale) {\nbuf.append(iText);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Separator:calculatePrintedLength(Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)I",
+            "method_body": "public int calculatePrintedLength(ReadablePeriod period, Locale locale) {\nPeriodPrinter before = iBeforePrinter;\nPeriodPrinter after = iAfterPrinter;\nint sum = before.calculatePrintedLength(period, locale)\nif (iUseBefore) {\n} else if (iUseAfter && after.countFieldsToPrint(period, 1, locale) > 0) {\nsum += iText.length();\nreturn sum;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Separator:printTo(Ljava/lang/StringBuffer;Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(StringBuffer buf, ReadablePeriod period, Locale locale) {\nPeriodPrinter before = iBeforePrinter;\nPeriodPrinter after = iAfterPrinter;\nbefore.printTo(buf, period, locale);\nif (iUseBefore) {\n} else if (iUseAfter && after.countFieldsToPrint(period, 1, locale) > 0) {\nbuf.append(iText);\nafter.printTo(buf, period, locale);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Composite:countFieldsToPrint(Lorg/joda/time/ReadablePeriod;ILjava/util/Locale;)I",
+            "method_body": "public int countFieldsToPrint(ReadablePeriod period, int stopAt, Locale locale) {\nint sum = 0;\nPeriodPrinter[] printers = iPrinters;\nfor (int i=printers.length; sum < stopAt && --i>=0; ) {\nsum += printers[i].countFieldsToPrint(period, Integer.MAX_VALUE, locale);\nreturn sum;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:<init>([ILorg/joda/time/PeriodType;)V",
+            "method_body": "protected BasePeriod(int[] values, PeriodType type) {\nsuper();\niType = type;\niValues = values;\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.joda.time.PeriodType:isSupported(Lorg/joda/time/DurationFieldType;)Z",
+            "method_body": "public boolean isSupported(DurationFieldType type) {\nreturn (indexOf(type) >= 0);\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.joda.time.format.FormatUtils:calculateDigitCount(J)I",
+            "method_body": "public static int calculateDigitCount(long value) {\nif (value < 0) {\nif (value != Long.MIN_VALUE) {\nreturn calculateDigitCount(-value) + 1;\nreturn\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Composite:calculatePrintedLength(Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)I",
+            "method_body": "public int calculatePrintedLength(ReadablePeriod period, Locale locale) {\nint sum = 0;\nPeriodPrinter[] printers = iPrinters;\nfor (int i=printers.length; --i>=0; ) {\nsum += printers[i].calculatePrintedLength(period, locale);\nreturn sum;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.joda.time.format.PeriodFormatterBuilder$Composite:printTo(Ljava/lang/StringBuffer;Lorg/joda/time/ReadablePeriod;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(StringBuffer buf, ReadablePeriod period, Locale locale) {\nPeriodPrinter[] printers = iPrinters;\nint len = printers.length;\nfor (int i=0; i<len; i++) {\nprinters[i].printTo(buf, period, locale);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.joda.time.base.AbstractPeriod:get(Lorg/joda/time/DurationFieldType;)I",
+            "method_body": "public int get(DurationFieldType type) {\nint index = indexOf(type);\nif (index == -1) {\nreturn getValue(index);\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.joda.time.base.AbstractPeriod:getValues()[I",
+            "method_body": "public int[] getValues() {\nint[] result = new int[size()];\nfor (int i = 0; i < result.length; i++) {\nresult[i] = getValue(i);\nreturn result;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.joda.time.format.FormatUtils:appendUnpaddedInteger(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public static void appendUnpaddedInteger(StringBuffer buf, int value) {\nif (value < 0) {\nbuf.append('-');\nif (value != Integer.MIN_VALUE) {\nvalue = -value;\nif (value < 10) {\nbuf.append((char)(value + '0'));\n} else if (value < 100) {\nint d = ((value + 1) * 13421772) >> 27;\nbuf.append((char) (d + '0'));\nbuf.append((char) (value - (d << 3) - (d << 1) + '0'));\n} else {\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:<init>(IIIIIIIILorg/joda/time/PeriodType;)V",
+            "method_body": "protected BasePeriod(int years, int months, int weeks, int days,\nsuper();\ntype = checkPeriodType(type);\niType = type;\niValues = setPeriodInternal(years, months, weeks, days, hours, minutes, seconds, millis); // internal method\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:setPeriodInternal(IIIIIIII)[I",
+            "method_body": "private int[] setPeriodInternal(int years, int months, int weeks, int days,\nint[] newValues = new int[size()];\ncheckAndUpdate(DurationFieldType.years(), newValues, years);\ncheckAndUpdate(DurationFieldType.months(), newValues, months);\ncheckAndUpdate(DurationFieldType.weeks(), newValues, weeks);\ncheckAndUpdate(DurationFieldType.days(), newValues, days);\ncheckAndUpdate(DurationFieldType.hours(), newValues, hours);\ncheckAndUpdate(DurationFieldType.minutes(), newValues, minutes);\ncheckAndUpdate(DurationFieldType.seconds(), newValues, seconds);\ncheckAndUpdate(DurationFieldType.millis(), newValues, millis);\nreturn newValues;\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:checkAndUpdate(Lorg/joda/time/DurationFieldType;[II)V",
+            "method_body": "private void checkAndUpdate(DurationFieldType type, int[] values, int newValue) {\nint index = indexOf(type);\nif (index == -1) {\nvalues[index] = newValue;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.joda.time.base.AbstractPeriod:indexOf(Lorg/joda/time/DurationFieldType;)I",
+            "method_body": "public int indexOf(DurationFieldType type) {\nreturn getPeriodType().indexOf(type);\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.joda.time.PeriodType:indexOf(Lorg/joda/time/DurationFieldType;)I",
+            "method_body": "public int indexOf(DurationFieldType type) {\nfor (int i = 0, isize = size(); i < isize; i++) {\nif (iTypes[i] == type) {\nreturn i;\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:getValue(I)I",
+            "method_body": "public int getValue(int index) {\nreturn iValues[index];\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:checkPeriodType(Lorg/joda/time/PeriodType;)Lorg/joda/time/PeriodType;",
+            "method_body": "protected PeriodType checkPeriodType(PeriodType type) {\nreturn DateTimeUtils.getPeriodType(type);\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:getPeriodType(Lorg/joda/time/PeriodType;)Lorg/joda/time/PeriodType;",
+            "method_body": "public static final PeriodType getPeriodType(PeriodType type) {\nif (type == null) {\nreturn type;\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.joda.time.base.AbstractPeriod:<init>()V",
+            "method_body": "protected AbstractPeriod() {\nsuper();\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.joda.time.base.AbstractPeriod:size()I",
+            "method_body": "public int size() {\nreturn getPeriodType().size();\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.joda.time.base.BasePeriod:getPeriodType()Lorg/joda/time/PeriodType;",
+            "method_body": "public PeriodType getPeriodType() {\nreturn iType;\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.joda.time.PeriodType:size()I",
+            "method_body": "public int size() {\nreturn iTypes.length;\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.joda.time.format.FormatUtils:appendPaddedInteger(Ljava/lang/StringBuffer;II)V",
+            "method_body": "public static void appendPaddedInteger(StringBuffer buf, int value, int size) {\nif (value < 0) {\nif (value < 10) {\nfor (; size > 1; size--) {\nbuf.append('0');\nbuf.append((char)(value + '0'));\n} else if (value < 100) {\nif (value < 1000) {\ndigits = 3;\nfor (; size > digits; size--) {\nbuf.append(Integer.toString(value));\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:setCurrentMillisFixed(J)V",
+            "method_body": "public static final void setCurrentMillisFixed(long fixedMillis) throws SecurityException {\ncheckPermission();\ncMillisProvider = new FixedMillisProvider(fixedMillis);\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils$FixedMillisProvider:<init>(J)V",
+            "method_body": "FixedMillisProvider(long fixedMillis) {\niMillis = fixedMillis;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:setCurrentMillisSystem()V",
+            "method_body": "public static final void setCurrentMillisSystem() throws SecurityException {\ncheckPermission();\ncMillisProvider = SYSTEM_MILLIS_PROVIDER;\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:checkPermission()V",
+            "method_body": "private static void checkPermission() throws SecurityException {\nSecurityManager sm = System.getSecurityManager();\nif (sm != null) {\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:setDefault(Lorg/joda/time/DateTimeZone;)V",
+            "method_body": "public static void setDefault(DateTimeZone zone) throws SecurityException {\nSecurityManager sm = System.getSecurityManager();\nif (sm != null) {\nif (zone == null) {\nsynchronized(DateTimeZone.class) {\ncDefault = zone;\n}\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:getDefault()Lorg/joda/time/DateTimeZone;",
+            "method_body": "public static DateTimeZone getDefault() {\nDateTimeZone zone = cDefault;\nif (zone == null) {\nreturn zone;\n}",
+            "method_id": 60
+        }
+    ]
+}

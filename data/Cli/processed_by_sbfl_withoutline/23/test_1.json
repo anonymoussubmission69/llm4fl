@@ -1,0 +1,149 @@
+{
+    "bug_id": 23,
+    "test_id": 1,
+    "test_name": "org.apache.commons.cli.bug.BugCLI162Test.testInfiniteLoop",
+    "test_body": "public void testInfiniteLoop() {\nHelpFormatter formatter = new HelpFormatter();\nformatter.setWidth(20);\nformatter.printHelp(\"app\", options); // used to hang & crash\n}\n",
+    "stack_trace": "java.lang.RuntimeException: Text too long for line - throwing exception to avoid infinite loop [CLI-162]:              looooong description\nat org.apache.commons.cli.HelpFormatter.renderWrappedText(HelpFormatter.java:836)\nat org.apache.commons.cli.HelpFormatter.renderOptions(HelpFormatter.java:783)\nat org.apache.commons.cli.HelpFormatter.printOptions(HelpFormatter.java:662)\nat org.apache.commons.cli.HelpFormatter.printHelp(HelpFormatter.java:485)\nat org.apache.commons.cli.HelpFormatter.printHelp(HelpFormatter.java:418)\nat org.apache.commons.cli.HelpFormatter.printHelp(HelpFormatter.java:334)\nat org.apache.commons.cli.bug.BugCLI162Test.testInfiniteLoop(BugCLI162Test.java:45)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printHelp(Ljava/lang/String;Lorg/apache/commons/cli/Options;)V",
+            "method_body": "public void printHelp(String cmdLineSyntax, Options options)\nprintHelp(defaultWidth, cmdLineSyntax, null, options, null, false);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printUsage(Ljava/io/PrintWriter;ILjava/lang/String;)V",
+            "method_body": "public void printUsage(PrintWriter pw, int width, String cmdLineSyntax)\nint argPos = cmdLineSyntax.indexOf(' ') + 1;\nprintWrapped(pw, width, defaultSyntaxPrefix.length() + argPos, defaultSyntaxPrefix + cmdLineSyntax);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printOptions(Ljava/io/PrintWriter;ILorg/apache/commons/cli/Options;II)V",
+            "method_body": "public void printOptions(PrintWriter pw, int width, Options options,\nStringBuffer sb = new StringBuffer();\nrenderOptions(sb, width, options, leftPad, descPad);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printHelp(ILjava/lang/String;Ljava/lang/String;Lorg/apache/commons/cli/Options;Ljava/lang/String;Z)V",
+            "method_body": "public void printHelp(int width, String cmdLineSyntax, String header,\nPrintWriter pw = new PrintWriter(System.out);\nprintHelp(pw, width, cmdLineSyntax, header, options, defaultLeftPad, defaultDescPad, footer, autoUsage);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printHelp(Ljava/io/PrintWriter;ILjava/lang/String;Ljava/lang/String;Lorg/apache/commons/cli/Options;IILjava/lang/String;Z)V",
+            "method_body": "public void printHelp(PrintWriter pw, int width, String cmdLineSyntax,\nif ((cmdLineSyntax == null) || (cmdLineSyntax.length() == 0))\nif (autoUsage)\nprintUsage(pw, width, cmdLineSyntax);\nif ((header != null) && (header.trim().length() > 0))\nprintOptions(pw, width, options, leftPad, descPad);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:renderOptions(Ljava/lang/StringBuffer;ILorg/apache/commons/cli/Options;II)Ljava/lang/StringBuffer;",
+            "method_body": "protected StringBuffer renderOptions(StringBuffer sb, int width, Options options, int leftPad, int descPad)\nfinal String lpad = createPadding(leftPad);\nfinal String dpad = createPadding(descPad);\nint max = 0;\nList prefixList = new ArrayList();\nList optList = options.helpOptions();\nCollections.sort(optList, getOptionComparator());\nfor (Iterator i = optList.iterator(); i.hasNext();)\nOption option = (Option) i.next();\noptBuf = new StringBuffer(8);\nif (option.getOpt() == null)\noptBuf.append(lpad).append(\"   \" + defaultLongOptPrefix).append(option.getLongOpt());\noptBuf.append(lpad).append(defaultOptPrefix).append(option.getOpt());\nif (option.hasLongOpt())\noptBuf.append(',').append(defaultLongOptPrefix).append(option.getLongOpt());\nif (option.hasArg())\nif (option.hasArgName())\noptBuf.append(\" <\").append(option.getArgName()).append(\">\");\nprefixList.add(optBuf);\nmax = (optBuf.length() > max) ? optBuf.length() : max;\n}\nint x = 0;\nfor (Iterator i = optList.iterator(); i.hasNext();)\nOption option = (Option) i.next();\noptBuf = new StringBuffer(prefixList.get(x++).toString());\nif (optBuf.length() < max)\noptBuf.append(createPadding(max - optBuf.length()));\noptBuf.append(dpad);\nint nextLineTabStop = max + descPad;\nif (option.getDescription() != null)\noptBuf.append(option.getDescription());\nrenderWrappedText(sb, width, nextLineTabStop, optBuf.toString());\nif (i.hasNext())\nsb.append(defaultNewLine);\n}\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:createPadding(I)Ljava/lang/String;",
+            "method_body": "protected String createPadding(int len)\nStringBuffer sb = new StringBuffer(len);\nfor (int i = 0; i < len; ++i)\nsb.append(' ');\nreturn sb.toString();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getDescription()Ljava/lang/String;",
+            "method_body": "public String getDescription()\nreturn description;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:printWrapped(Ljava/io/PrintWriter;IILjava/lang/String;)V",
+            "method_body": "public void printWrapped(PrintWriter pw, int width, int nextLineTabStop, String text)\nStringBuffer sb = new StringBuffer(text.length());\nrenderWrappedText(sb, width, nextLineTabStop, text);\npw.println(sb.toString());\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:getOptionComparator()Ljava/util/Comparator;",
+            "method_body": "public Comparator getOptionComparator()\nreturn optionComparator;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:renderWrappedText(Ljava/lang/StringBuffer;IILjava/lang/String;)Ljava/lang/StringBuffer;",
+            "method_body": "protected StringBuffer renderWrappedText(StringBuffer sb, int width,\nint pos = findWrapPos(text, width, 0);\nif (pos == -1)\nsb.append(rtrim(text));\nreturn sb;\nsb.append(rtrim(text.substring(0, pos))).append(defaultNewLine);\nfinal String padding = createPadding(nextLineTabStop);\nint lastPos = pos;\ntext = padding + text.substring(pos).trim();\npos = findWrapPos(text, width, 0);\nif (pos == -1)\nsb.append(text);\nreturn sb;\nif (pos == lastPos)\nthrow new RuntimeException(\"Text too long for line - throwing exception to avoid infinite loop [CLI-162]: \" + text);\nsb.append(rtrim(text.substring(0, pos))).append(defaultNewLine);\n}\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:findWrapPos(Ljava/lang/String;II)I",
+            "method_body": "protected int findWrapPos(String text, int width, int startPos)\nint pos = -1;\nif (((pos = text.indexOf('\\n', startPos)) != -1 && pos <= width)\nelse if (startPos + width >= text.length())\nreturn -1;\npos = startPos + width;\n&& (c != '\\n') && (c != '\\r'))\n--pos;\nif (pos > startPos)\nreturn pos;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:rtrim(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "protected String rtrim(String s)\nif ((s == null) || (s.length() == 0))\nint pos = s.length();\nwhile ((pos > 0) && Character.isWhitespace(s.charAt(pos - 1)))\n--pos;\nreturn s.substring(0, pos);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:<init>()V",
+            "method_body": "public static final int DEFAULT_WIDTH = 74;\npublic int defaultWidth = DEFAULT_WIDTH;\npublic int defaultLeftPad = DEFAULT_LEFT_PAD;\npublic int defaultDescPad = DEFAULT_DESC_PAD;\npublic String defaultSyntaxPrefix = DEFAULT_SYNTAX_PREFIX;\npublic String defaultNewLine = System.getProperty(\"line.separator\");\npublic String defaultOptPrefix = DEFAULT_OPT_PREFIX;\npublic String defaultLongOptPrefix = DEFAULT_LONG_OPT_PREFIX;\npublic String defaultArgName = DEFAULT_ARG_NAME;\nprotected Comparator optionComparator = new OptionComparator();\nthis.defaultWidth = width;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.cli.HelpFormatter:setWidth(I)V",
+            "method_body": "public void setWidth(int width)\nthis.defaultWidth = width;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getOpt()Ljava/lang/String;",
+            "method_body": "public String getOpt()\nreturn opt;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Options:addOption(Lorg/apache/commons/cli/Option;)Lorg/apache/commons/cli/Options;",
+            "method_body": "public Options addOption(Option opt)\nString key = opt.getKey();\nif (opt.hasLongOpt())\nlongOpts.put(opt.getLongOpt(), opt);\nif (opt.isRequired())\nshortOpts.put(key, opt);\nreturn this;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getKey()Ljava/lang/String;",
+            "method_body": "String getKey()\nif (opt == null)\nreturn longOpt;\nreturn opt;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:hasLongOpt()Z",
+            "method_body": "public boolean hasLongOpt()\nreturn longOpt != null;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:isRequired()Z",
+            "method_body": "public boolean isRequired()\nreturn required;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionValidator:isValidOpt(C)Z",
+            "method_body": "private static boolean isValidOpt(char c)\nreturn isValidChar(c) || c == ' ' || c == '?' || c == '@';\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionValidator:isValidChar(C)Z",
+            "method_body": "private static boolean isValidChar(char c)\nreturn Character.isJavaIdentifierPart(c);\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:<init>(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)V",
+            "method_body": "public Option(String opt, String longOpt, boolean hasArg, String description)\n{\nOptionValidator.validateOption(opt);\nthis.opt = opt;\nthis.longOpt = longOpt;\nif (hasArg)\nthis.numberOfArgs = 1;\nthis.description = description;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionValidator:validateOption(Ljava/lang/String;)V",
+            "method_body": "static void validateOption(String opt) throws IllegalArgumentException\nif (opt == null)\nreturn;\nelse if (opt.length() == 1)\nchar ch = opt.charAt(0);\nif (!isValidOpt(ch))\n}\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:hasArg()Z",
+            "method_body": "public boolean hasArg()\nreturn numberOfArgs > 0 || numberOfArgs == UNLIMITED_VALUES;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getLongOpt()Ljava/lang/String;",
+            "method_body": "public String getLongOpt()\nreturn longOpt;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Options:helpOptions()Ljava/util/List;",
+            "method_body": "List helpOptions()\nreturn new ArrayList(shortOpts.values());\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Options:addOption(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lorg/apache/commons/cli/Options;",
+            "method_body": "public Options addOption(String opt, String longOpt, boolean hasArg, String description)\naddOption(new Option(opt, longOpt, hasArg, description));\nreturn this;\n}",
+            "method_id": 27
+        }
+    ]
+}

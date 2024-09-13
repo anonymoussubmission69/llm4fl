@@ -1,0 +1,39 @@
+{
+    "bug_id": 13,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.SerializationUtilsTest.testPrimitiveTypeClassSerialization",
+    "test_body": "public void testPrimitiveTypeClassSerialization() {\nClass<?>[] primitiveTypes = { byte.class, short.class, int.class, long.class, float.class, double.class,\nboolean.class, char.class, void.class };\n372: for (Class<?> primitiveType : primitiveTypes) {\nClass<?> clone = SerializationUtils.clone(primitiveType);\nassertEquals(primitiveType, clone);",
+    "stack_trace": "org.apache.commons.lang3.SerializationException: ClassNotFoundException while reading cloned object data\nat org.apache.commons.lang3.SerializationUtils.clone(SerializationUtils.java:99)\nat org.apache.commons.lang3.SerializationUtilsTest.testPrimitiveTypeClassSerialization(SerializationUtilsTest.java:373)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationUtils:serialize(Ljava/io/Serializable;)[B",
+            "method_body": "public static byte[] serialize(Serializable obj) {\nByteArrayOutputStream baos = new ByteArrayOutputStream(512);\nserialize(obj, baos);\nreturn baos.toByteArray();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream:resolveClass(Ljava/io/ObjectStreamClass;)Ljava/lang/Class;",
+            "method_body": "protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {\nString name = desc.getName();\nreturn Class.forName(name, false, classLoader);\n} catch (ClassNotFoundException ex) {\nreturn Class.forName(name, false, Thread.currentThread().getContextClassLoader());\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationUtils:serialize(Ljava/io/Serializable;Ljava/io/OutputStream;)V",
+            "method_body": "public static void serialize(Serializable obj, OutputStream outputStream) {\nif (outputStream == null) {\nObjectOutputStream out = null;\nout = new ObjectOutputStream(outputStream);\nout.writeObject(obj);\nif (out != null) {\nout.close();\n}\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationException:<init>(Ljava/lang/String;Ljava/lang/Throwable;)V",
+            "method_body": "public SerializationException(String msg, Throwable cause) {\nsuper(msg, cause);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationUtils$ClassLoaderAwareObjectInputStream:<init>(Ljava/io/InputStream;Ljava/lang/ClassLoader;)V",
+            "method_body": "public ClassLoaderAwareObjectInputStream(InputStream in, ClassLoader classLoader) throws IOException {\nsuper(in);\nthis.classLoader = classLoader;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.SerializationUtils:clone(Ljava/io/Serializable;)Ljava/io/Serializable;",
+            "method_body": "public static <T extends Serializable> T clone(T object) {\nif (object == null) {\nbyte[] objectData = serialize(object);\nByteArrayInputStream bais = new ByteArrayInputStream(objectData);\nClassLoaderAwareObjectInputStream in = null;\nin = new ClassLoaderAwareObjectInputStream(bais, object.getClass().getClassLoader());\nT readObject = (T) in.readObject();\nreturn readObject;\n} catch (ClassNotFoundException ex) {\nthrow new SerializationException(\"ClassNotFoundException while reading cloned object data\", ex);\ntry {\nif (in != null) {\nin.close();\nthrow new SerializationException(\"IOException on closing cloned object data InputStream.\", ex);\n}\n}",
+            "method_id": 5
+        }
+    ]
+}

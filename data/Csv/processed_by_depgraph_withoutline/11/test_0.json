@@ -1,0 +1,54 @@
+{
+    "bug_id": 11,
+    "test_id": 0,
+    "test_name": "org.apache.commons.csv.CSVParserTest.testHeaderMissingWithNull",
+    "test_body": "public void testHeaderMissingWithNull() throws Exception {\nfinal Reader in = new StringReader(\"a,,c,,d\\n1,2,3,4\\nx,y,z,zz\");\nCSVFormat.DEFAULT.withHeader().withNullString(\"\").withIgnoreEmptyHeaders(true).parse(in).iterator();\n}\n",
+    "stack_trace": "java.lang.NullPointerException\nat org.apache.commons.csv.CSVParser.initializeHeader(CSVParser.java:384)\nat org.apache.commons.csv.CSVParser.<init>(CSVParser.java:250)\nat org.apache.commons.csv.CSVFormat.parse(CSVFormat.java:611)\nat org.apache.commons.csv.CSVParserTest.testHeaderMissingWithNull(CSVParserTest.java:670)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:initializeHeader()Ljava/util/Map;",
+            "method_body": "private Map<String, Integer> initializeHeader() throws IOException {\nMap<String, Integer> hdrMap = null;\nfinal String[] formatHeader = this.format.getHeader();\nif (formatHeader != null) {\nhdrMap = new LinkedHashMap<String, Integer>();\nString[] headerRecord = null;\nif (formatHeader.length == 0) {\nfinal CSVRecord nextRecord = this.nextRecord();\nif (nextRecord != null) {\nheaderRecord = nextRecord.values();\n} else {\nif (headerRecord != null) {\nfor (int i = 0; i < headerRecord.length; i++) {\nfinal String header = headerRecord[i];\nfinal boolean containsHeader = hdrMap.containsKey(header);\nfinal boolean emptyHeader = header.trim().isEmpty();\nif (containsHeader && (!emptyHeader || (emptyHeader && !this.format.getIgnoreEmptyHeaders()))) {\nhdrMap.put(header, Integer.valueOf(i));\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:nextRecord()Lorg/apache/commons/csv/CSVRecord;",
+            "method_body": "CSVRecord nextRecord() throws IOException {\nCSVRecord result = null;\nthis.record.clear();\nStringBuilder sb = null;\nthis.reusableToken.reset();\nthis.lexer.nextToken(this.reusableToken);\nswitch (this.reusableToken.type) {\nthis.addRecordValue();\nbreak;\nthis.addRecordValue();\nbreak;\n} while (this.reusableToken.type == TOKEN);\nif (!this.record.isEmpty()) {\nthis.recordNumber++;\nfinal String comment = sb == null ? null : sb.toString();\nresult = new CSVRecord(this.record.toArray(new String[this.record.size()]), this.headerMap, comment,\nreturn result;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:addRecordValue()V",
+            "method_body": "private void addRecordValue() {\nfinal String input = this.reusableToken.content.toString();\nfinal String nullString = this.format.getNullString();\nif (nullString == null) {\nthis.record.add(input.equalsIgnoreCase(nullString) ? null : input);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:<init>(CLjava/lang/Character;Lorg/apache/commons/csv/Quote;Ljava/lang/Character;Ljava/lang/Character;ZZLjava/lang/String;Ljava/lang/String;[Ljava/lang/String;ZZ)V",
+            "method_body": "private CSVFormat(final char delimiter, final Character quoteChar,\nfinal boolean ignoreEmptyHeaders) {\nif (isLineBreak(delimiter)) {\nthis.delimiter = delimiter;\nthis.quoteChar = quoteChar;\nthis.quotePolicy = quotePolicy;\nthis.commentStart = commentStart;\nthis.escape = escape;\nthis.ignoreSurroundingSpaces = ignoreSurroundingSpaces;\nthis.ignoreEmptyHeaders = ignoreEmptyHeaders;\nthis.ignoreEmptyLines = ignoreEmptyLines;\nthis.recordSeparator = recordSeparator;\nthis.nullString = nullString;\nif (header == null) {\nthis.header = null;\nfinal Set<String> dupCheck = new HashSet<String>();\nfor (final String hdr : header) {\nthis.header = header.clone();\nthis.skipHeaderRecord = skipHeaderRecord;\nvalidate();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:<init>(Ljava/io/Reader;Lorg/apache/commons/csv/CSVFormat;)V",
+            "method_body": "public CSVParser(final Reader reader, final CSVFormat format) throws IOException {\nAssertions.notNull(reader, \"reader\");\nAssertions.notNull(format, \"format\");\nthis.format = format;\nthis.lexer = new Lexer(format, new ExtendedBufferedReader(reader));\nthis.headerMap = this.initializeHeader();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:withIgnoreEmptyHeaders(Z)Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat withIgnoreEmptyHeaders(final boolean ignoreEmptyHeaders) {\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:withNullString(Ljava/lang/String;)Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat withNullString(final String nullString) {\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:parse(Ljava/io/Reader;)Lorg/apache/commons/csv/CSVParser;",
+            "method_body": "public CSVParser parse(final Reader in) throws IOException {\nreturn new CSVParser(in, this);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:withHeader([Ljava/lang/String;)Lorg/apache/commons/csv/CSVFormat;",
+            "method_body": "public CSVFormat withHeader(final String... header) {\nreturn new CSVFormat(delimiter, quoteChar, quotePolicy, commentStart, escape,\n}",
+            "method_id": 8
+        }
+    ]
+}

@@ -1,0 +1,509 @@
+{
+    "bug_id": 20,
+    "test_id": 0,
+    "test_name": "org.joda.time.format.TestDateTimeFormatterBuilder.test_printParseZoneDawsonCreek",
+    "test_body": "public void test_printParseZoneDawsonCreek() {  // clashes with shorter Dawson\nDateTimeFormatterBuilder bld = new DateTimeFormatterBuilder()\n.appendPattern(\"yyyy-MM-dd HH:mm \").appendTimeZoneId();\nDateTimeFormatter f = bld.toFormatter();\n260: DateTime dt = new DateTime(2007, 3, 4, 12, 30, 0, DateTimeZone.forID(\"America/Dawson_Creek\"));\nassertEquals(\"2007-03-04 12:30 America/Dawson_Creek\", f.print(dt));\nassertEquals(dt, f.parseDateTime(\"2007-03-04 12:30 America/Dawson_Creek\"));\n}\n",
+    "stack_trace": "java.lang.IllegalArgumentException: Invalid format: \"2007-03-04 12:30 America/Dawson_Creek\" is malformed at \"_Creek\"\nat org.joda.time.format.DateTimeFormatter.parseDateTime(DateTimeFormatter.java:866)\nat org.joda.time.format.TestDateTimeFormatterBuilder.test_printParseZoneDawsonCreek(TestDateTimeFormatterBuilder.java:262)",
+    "covered_methods": [
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$TimeZoneId:parseInto(Lorg/joda/time/format/DateTimeParserBucket;Ljava/lang/String;I)I",
+            "method_body": "public int parseInto(DateTimeParserBucket bucket, String text, int position) {\nString str = text.substring(position);\nfor (String id : ALL_IDS) {\nif (str.startsWith(id)) {\nbucket.setZone(DateTimeZone.forID(id));\nreturn position + id.length();\n}\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormat:parsePatternTo(Lorg/joda/time/format/DateTimeFormatterBuilder;Ljava/lang/String;)V",
+            "method_body": "private static void parsePatternTo(DateTimeFormatterBuilder builder, String pattern) {\nint length = pattern.length();\nint[] indexRef = new int[1];\nfor (int i=0; i<length; i++) {\nindexRef[0] = i;\nString token = parseToken(pattern, indexRef);\ni = indexRef[0];\nint tokenLen = token.length();\nif (tokenLen == 0) {\nchar c = token.charAt(0);\nswitch (c) {\nif (tokenLen == 2) {\nint maxDigits = 9;\nif (i + 1 < length) {\nindexRef[0]++;\nif (isNumericToken(parseToken(pattern, indexRef))) {\nindexRef[0]--;\nswitch (c) {\nbuilder.appendYear(tokenLen, maxDigits);\nbreak;\nbreak;\nif (tokenLen >= 3) {\nbuilder.appendMonthOfYear(tokenLen);\nbreak;\nbuilder.appendDayOfMonth(tokenLen);\nbreak;\nbuilder.appendHourOfDay(tokenLen);\nbreak;\nbuilder.appendMinuteOfHour(tokenLen);\nbreak;\nString sub = token.substring(1);\nif (sub.length() == 1) {\nbuilder.appendLiteral(sub.charAt(0));\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$TimeZoneId:printTo(Ljava/lang/StringBuffer;JLorg/joda/time/Chronology;ILorg/joda/time/DateTimeZone;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(\nbuf.append(displayZone != null ? displayZone.getID() : \"\");\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormat:parseToken(Ljava/lang/String;[I)Ljava/lang/String;",
+            "method_body": "private static String parseToken(String pattern, int[] indexRef) {\nStringBuffer buf = new StringBuffer();\nint i = indexRef[0];\nint length = pattern.length();\nchar c = pattern.charAt(i);\nif (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {\nbuf.append(c);\nwhile (i + 1 < length) {\nchar peek = pattern.charAt(i + 1);\nif (peek == c) {\nbuf.append(c);\ni++;\n}\nbuf.append('\\'');\nboolean inLiteral = false;\nfor (; i < length; i++) {\nc = pattern.charAt(i);\nif (c == '\\'') {\n} else if (!inLiteral &&\ni--;\nbreak;\nbuf.append(c);\nindexRef[0] = i;\nreturn buf.toString();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:parseDateTime(Ljava/lang/String;)Lorg/joda/time/DateTime;",
+            "method_body": "public DateTime parseDateTime(String text) {\nDateTimeParser parser = requireParser();\nChronology chrono = selectChronology(null);\nDateTimeParserBucket bucket = new DateTimeParserBucket(0, chrono, iLocale, iPivotYear, iDefaultYear);\nint newPos = parser.parseInto(bucket, text, 0);\nif (newPos >= 0) {\nif (newPos >= text.length()) {\nthrow new IllegalArgumentException(FormatUtils.createErrorMessage(text, newPos));\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.joda.time.DateTime:<init>(IIIIIILorg/joda/time/DateTimeZone;)V",
+            "method_body": "public DateTime(\nsuper(year, monthOfYear, dayOfMonth,\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormat:appendPatternTo(Lorg/joda/time/format/DateTimeFormatterBuilder;Ljava/lang/String;)V",
+            "method_body": "static void appendPatternTo(DateTimeFormatterBuilder builder, String pattern) {\nparsePatternTo(builder, pattern);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendPattern(Ljava/lang/String;)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendPattern(String pattern) {\nDateTimeFormat.appendPatternTo(this, pattern);\nreturn this;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormat:isNumericToken(Ljava/lang/String;)Z",
+            "method_body": "private static boolean isNumericToken(String token) {\nint tokenLen = token.length();\nif (tokenLen > 0) {\nchar c = token.charAt(0);\nswitch (c) {\nreturn false;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:<init>(Ljava/util/List;)V",
+            "method_body": "Composite(List<Object> elementPairs) {\nsuper();\nList<Object> printerList = new ArrayList<Object>();\nList<Object> parserList = new ArrayList<Object>();\ndecompose(elementPairs, printerList, parserList);\nif (printerList.size() <= 0) {\nint size = printerList.size();\niPrinters = new DateTimePrinter[size];\nint printEst = 0;\nfor (int i=0; i<size; i++) {\nDateTimePrinter printer = (DateTimePrinter) printerList.get(i);\nprintEst += printer.estimatePrintedLength();\niPrinters[i] = printer;\niPrintedLengthEstimate = printEst;\nif (parserList.size() <= 0) {\nint size = parserList.size();\niParsers = new DateTimeParser[size];\nint parseEst = 0;\nfor (int i=0; i<size; i++) {\nDateTimeParser parser = (DateTimeParser) parserList.get(i);\nparseEst += parser.estimateParsedLength();\niParsers[i] = parser;\niParsedLengthEstimate = parseEst;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.joda.time.format.FormatUtils:createErrorMessage(Ljava/lang/String;I)Ljava/lang/String;",
+            "method_body": "static String createErrorMessage(final String text, final int errorPos) {\nint sampleLen = errorPos + 32;\nif (text.length() <= sampleLen + 3) {\nsampleText = text;\nif (errorPos <= 0) {\nif (errorPos >= text.length()) {\nreturn \"Invalid format: \\\"\" + sampleText + \"\\\" is malformed at \\\"\" +\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:printTo(Ljava/lang/StringBuffer;JLorg/joda/time/Chronology;)V",
+            "method_body": "private void printTo(StringBuffer buf, long instant, Chronology chrono) {\nDateTimePrinter printer = requirePrinter();\nchrono = selectChronology(chrono);\nDateTimeZone zone = chrono.getZone();\nint offset = zone.getOffset(instant);\nlong adjustedInstant = instant + offset;\nif ((instant ^ adjustedInstant) < 0 && (instant ^ offset) >= 0) {\nprinter.printTo(buf, adjustedInstant, chrono.withUTC(), offset, zone, iLocale);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeParserBucket:<init>(JLorg/joda/time/Chronology;Ljava/util/Locale;Ljava/lang/Integer;I)V",
+            "method_body": "public DateTimeParserBucket(long instantLocal, Chronology chrono,\nsuper();\nchrono = DateTimeUtils.getChronology(chrono);\niMillis = instantLocal;\niZone = chrono.getZone();\niChrono = chrono.withUTC();\niLocale = (locale == null ? Locale.getDefault() : locale);\niPivotYear = pivotYear;\niDefaultYear = defaultYear;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeParserBucket:saveField(Lorg/joda/time/format/DateTimeParserBucket$SavedField;)V",
+            "method_body": "private void saveField(SavedField field) {\nSavedField[] savedFields = iSavedFields;\nint savedFieldsCount = iSavedFieldsCount;\nif (savedFieldsCount == savedFields.length || iSavedFieldsShared) {\niSavedState = null;\nsavedFields[savedFieldsCount] = field;\niSavedFieldsCount = savedFieldsCount + 1;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.joda.time.format.FormatUtils:appendPaddedInteger(Ljava/lang/StringBuffer;II)V",
+            "method_body": "public static void appendPaddedInteger(StringBuffer buf, int value, int size) {\nif (value < 0) {\nif (value < 10) {\nfor (; size > 1; size--) {\nbuf.append('0');\nbuf.append((char)(value + '0'));\n} else if (value < 100) {\nfor (; size > 2; size--) {\nint d = ((value + 1) * 13421772) >> 27;\nbuf.append((char) (d + '0'));\nbuf.append((char) (value - (d << 3) - (d << 1) + '0'));\n} else {\nif (value < 1000) {\n} else if (value < 10000) {\ndigits = 4;\nfor (; size > digits; size--) {\nbuf.append(Integer.toString(value));\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$TimeZoneId:estimateParsedLength()I",
+            "method_body": "public int estimateParsedLength() {\nreturn MAX_LENGTH;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendTimeZoneId()Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendTimeZoneId() {\nreturn append0(TimeZoneId.INSTANCE, TimeZoneId.INSTANCE);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:<init>(Lorg/joda/time/format/DateTimePrinter;Lorg/joda/time/format/DateTimeParser;)V",
+            "method_body": "public DateTimeFormatter(\nsuper();\niPrinter = printer;\niParser = parser;\niLocale = null;\niOffsetParsed = false;\niChrono = null;\niZone = null;\niPivotYear = null;\niDefaultYear = 2000;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:toFormatter()Lorg/joda/time/format/DateTimeFormatter;",
+            "method_body": "public DateTimeFormatter toFormatter() {\nObject f = getFormatter();\nDateTimePrinter printer = null;\nif (isPrinter(f)) {\nprinter = (DateTimePrinter) f;\nDateTimeParser parser = null;\nif (isParser(f)) {\nparser = (DateTimeParser) f;\nif (printer != null || parser != null) {\nreturn new DateTimeFormatter(printer, parser);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:printTo(Ljava/lang/StringBuffer;Lorg/joda/time/ReadableInstant;)V",
+            "method_body": "public void printTo(StringBuffer buf, ReadableInstant instant) {\nlong millis = DateTimeUtils.getInstantMillis(instant);\nChronology chrono = DateTimeUtils.getInstantChronology(instant);\nprintTo(buf, millis, chrono);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$TimeZoneId:estimatePrintedLength()I",
+            "method_body": "public int estimatePrintedLength() {\nreturn MAX_LENGTH;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeParserBucket$SavedField:<init>(Lorg/joda/time/DateTimeField;I)V",
+            "method_body": "SavedField(DateTimeField field, int value) {\niField = field;\niValue = value;\niText = null;\niLocale = null;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:getDefault()Lorg/joda/time/DateTimeZone;",
+            "method_body": "public static DateTimeZone getDefault() {\nDateTimeZone zone = cDefault;\nif (zone == null) {\nreturn zone;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:getOffsetFromLocal(J)I",
+            "method_body": "public int getOffsetFromLocal(long instantLocal) {\nfinal int offsetLocal = getOffset(instantLocal);\nfinal long instantAdjusted = instantLocal - offsetLocal;\nfinal int offsetAdjusted = getOffset(instantAdjusted);\nif (offsetLocal != offsetAdjusted) {\n} else if (offsetLocal > 0) {\nreturn offsetAdjusted;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:getFormatter()Ljava/lang/Object;",
+            "method_body": "private Object getFormatter() {\nObject f = iFormatter;\nif (f == null) {\nif (iElementPairs.size() == 2) {\nif (f == null) {\nf = new Composite(iElementPairs);\niFormatter = f;\nreturn f;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendSignedDecimal(Lorg/joda/time/DateTimeFieldType;II)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendSignedDecimal(\nif (fieldType == null) {\nif (maxDigits < minDigits) {\nif (minDigits < 0 || maxDigits <= 0) {\nif (minDigits <= 1) {\nreturn append0(new PaddedNumber(fieldType, maxDigits, true, minDigits));\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendDecimal(Lorg/joda/time/DateTimeFieldType;II)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendDecimal(\nif (fieldType == null) {\nif (maxDigits < minDigits) {\nif (minDigits < 0 || maxDigits <= 0) {\nif (minDigits <= 1) {\nreturn append0(new PaddedNumber(fieldType, maxDigits, false, minDigits));\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:getInstantChronology(Lorg/joda/time/ReadableInstant;)Lorg/joda/time/Chronology;",
+            "method_body": "public static final Chronology getInstantChronology(ReadableInstant instant) {\nif (instant == null) {\nChronology chrono = instant.getChronology();\nif (chrono == null) {\nreturn chrono;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:print(Lorg/joda/time/ReadableInstant;)Ljava/lang/String;",
+            "method_body": "public String print(ReadableInstant instant) {\nStringBuffer buf = new StringBuffer(requirePrinter().estimatePrintedLength());\nprintTo(buf, instant);\nreturn buf.toString();\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:requireParser()Lorg/joda/time/format/DateTimeParser;",
+            "method_body": "private DateTimeParser requireParser() {\nDateTimeParser parser = iParser;\nif (parser == null) {\nreturn parser;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:append0(Lorg/joda/time/format/DateTimePrinter;Lorg/joda/time/format/DateTimeParser;)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "private DateTimeFormatterBuilder append0(\niFormatter = null;\niElementPairs.add(printer);\niElementPairs.add(parser);\nreturn this;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ISOChronology:getInstance(Lorg/joda/time/DateTimeZone;)Lorg/joda/time/chrono/ISOChronology;",
+            "method_body": "public static ISOChronology getInstance(DateTimeZone zone) {\nif (zone == null) {\nint index = System.identityHashCode(zone) & (FAST_CACHE_SIZE - 1);\nISOChronology chrono = cFastCache[index];\nif (chrono != null && chrono.getZone() == zone) {\nreturn chrono;\nsynchronized (cCache) {\nchrono = cCache.get(zone);\nif (chrono == null) {\nchrono = new ISOChronology(ZonedChronology.getInstance(INSTANCE_UTC, zone));\ncCache.put(zone, chrono);\n}\ncFastCache[index] = chrono;\nreturn chrono;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:selectChronology(Lorg/joda/time/Chronology;)Lorg/joda/time/Chronology;",
+            "method_body": "private Chronology selectChronology(Chronology chrono) {\nchrono = DateTimeUtils.getChronology(chrono);\nif (iChrono != null) {\nif (iZone != null) {\nreturn chrono;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:append0(Ljava/lang/Object;)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "private DateTimeFormatterBuilder append0(Object element) {\niFormatter = null;\niElementPairs.add(element);\niElementPairs.add(element);\nreturn this;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:<init>()V",
+            "method_body": "public DateTimeFormatterBuilder() {\nsuper();\niElementPairs = new ArrayList<Object>();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$PaddedNumber:<init>(Lorg/joda/time/DateTimeFieldType;IZI)V",
+            "method_body": "protected PaddedNumber(DateTimeFieldType fieldType, int maxParsedDigits,\nsuper(fieldType, maxParsedDigits, signed);\niMinPrintedDigits = minPrintedDigits;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:forID(Ljava/lang/String;)Lorg/joda/time/DateTimeZone;",
+            "method_body": "public static DateTimeZone forID(String id) {\nif (id == null) {\nif (id.equals(\"UTC\")) {\nDateTimeZone zone = cProvider.getZone(id);\nif (zone != null) {\nreturn zone;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatter:requirePrinter()Lorg/joda/time/format/DateTimePrinter;",
+            "method_body": "private DateTimePrinter requirePrinter() {\nDateTimePrinter printer = iPrinter;\nif (printer == null) {\nreturn printer;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$CharacterLiteral:<init>(C)V",
+            "method_body": "CharacterLiteral(char value) {\nsuper();\niValue = value;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeParserBucket:saveField(Lorg/joda/time/DateTimeFieldType;I)V",
+            "method_body": "public void saveField(DateTimeFieldType fieldType, int value) {\nsaveField(new SavedField(fieldType.getField(iChrono), value));\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:isPrinter(Ljava/lang/Object;)Z",
+            "method_body": "private boolean isPrinter(Object f) {\nif (f instanceof DateTimePrinter) {\nif (f instanceof Composite) {\nreturn ((Composite)f).isPrinter();\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:isParser(Ljava/lang/Object;)Z",
+            "method_body": "private boolean isParser(Object f) {\nif (f instanceof DateTimeParser) {\nif (f instanceof Composite) {\nreturn ((Composite)f).isParser();\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ZonedChronology:getInstance(Lorg/joda/time/Chronology;Lorg/joda/time/DateTimeZone;)Lorg/joda/time/chrono/ZonedChronology;",
+            "method_body": "public static ZonedChronology getInstance(Chronology base, DateTimeZone zone) {\nif (base == null) {\nbase = base.withUTC();\nif (base == null) {\nif (zone == null) {\nreturn new ZonedChronology(base, zone);\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:getInstantMillis(Lorg/joda/time/ReadableInstant;)J",
+            "method_body": "public static final long getInstantMillis(ReadableInstant instant) {\nif (instant == null) {\nreturn instant.getMillis();\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ISOChronology:<init>(Lorg/joda/time/Chronology;)V",
+            "method_body": "private ISOChronology(Chronology base) {\nsuper(base, null);\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ZonedChronology:<init>(Lorg/joda/time/Chronology;Lorg/joda/time/DateTimeZone;)V",
+            "method_body": "private ZonedChronology(Chronology base, DateTimeZone zone) {\nsuper(base, zone);\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ISOChronology:getInstance()Lorg/joda/time/chrono/ISOChronology;",
+            "method_body": "public static ISOChronology getInstance() {\nreturn getInstance(DateTimeZone.getDefault());\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeUtils:getChronology(Lorg/joda/time/Chronology;)Lorg/joda/time/Chronology;",
+            "method_body": "public static final Chronology getChronology(Chronology chrono) {\nif (chrono == null) {\nreturn ISOChronology.getInstance();\nreturn chrono;\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendYear(II)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendYear(int minDigits, int maxDigits) {\nreturn appendSignedDecimal(DateTimeFieldType.year(), minDigits, maxDigits);\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendMonthOfYear(I)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendMonthOfYear(int minDigits) {\nreturn appendDecimal(DateTimeFieldType.monthOfYear(), minDigits, 2);\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendDayOfMonth(I)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendDayOfMonth(int minDigits) {\nreturn appendDecimal(DateTimeFieldType.dayOfMonth(), minDigits, 2);\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendLiteral(C)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendLiteral(char c) {\nreturn append0(new CharacterLiteral(c));\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendMinuteOfHour(I)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendMinuteOfHour(int minDigits) {\nreturn appendDecimal(DateTimeFieldType.minuteOfHour(), minDigits, 2);\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder:appendHourOfDay(I)Lorg/joda/time/format/DateTimeFormatterBuilder;",
+            "method_body": "public DateTimeFormatterBuilder appendHourOfDay(int minDigits) {\nreturn appendDecimal(DateTimeFieldType.hourOfDay(), minDigits, 2);\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:isPrinter()Z",
+            "method_body": "boolean isPrinter() {\nreturn iPrinters != null;\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:isParser()Z",
+            "method_body": "boolean isParser() {\nreturn iParsers != null;\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:secondOfMinute()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType secondOfMinute() {\nreturn SECOND_OF_MINUTE_TYPE;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:dayOfMonth()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType dayOfMonth() {\nreturn DAY_OF_MONTH_TYPE;\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:monthOfYear()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType monthOfYear() {\nreturn MONTH_OF_YEAR_TYPE;\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:minuteOfHour()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType minuteOfHour() {\nreturn MINUTE_OF_HOUR_TYPE;\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:hourOfDay()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType hourOfDay() {\nreturn HOUR_OF_DAY_TYPE;\n}",
+            "method_id": 60
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType:year()Lorg/joda/time/DateTimeFieldType;",
+            "method_body": "public static DateTimeFieldType year() {\nreturn YEAR_TYPE;\n}",
+            "method_id": 61
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeParserBucket:setZone(Lorg/joda/time/DateTimeZone;)V",
+            "method_body": "public void setZone(DateTimeZone zone) {\niSavedState = null;\niZone = zone;\n}",
+            "method_id": 62
+        },
+        {
+            "method_signature": "org.joda.time.base.BaseDateTime:<init>(IIIIIIILorg/joda/time/DateTimeZone;)V",
+            "method_body": "public BaseDateTime(\nthis(year, monthOfYear, dayOfMonth, hourOfDay,\n}",
+            "method_id": 63
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$CharacterLiteral:parseInto(Lorg/joda/time/format/DateTimeParserBucket;Ljava/lang/String;I)I",
+            "method_body": "public int parseInto(DateTimeParserBucket bucket, String text, int position) {\nif (position >= text.length()) {\nchar a = text.charAt(position);\nchar b = iValue;\nif (a != b) {\nreturn position + 1;\n}",
+            "method_id": 64
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$NumberFormatter:parseInto(Lorg/joda/time/format/DateTimeParserBucket;Ljava/lang/String;I)I",
+            "method_body": "public int parseInto(DateTimeParserBucket bucket, String text, int position) {\nint limit = Math.min(iMaxParsedDigits, text.length() - position);\nboolean negative = false;\nint length = 0;\nwhile (length < limit) {\nchar c = text.charAt(position + length);\nif (length == 0 && (c == '-' || c == '+') && iSigned) {\nif (c < '0' || c > '9') {\nlength++;\n}\nif (length == 0) {\nif (length >= 9) {\nint i = position;\nif (negative) {\nvalue = text.charAt(i++) - '0';\n}\nposition += length;\nwhile (i < position) {\nvalue = ((value << 3) + (value << 1)) + text.charAt(i++) - '0';\nif (negative) {\nbucket.saveField(iFieldType, value);\nreturn position;\n}",
+            "method_id": 65
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:parseInto(Lorg/joda/time/format/DateTimeParserBucket;Ljava/lang/String;I)I",
+            "method_body": "public int parseInto(DateTimeParserBucket bucket, String text, int position) {\nDateTimeParser[] elements = iParsers;\nif (elements == null) {\nint len = elements.length;\nfor (int i=0; i<len && position >= 0; i++) {\nposition = elements[i].parseInto(bucket, text, position);\nreturn position;\n}",
+            "method_id": 66
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$CharacterLiteral:printTo(Ljava/lang/StringBuffer;JLorg/joda/time/Chronology;ILorg/joda/time/DateTimeZone;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(\nbuf.append(iValue);\n}",
+            "method_id": 67
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$PaddedNumber:printTo(Ljava/lang/StringBuffer;JLorg/joda/time/Chronology;ILorg/joda/time/DateTimeZone;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(\nDateTimeField field = iFieldType.getField(chrono);\nFormatUtils.appendPaddedInteger(buf, field.get(instant), iMinPrintedDigits);\n}\n}",
+            "method_id": 68
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:printTo(Ljava/lang/StringBuffer;JLorg/joda/time/Chronology;ILorg/joda/time/DateTimeZone;Ljava/util/Locale;)V",
+            "method_body": "public void printTo(\nDateTimePrinter[] elements = iPrinters;\nif (elements == null) {\nif (locale == null) {\nlocale = Locale.getDefault();\nint len = elements.length;\nfor (int i = 0; i < len; i++) {\nelements[i].printTo(buf, instant, chrono, displayOffset, displayZone, locale);\n}",
+            "method_id": 69
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:estimatePrintedLength()I",
+            "method_body": "public int estimatePrintedLength() {\nreturn iPrintedLengthEstimate;\n}",
+            "method_id": 70
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ZonedChronology:localToUTC(J)J",
+            "method_body": "private long localToUTC(long instant) {\nDateTimeZone zone = getZone();\nint offset = zone.getOffsetFromLocal(instant);\ninstant -= offset;\nif (offset != zone.getOffset(instant)) {\nreturn instant;\n}",
+            "method_id": 71
+        },
+        {
+            "method_signature": "org.joda.time.chrono.ZonedChronology:getDateTimeMillis(IIIIIII)J",
+            "method_body": "public long getDateTimeMillis(int year, int monthOfYear, int dayOfMonth,\nreturn localToUTC(getBase().getDateTimeMillis\n}",
+            "method_id": 72
+        },
+        {
+            "method_signature": "org.joda.time.DurationFieldType:millis()Lorg/joda/time/DurationFieldType;",
+            "method_body": "public static DurationFieldType millis() {\nreturn MILLIS_TYPE;\n}",
+            "method_id": 73
+        },
+        {
+            "method_signature": "org.joda.time.tz.ZoneInfoProvider:loadZoneData(Ljava/lang/String;)Lorg/joda/time/DateTimeZone;",
+            "method_body": "private DateTimeZone loadZoneData(String id) {\nInputStream in = null;\nin = openResource(id);\nDateTimeZone tz = DateTimeZoneBuilder.readFrom(in, id);\niZoneInfoMap.put(id, new SoftReference<DateTimeZone>(tz));\nreturn tz;\nif (in != null) {\nin.close();\n}\n}",
+            "method_id": 74
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder:readFrom(Ljava/io/InputStream;Ljava/lang/String;)Lorg/joda/time/DateTimeZone;",
+            "method_body": "public static DateTimeZone readFrom(InputStream in, String id) throws IOException {\nif (in instanceof DataInput) {\nreturn readFrom((DataInput)new DataInputStream(in), id);\n}",
+            "method_id": 75
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder:readFrom(Ljava/io/DataInput;Ljava/lang/String;)Lorg/joda/time/DateTimeZone;",
+            "method_body": "public static DateTimeZone readFrom(DataInput in, String id) throws IOException {\nswitch (in.readUnsignedByte()) {\nreturn CachedDateTimeZone.forZone(PrecalculatedZone.readFrom(in, id));\n}",
+            "method_id": 76
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder:readMillis(Ljava/io/DataInput;)J",
+            "method_body": "static long readMillis(DataInput in) throws IOException {\nint v = in.readUnsignedByte();\nswitch (v >> 6) {\nv = (v << (32 - 6)) >> (32 - 6);\nreturn v * (30 * 60000L);\nv = (v << (32 - 6)) >> (32 - 30);\nv |= (in.readUnsignedByte()) << 16;\nv |= (in.readUnsignedByte()) << 8;\nv |= (in.readUnsignedByte());\nreturn v * 60000L;\nlong w = (((long)v) << (64 - 6)) >> (64 - 38);\nw |= (in.readUnsignedByte()) << 24;\nw |= (in.readUnsignedByte()) << 16;\nw |= (in.readUnsignedByte()) << 8;\nw |= (in.readUnsignedByte());\nreturn w * 1000L;\nreturn in.readLong();\n}",
+            "method_id": 77
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$PrecalculatedZone:<init>(Ljava/lang/String;[J[I[I[Ljava/lang/String;Lorg/joda/time/tz/DateTimeZoneBuilder$DSTZone;)V",
+            "method_body": "private PrecalculatedZone(String id, long[] transitions, int[] wallOffsets,\nsuper(id);\niTransitions = transitions;\niWallOffsets = wallOffsets;\niStandardOffsets = standardOffsets;\niNameKeys = nameKeys;\niTailZone = tailZone;\n}",
+            "method_id": 78
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$PrecalculatedZone:readFrom(Ljava/io/DataInput;Ljava/lang/String;)Lorg/joda/time/tz/DateTimeZoneBuilder$PrecalculatedZone;",
+            "method_body": "static PrecalculatedZone readFrom(DataInput in, String id) throws IOException {\nint poolSize = in.readUnsignedShort();\nString[] pool = new String[poolSize];\nfor (int i=0; i<poolSize; i++) {\npool[i] = in.readUTF();\nint size = in.readInt();\nlong[] transitions = new long[size];\nint[] wallOffsets = new int[size];\nint[] standardOffsets = new int[size];\nString[] nameKeys = new String[size];\nfor (int i=0; i<size; i++) {\ntransitions[i] = readMillis(in);\nwallOffsets[i] = (int)readMillis(in);\nstandardOffsets[i] = (int)readMillis(in);\nif (poolSize < 256) {\nindex = in.readUnsignedByte();\nnameKeys[i] = pool[index];\n}\nDSTZone tailZone = null;\nif (in.readBoolean()) {\ntailZone = DSTZone.readFrom(in, id);\nreturn new PrecalculatedZone\n}",
+            "method_id": 79
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$DSTZone:<init>(Ljava/lang/String;ILorg/joda/time/tz/DateTimeZoneBuilder$Recurrence;Lorg/joda/time/tz/DateTimeZoneBuilder$Recurrence;)V",
+            "method_body": "DSTZone(String id, int standardOffset,\nsuper(id);\niStandardOffset = standardOffset;\niStartRecurrence = startRecurrence;\niEndRecurrence = endRecurrence;\n}",
+            "method_id": 80
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$DSTZone:readFrom(Ljava/io/DataInput;Ljava/lang/String;)Lorg/joda/time/tz/DateTimeZoneBuilder$DSTZone;",
+            "method_body": "static DSTZone readFrom(DataInput in, String id) throws IOException {\nreturn new DSTZone(id, (int)readMillis(in),\n}",
+            "method_id": 81
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$Recurrence:<init>(Lorg/joda/time/tz/DateTimeZoneBuilder$OfYear;Ljava/lang/String;I)V",
+            "method_body": "Recurrence(OfYear ofYear, String nameKey, int saveMillis) {\niOfYear = ofYear;\niNameKey = nameKey;\niSaveMillis = saveMillis;\n}",
+            "method_id": 82
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$Recurrence:readFrom(Ljava/io/DataInput;)Lorg/joda/time/tz/DateTimeZoneBuilder$Recurrence;",
+            "method_body": "static Recurrence readFrom(DataInput in) throws IOException {\nreturn new Recurrence(OfYear.readFrom(in), in.readUTF(), (int)readMillis(in));\n}",
+            "method_id": 83
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$OfYear:<init>(CIIIZI)V",
+            "method_body": "OfYear(char mode,\n{\nif (mode != 'u' && mode != 'w' && mode != 's') {\niMode = mode;\niMonthOfYear = monthOfYear;\niDayOfMonth = dayOfMonth;\niDayOfWeek = dayOfWeek;\niAdvance = advanceDayOfWeek;\niMillisOfDay = millisOfDay;\n}",
+            "method_id": 84
+        },
+        {
+            "method_signature": "org.joda.time.tz.DateTimeZoneBuilder$OfYear:readFrom(Ljava/io/DataInput;)Lorg/joda/time/tz/DateTimeZoneBuilder$OfYear;",
+            "method_body": "static OfYear readFrom(DataInput in) throws IOException {\nreturn new OfYear((char)in.readUnsignedByte(),\n}",
+            "method_id": 85
+        },
+        {
+            "method_signature": "org.joda.time.tz.CachedDateTimeZone:<init>(Lorg/joda/time/DateTimeZone;)V",
+            "method_body": "private CachedDateTimeZone(DateTimeZone zone) {\nsuper(zone.getID());\niZone = zone;\niInfoCache = new Info[cInfoCacheMask + 1];\n}",
+            "method_id": 86
+        },
+        {
+            "method_signature": "org.joda.time.tz.CachedDateTimeZone:forZone(Lorg/joda/time/DateTimeZone;)Lorg/joda/time/tz/CachedDateTimeZone;",
+            "method_body": "public static CachedDateTimeZone forZone(DateTimeZone zone) {\nif (zone instanceof CachedDateTimeZone) {\nreturn new CachedDateTimeZone(zone);\n}",
+            "method_id": 87
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:getID()Ljava/lang/String;",
+            "method_body": "public final String getID() {\nreturn iID;\n}",
+            "method_id": 88
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeZone:<init>(Ljava/lang/String;)V",
+            "method_body": "protected DateTimeZone(String id) {\nif (id == null) {\niID = id;\n}",
+            "method_id": 89
+        },
+        {
+            "method_signature": "org.joda.time.tz.ZoneInfoProvider:getZone(Ljava/lang/String;)Lorg/joda/time/DateTimeZone;",
+            "method_body": "public DateTimeZone getZone(String id) {\nif (id == null) {\nObject obj = iZoneInfoMap.get(id);\nif (obj == null) {\nif (id.equals(obj)) {\nreturn loadZoneData(id);\n}",
+            "method_id": 90
+        },
+        {
+            "method_signature": "org.joda.time.tz.ZoneInfoProvider:openResource(Ljava/lang/String;)Ljava/io/InputStream;",
+            "method_body": "private InputStream openResource(String name) throws IOException {\nif (iFileDir != null) {\nString path = iResourcePath.concat(name);\nif (iLoader != null) {\nin = iLoader.getResourceAsStream(path);\nif (in == null) {\nreturn in;\n}",
+            "method_id": 91
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$CharacterLiteral:estimatePrintedLength()I",
+            "method_body": "public int estimatePrintedLength() {\nreturn 1;\n}",
+            "method_id": 92
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$CharacterLiteral:estimateParsedLength()I",
+            "method_body": "public int estimateParsedLength() {\nreturn 1;\n}",
+            "method_id": 93
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$NumberFormatter:estimateParsedLength()I",
+            "method_body": "public int estimateParsedLength() {\nreturn iMaxParsedDigits;\n}",
+            "method_id": 94
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$PaddedNumber:estimatePrintedLength()I",
+            "method_body": "public int estimatePrintedLength() {\nreturn iMaxParsedDigits;\n}",
+            "method_id": 95
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$NumberFormatter:<init>(Lorg/joda/time/DateTimeFieldType;IZ)V",
+            "method_body": "NumberFormatter(DateTimeFieldType fieldType,\nsuper();\niFieldType = fieldType;\niMaxParsedDigits = maxParsedDigits;\niSigned = signed;\n}",
+            "method_id": 96
+        },
+        {
+            "method_signature": "org.joda.time.format.DateTimeFormatterBuilder$Composite:decompose(Ljava/util/List;Ljava/util/List;Ljava/util/List;)V",
+            "method_body": "private void decompose(List<Object> elementPairs, List<Object> printerList, List<Object> parserList) {\nint size = elementPairs.size();\nfor (int i=0; i<size; i+=2) {\nObject element = elementPairs.get(i);\nif (element instanceof DateTimePrinter) {\nif (element instanceof Composite) {\nprinterList.add(element);\nelement = elementPairs.get(i + 1);\nif (element instanceof DateTimeParser) {\nif (element instanceof Composite) {\nparserList.add(element);\n}",
+            "method_id": 97
+        },
+        {
+            "method_signature": "org.joda.time.base.BaseDateTime:getChronology()Lorg/joda/time/Chronology;",
+            "method_body": "public Chronology getChronology() {\nreturn iChronology;\n}",
+            "method_id": 98
+        },
+        {
+            "method_signature": "org.joda.time.DateTimeFieldType$StandardDateTimeFieldType:getField(Lorg/joda/time/Chronology;)Lorg/joda/time/DateTimeField;",
+            "method_body": "public DateTimeField getField(Chronology chronology) {\nchronology = DateTimeUtils.getChronology(chronology);\nswitch (iOrdinal) {\nreturn chronology.year();\nreturn chronology.monthOfYear();\nreturn chronology.dayOfMonth();\nreturn chronology.hourOfDay();\nreturn chronology.minuteOfHour();\n}",
+            "method_id": 99
+        }
+    ]
+}

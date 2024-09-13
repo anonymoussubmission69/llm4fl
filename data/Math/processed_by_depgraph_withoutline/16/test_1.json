@@ -1,0 +1,129 @@
+{
+    "bug_id": 16,
+    "test_id": 1,
+    "test_name": "org.apache.commons.math3.util.FastMathTest.testMath905LargePositive",
+    "test_body": "public void testMath905LargePositive() {\nfinal double start = StrictMath.log(Double.MAX_VALUE);\nfinal double endT = StrictMath.sqrt(2) * StrictMath.sqrt(Double.MAX_VALUE);\nfinal double end = 2 * StrictMath.log(endT);\n166: double maxErr = 0;\nfor (double x = start; x < end; x += 1e-3) {\nfinal double tst = FastMath.cosh(x);\nfinal double ref = Math.cosh(x);\nmaxErr = FastMath.max(maxErr, FastMath.abs(ref - tst) / FastMath.ulp(ref));            \n}\nAssert.assertEquals(0, maxErr, 3);\n174: for (double x = start; x < end; x += 1e-3) {\nfinal double tst = FastMath.sinh(x);\nfinal double ref = Math.sinh(x);\nmaxErr = FastMath.max(maxErr, FastMath.abs(ref - tst) / FastMath.ulp(ref));            \n}\nAssert.assertEquals(0, maxErr, 3);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<0.0> but was:<Infinity>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math3.util.FastMathTest.testMath905LargePositive(FastMathTest.java:172)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:exp(DD[D)D",
+            "method_body": "private static double exp(double x, double extra, double[] hiPrec) {\nif (x < 0.0) {\nintVal = (int) x;\nif (intVal > 709) {\nif (hiPrec != null) {\nreturn Double.POSITIVE_INFINITY;\nintPartA = ExpIntTable.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX+intVal];\nintPartB = ExpIntTable.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX+intVal];\nfinal int intFrac = (int) ((x - intVal) * 1024.0);\nfinal double fracPartA = ExpFracTable.EXP_FRAC_TABLE_A[intFrac];\nfinal double fracPartB = ExpFracTable.EXP_FRAC_TABLE_B[intFrac];\nfinal double epsilon = x - (intVal + intFrac / 1024.0);\ndouble z = 0.04168701738764507;\nz = z * epsilon + 0.1666666505023083;\nz = z * epsilon + 0.5000000000042687;\nz = z * epsilon + 1.0;\nz = z * epsilon + -3.940510424527919E-20;\ndouble tempA = intPartA * fracPartA;\ndouble tempB = intPartA * fracPartB + intPartB * fracPartA + intPartB * fracPartB;\nfinal double tempC = tempB + tempA;\nif (extra != 0.0) {\nresult = tempC*z + tempB + tempA;\nif (hiPrec != null) {\nreturn result;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:max(DD)D",
+            "method_body": "public static double max(final double a, final double b) {\nif (a > b) {\nif (a < b) {\nreturn b;\nif (a != b) {\nlong bits = Double.doubleToRawLongBits(a);\nif (bits == 0x8000000000000000L) {\nreturn a;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:ulp(D)D",
+            "method_body": "public static double ulp(double x) {\nif (Double.isInfinite(x)) {\nreturn abs(x - Double.longBitsToDouble(Double.doubleToLongBits(x) ^ 1));\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:max(II)I",
+            "method_body": "public static int max(final int a, final int b) {\nreturn (a <= b) ? b : a;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:exp(D)D",
+            "method_body": "public static double exp(double x) {\nreturn exp(x, 0.0, null);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.MersenneTwister:<init>(J)V",
+            "method_body": "public MersenneTwister(long seed) {\nmt = new int[N];\nsetSeed(seed);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:<init>(I)V",
+            "method_body": "public DfpField(final int decimalDigits) {\nthis(decimalDigits, true);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:<init>(IZ)V",
+            "method_body": "private DfpField(final int decimalDigits, final boolean computeConstants) {\nthis.radixDigits = (decimalDigits < 13) ? 4 : (decimalDigits + 3) / 4;\nthis.rMode       = RoundingMode.ROUND_HALF_EVEN;\nthis.ieeeFlags   = 0;\nthis.zero        = new Dfp(this, 0);\nthis.one         = new Dfp(this, 1);\nthis.two         = new Dfp(this, 2);\nif (computeConstants) {\nsynchronized (DfpField.class) {\ncomputeStringConstants((decimalDigits < 67) ? 200 : (3 * decimalDigits));\nsqr2           = new Dfp(this, sqr2String);\nsqr2Split      = split(sqr2String);\nsqr2Reciprocal = new Dfp(this, sqr2ReciprocalString);\nsqr3           = new Dfp(this, sqr3String);\nsqr3Reciprocal = new Dfp(this, sqr3ReciprocalString);\npi             = new Dfp(this, piString);\npiSplit        = split(piString);\ne              = new Dfp(this, eString);\neSplit         = split(eString);\nln2            = new Dfp(this, ln2String);\nln2Split       = split(ln2String);\nln5            = new Dfp(this, ln5String);\nln5Split       = split(ln5String);\nln10           = new Dfp(this, ln10String);\n}\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:getRadixDigits()I",
+            "method_body": "public int getRadixDigits() {\nreturn radixDigits;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:getRoundingMode()Lorg/apache/commons/math3/dfp/DfpField$RoundingMode;",
+            "method_body": "public RoundingMode getRoundingMode() {\nreturn rMode;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:setIEEEFlagsBits(I)V",
+            "method_body": "public void setIEEEFlagsBits(final int bits) {\nieeeFlags |= bits & (FLAG_INVALID | FLAG_DIV_ZERO | FLAG_OVERFLOW | FLAG_UNDERFLOW | FLAG_INEXACT);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:split(Ljava/lang/String;)[Lorg/apache/commons/math3/dfp/Dfp;",
+            "method_body": "private Dfp[] split(final String a) {\nDfp result[] = new Dfp[2];\nboolean leading = true;\nint sp = 0;\nint sig = 0;\nchar[] buf = new char[a.length()];\nfor (int i = 0; i < buf.length; i++) {\nbuf[i] = a.charAt(i);\nif (buf[i] >= '1' && buf[i] <= '9') {\nleading = false;\nif (buf[i] == '.') {\nsig += (400 - sig) % 4;\nleading = false;\nif (sig == (radixDigits / 2) * 4) {\nsp = i;\nbreak;\nif (buf[i] >= '0' && buf[i] <= '9' && !leading) {\nsig ++;\nresult[0] = new Dfp(this, new String(buf, 0, sp));\nfor (int i = 0; i < buf.length; i++) {\nbuf[i] = a.charAt(i);\nif (buf[i] >= '0' && buf[i] <= '9' && i < sp) {\nbuf[i] = '0';\nresult[1] = new Dfp(this, new String(buf));\nreturn result;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.DfpField:computeStringConstants(I)V",
+            "method_body": "private static void computeStringConstants(final int highPrecisionDecimalDigits) {\nif (sqr2String == null || sqr2String.length() < highPrecisionDecimalDigits - 3) {\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.Dfp:<init>(Lorg/apache/commons/math3/dfp/DfpField;I)V",
+            "method_body": "protected Dfp(final DfpField field, int x) {\nthis(field, (long) x);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.Dfp:<init>(Lorg/apache/commons/math3/dfp/DfpField;J)V",
+            "method_body": "protected Dfp(final DfpField field, long x) {\nmant = new int[field.getRadixDigits()];\nnans = FINITE;\nthis.field = field;\nboolean isLongMin = false;\nif (x == Long.MIN_VALUE) {\nif (x < 0) {\nsign = 1;\nexp = 0;\nwhile (x != 0) {\nSystem.arraycopy(mant, mant.length - exp, mant, mant.length - 1 - exp, exp);\nmant[mant.length - 1] = (int) (x % RADIX);\nx /= RADIX;\nexp++;\nif (isLongMin) {\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.Dfp:<init>(Lorg/apache/commons/math3/dfp/DfpField;Ljava/lang/String;)V",
+            "method_body": "protected Dfp(final DfpField field, final String s) {\nmant = new int[field.getRadixDigits()];\nsign = 1;\nexp = 0;\nnans = FINITE;\nthis.field = field;\nboolean decimalFound = false;\nfinal int rsize = 4;   // size of radix in decimal digits\nfinal int offset = 4;  // Starting offset into Striped\nfinal char[] striped = new char[getRadixDigits() * rsize + offset * 2];\nif (s.equals(POS_INFINITY_STRING)) {\nif (s.equals(NEG_INFINITY_STRING)) {\nif (s.equals(NAN_STRING)) {\nint p = s.indexOf(\"e\");\nif (p == -1) { // try upper case?\np = s.indexOf(\"E\");\nint sciexp = 0;\nif (p != -1) {\nfpdecimal = s;\nif (fpdecimal.indexOf(\"-\") !=  -1) {\np = 0;\nint decimalPos = 0;\nif (fpdecimal.charAt(p) >= '1' && fpdecimal.charAt(p) <= '9') {\nbreak;\nif (decimalFound && fpdecimal.charAt(p) == '0') {\ndecimalPos--;\nif (fpdecimal.charAt(p) == '.') {\ndecimalFound = true;\np++;\nif (p == fpdecimal.length()) {\nint q = offset;\nstriped[0] = '0';\nstriped[1] = '0';\nstriped[2] = '0';\nstriped[3] = '0';\nint significantDigits=0;\nif (p == (fpdecimal.length())) {\nbreak;\nif (q == mant.length*rsize+offset+1) {\nbreak;\nif (fpdecimal.charAt(p) == '.') {\ndecimalFound = true;\ndecimalPos = significantDigits;\np++;\ncontinue;\nif (fpdecimal.charAt(p) < '0' || fpdecimal.charAt(p) > '9') {\nstriped[q] = fpdecimal.charAt(p);\nq++;\np++;\nsignificantDigits++;\nif (decimalFound && q != offset) {\nq--;\nif (q == offset) {\nif (striped[q] == '0') {\nsignificantDigits--;\nif (decimalFound && significantDigits == 0) {\nif (!decimalFound) {\nq = offset;  // set q to point to first sig digit\np = significantDigits-1+offset;\nwhile (p > q) {\nif (striped[p] != '0') {\nbreak;\nint i = ((rsize * 100) - decimalPos - sciexp % rsize) % rsize;\nq -= i;\ndecimalPos += i;\nwhile ((p - q) < (mant.length * rsize)) {\nfor (i = 0; i < rsize; i++) {\nstriped[++p] = '0';\nfor (i = mant.length - 1; i >= 0; i--) {\nmant[i] = (striped[q]   - '0') * 1000 +\nq += 4;\nexp = (decimalPos+sciexp) / rsize;\nif (q < striped.length) {\nround((striped[q] - '0')*1000);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.Dfp:getRadixDigits()I",
+            "method_body": "public int getRadixDigits() {\nreturn field.getRadixDigits();\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math3.dfp.Dfp:round(I)I",
+            "method_body": "protected int round(int n) {\nboolean inc = false;\nswitch (field.getRoundingMode()) {\ninc = n > 5000 || (n == 5000 && (mant[0] & 1) == 1);  // round half-even\nbreak;\nif (inc) {\nint rh = 1;\nfor (int i = 0; i < mant.length; i++) {\nfinal int r = mant[i] + rh;\nrh = r / RADIX;\nmant[i] = r - rh * RADIX;\nif (rh != 0) {\nif (exp < MIN_EXP) {\nif (exp > MAX_EXP) {\nif (n != 0) {\nfield.setIEEEFlagsBits(DfpField.FLAG_INEXACT);\nreturn DfpField.FLAG_INEXACT;\nreturn 0;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.MersenneTwister:setSeed(J)V",
+            "method_body": "public void setSeed(long seed) {\nsetSeed(new int[] { (int) (seed >>> 32), (int) (seed & 0xffffffffl) });\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.MersenneTwister:setSeed([I)V",
+            "method_body": "public void setSeed(int[] seed) {\nif (seed == null) {\nsetSeed(19650218);\nint i = 1;\nint j = 0;\nfor (int k = FastMath.max(N, seed.length); k != 0; k--) {\nlong l0 = (mt[i] & 0x7fffffffl)   | ((mt[i]   < 0) ? 0x80000000l : 0x0l);\nlong l1 = (mt[i-1] & 0x7fffffffl) | ((mt[i-1] < 0) ? 0x80000000l : 0x0l);\nlong l  = (l0 ^ ((l1 ^ (l1 >> 30)) * 1664525l)) + seed[j] + j; // non linear\nmt[i]   = (int) (l & 0xffffffffl);\ni++; j++;\nif (i >= N) {\nmt[0] = mt[N - 1];\ni = 1;\nif (j >= seed.length) {\nj = 0;\nfor (int k = N - 1; k != 0; k--) {\nlong l0 = (mt[i] & 0x7fffffffl)   | ((mt[i]   < 0) ? 0x80000000l : 0x0l);\nlong l1 = (mt[i-1] & 0x7fffffffl) | ((mt[i-1] < 0) ? 0x80000000l : 0x0l);\nlong l  = (l0 ^ ((l1 ^ (l1 >> 30)) * 1566083941l)) - i; // non linear\nmt[i]   = (int) (l & 0xffffffffL);\ni++;\nif (i >= N) {\nmt[0] = mt[N - 1];\ni = 1;\nmt[0] = 0x80000000; // MSB is 1; assuring non-zero initial array\nclear(); // Clear normal deviate cache\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.MersenneTwister:setSeed(I)V",
+            "method_body": "public void setSeed(int seed) {\nlong longMT = seed;\nmt[0]= (int) longMT;\nfor (mti = 1; mti < N; ++mti) {\nlongMT = (1812433253l * (longMT ^ (longMT >> 30)) + mti) & 0xffffffffL;\nmt[mti]= (int) longMT;\nclear(); // Clear normal deviate cache\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.BitsStreamGenerator:<init>()V",
+            "method_body": "public BitsStreamGenerator() {\nnextGaussian = Double.NaN;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math3.random.BitsStreamGenerator:clear()V",
+            "method_body": "public void clear() {\nnextGaussian = Double.NaN;\n}",
+            "method_id": 23
+        }
+    ]
+}

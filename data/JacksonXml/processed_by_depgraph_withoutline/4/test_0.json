@@ -1,0 +1,54 @@
+{
+    "bug_id": 4,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.dataformat.xml.misc.RootNameTest.testDynamicRootName",
+    "test_body": "67: public void testDynamicRootName() throws IOException\n68: {\n69: String xml;\n70: 71: ObjectWriter w = _xmlMapper.writer().withRootName(\"rudy\");\n72: 73: xml = w.writeValueAsString(new StringBean(\"foo\"));\n74: assertEquals(\"<rudy><text>foo</text></rudy>\", xml);\n75: 76: xml = w.writeValueAsString(new StringBean(null));\n77: assertEquals(\"<rudy><text/></rudy>\", xml);\n78: 79: // and even with null will respect configured root name\n80: xml = w.writeValueAsString(null);\n81: assertEquals(\"<rudy/>\", xml);\n82: }\n",
+    "stack_trace": "junit.framework.ComparisonFailure: expected:<<[rudy]/>> but was:<<[null]/>>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat com.fasterxml.jackson.dataformat.xml.misc.RootNameTest.testDynamicRootName(RootNameTest.java:81)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:_serializeXmlNull(Lcom/fasterxml/jackson/core/JsonGenerator;)V",
+            "method_body": "protected void _serializeXmlNull(JsonGenerator jgen) throws IOException\nif (jgen instanceof ToXmlGenerator) {\n_initWithRootName((ToXmlGenerator) jgen, ROOT_NAME_FOR_NULL);\nsuper.serializeValue(jgen, null);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:serializeValue(Lcom/fasterxml/jackson/core/JsonGenerator;Ljava/lang/Object;)V",
+            "method_body": "public void serializeValue(JsonGenerator gen, Object value) throws IOException\nif (value == null) {\n_serializeXmlNull(gen);\nreturn;\nfinal Class<?> cls = value.getClass();\nfinal ToXmlGenerator xgen = _asXmlGenerator(gen);\nif (xgen == null) { // called by convertValue()\nQName rootName = _rootNameFromConfig();\nif (rootName == null) {\n_initWithRootName(xgen, rootName);\nasArray = TypeUtil.isIndexedType(cls);\nif (asArray) {\nfinal JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);\nser.serialize(value, gen, this);\n}\nif (asArray) {\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:_rootNameFromConfig()Ljavax/xml/namespace/QName;",
+            "method_body": "protected QName _rootNameFromConfig()\nPropertyName name = _config.getFullRootName();\nif (name == null) {\nString ns = name.getNamespace();\nif (ns == null || ns.isEmpty()) {\nreturn new QName(name.getSimpleName());\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:_initWithRootName(Lcom/fasterxml/jackson/dataformat/xml/ser/ToXmlGenerator;Ljavax/xml/namespace/QName;)V",
+            "method_body": "protected void _initWithRootName(ToXmlGenerator xgen, QName rootName) throws IOException\nif (!xgen.setNextNameIfMissing(rootName)) {\nxgen.initGenerator();\nString ns = rootName.getNamespaceURI();\nif (ns != null && ns.length() > 0) {\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:<init>(Lcom/fasterxml/jackson/dataformat/xml/ser/XmlSerializerProvider;Lcom/fasterxml/jackson/databind/SerializationConfig;Lcom/fasterxml/jackson/databind/ser/SerializerFactory;)V",
+            "method_body": "public XmlSerializerProvider(XmlSerializerProvider src,\nsuper(src, config, f);\n_rootNameLookup  = src._rootNameLookup;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:_asXmlGenerator(Lcom/fasterxml/jackson/core/JsonGenerator;)Lcom/fasterxml/jackson/dataformat/xml/ser/ToXmlGenerator;",
+            "method_body": "protected ToXmlGenerator _asXmlGenerator(JsonGenerator gen)\nif (!(gen instanceof ToXmlGenerator)) {\nreturn (ToXmlGenerator) gen;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:<init>(Lcom/fasterxml/jackson/dataformat/xml/util/XmlRootNameLookup;)V",
+            "method_body": "public XmlSerializerProvider(XmlRootNameLookup rootNames)\nsuper();\n_rootNameLookup = rootNames;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:createInstance(Lcom/fasterxml/jackson/databind/SerializationConfig;Lcom/fasterxml/jackson/databind/ser/SerializerFactory;)Lcom/fasterxml/jackson/databind/ser/DefaultSerializerProvider;",
+            "method_body": "public DefaultSerializerProvider createInstance(SerializationConfig config,\nreturn new XmlSerializerProvider(this, config, jsf);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider:<clinit>()V",
+            "method_body": "private static final long serialVersionUID = 1L;\nprotected final static QName ROOT_NAME_FOR_NULL = new QName(\"null\");\nsuper();\n_rootNameLookup = rootNames;\n}",
+            "method_id": 8
+        }
+    ]
+}

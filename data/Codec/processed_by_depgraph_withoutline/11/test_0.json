@@ -1,0 +1,69 @@
+{
+    "bug_id": 11,
+    "test_id": 0,
+    "test_name": "org.apache.commons.codec.net.QuotedPrintableCodecTest.testSkipNotEncodedCRLF",
+    "test_body": "public void testSkipNotEncodedCRLF() throws Exception {\nString qpdata = \"CRLF in an\\n encoded text should be=20=\\r\\n\\rskipped in the\\r decoding.\";\nString expected = \"CRLF in an encoded text should be skipped in the decoding.\";\n299: QuotedPrintableCodec qpcodec = new QuotedPrintableCodec();\nassertEquals(expected, qpcodec.decode(qpdata));\n302: String encoded = qpcodec.encode(expected);\nassertEquals(expected, qpcodec.decode(encoded));\n}\n",
+    "stack_trace": "org.apache.commons.codec.DecoderException: Invalid URL encoding: not a valid digit (radix 16): 13\nat org.apache.commons.codec.net.Utils.digit16(Utils.java:44)\nat org.apache.commons.codec.net.QuotedPrintableCodec.decodeQuotedPrintable(QuotedPrintableCodec.java:229)\nat org.apache.commons.codec.net.QuotedPrintableCodec.decode(QuotedPrintableCodec.java:275)\nat org.apache.commons.codec.net.QuotedPrintableCodec.decode(QuotedPrintableCodec.java:324)\nat org.apache.commons.codec.net.QuotedPrintableCodec.decode(QuotedPrintableCodec.java:344)\nat org.apache.commons.codec.net.QuotedPrintableCodecTest.testSkipNotEncodedCRLF(QuotedPrintableCodecTest.java:300)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:decodeQuotedPrintable([B)[B",
+            "method_body": "public static final byte[] decodeQuotedPrintable(byte[] bytes) throws DecoderException {\nif (bytes == null) {\nByteArrayOutputStream buffer = new ByteArrayOutputStream();\nfor (int i = 0; i < bytes.length; i++) {\nfinal int b = bytes[i];\nif (b == ESCAPE_CHAR) {\nint u = Utils.digit16(bytes[++i]);\nint l = Utils.digit16(bytes[++i]);\nbuffer.write((char) ((u << 4) + l));\n}\nbuffer.write(b);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.Utils:digit16(B)I",
+            "method_body": "static int digit16(byte b) throws DecoderException {\nint i = Character.digit((char) b, 16);\nif (i == -1) {\nthrow new DecoderException(\"Invalid URL encoding: not a valid digit (radix \" + URLCodec.RADIX + \"): \" + b);\nreturn i;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:decode(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String decode(String pString) throws DecoderException {\nif (pString == null) {\nreturn decode(pString, getDefaultCharset());\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:decode(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String decode(String pString, String charset) throws DecoderException, UnsupportedEncodingException {\nif (pString == null) {\nreturn new String(decode(StringUtils.getBytesUsAscii(pString)), charset);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUsAscii(Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUsAscii(String string) {\nreturn StringUtils.getBytesUnchecked(string, CharEncoding.US_ASCII);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUnchecked(Ljava/lang/String;Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUnchecked(String string, String charsetName) {\nif (string == null) {\nreturn string.getBytes(charsetName);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:decode([B)[B",
+            "method_body": "public byte[] decode(byte[] bytes) throws DecoderException {\nreturn decodeQuotedPrintable(bytes);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:getDefaultCharset()Ljava/lang/String;",
+            "method_body": "public String getDefaultCharset() {\nreturn this.charset;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:<init>(Ljava/lang/String;)V",
+            "method_body": "public QuotedPrintableCodec(String charset) {\nsuper();\nthis.charset = charset;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.DecoderException:<init>(Ljava/lang/String;)V",
+            "method_body": "public DecoderException(String message) {\nsuper(message);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:<init>()V",
+            "method_body": "public QuotedPrintableCodec() {\nthis(CharEncoding.UTF_8);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.net.QuotedPrintableCodec:<clinit>()V",
+            "method_body": "private final String charset;\nprivate static final BitSet PRINTABLE_CHARS = new BitSet(256);\nfor (int i = 33; i <= 60; i++) {\nPRINTABLE_CHARS.set(i);\nfor (int i = 62; i <= 126; i++) {\nPRINTABLE_CHARS.set(i);\nPRINTABLE_CHARS.set(TAB);\nPRINTABLE_CHARS.set(SPACE);\n}",
+            "method_id": 11
+        }
+    ]
+}

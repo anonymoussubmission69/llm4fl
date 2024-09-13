@@ -1,0 +1,114 @@
+{
+    "bug_id": 1,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.CpioTestCase.testCpioUnarchive",
+    "test_body": "54: public void testCpioUnarchive() throws Exception {\n55: final File output = new File(dir, \"bla.cpio\");\n56: {\n57: final File file1 = getFile(\"test1.xml\");\n58: final File file2 = getFile(\"test2.xml\");\n59: 60: final OutputStream out = new FileOutputStream(output);\n61: final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream(\"cpio\", out);\n62: os.putArchiveEntry(new CpioArchiveEntry(\"test1.xml\", file1.length()));\n63: IOUtils.copy(new FileInputStream(file1), os);\n64: os.closeArchiveEntry();\n65: 66: os.putArchiveEntry(new CpioArchiveEntry(\"test2.xml\", file2.length()));\n67: IOUtils.copy(new FileInputStream(file2), os);\n68: os.closeArchiveEntry();\n69: 70: os.close();\n71: out.close();\n72: }\n73: 74: // Unarchive Operation\n75: final File input = output;\n76: final InputStream is = new FileInputStream(input);\n77: final ArchiveInputStream in = new ArchiveStreamFactory().createArchiveInputStream(\"cpio\", is);\n78: 79: 80: Map result = new HashMap();\n81: ArchiveEntry entry = null;\n82: while ((entry = in.getNextEntry()) != null) {\n83: File target = new File(dir, entry.getName());",
+    "stack_trace": "java.io.EOFException\nat org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream.readFully(CpioArchiveInputStream.java:293)\nat org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream.getNextCPIOEntry(CpioArchiveInputStream.java:168)\nat org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream.getNextEntry(CpioArchiveInputStream.java:421)\nat org.apache.commons.compress.archivers.CpioTestCase.testCpioUnarchive(CpioTestCase.java:82)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:write([BII)V",
+            "method_body": "public void write(final byte[] b, final int off, final int len)\nensureOpen();\nif (off < 0 || len < 0 || off > b.length - len) {\n} else if (len == 0) {\nif (this.cpioEntry == null) {\nif (this.written + len > this.cpioEntry.getSize()) {\nout.write(b, off, len);\nthis.written += len;\nif ((this.cpioEntry.getFormat() | FORMAT_NEW_CRC) == FORMAT_NEW_CRC) {\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:pad(JI)V",
+            "method_body": "private void pad(final long count, final int border) throws IOException {\nlong skip = count % border;\nif (skip > 0) {\nbyte tmp[] = new byte[(int) (border - skip)];\nout.write(tmp);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveEntry:<init>(Ljava/lang/String;J)V",
+            "method_body": "public CpioArchiveEntry(final String name, final long size) {\nthis(FORMAT_NEW);\nthis.name = name;\nthis.setSize(size);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:writeAsciiLong(JII)V",
+            "method_body": "private void writeAsciiLong(final long number, final int length,\nStringBuffer tmp = new StringBuffer();\nif (radix == 16) {\ntmp.append(Long.toHexString(number));\nif (tmp.length() <= length) {\nlong insertLength = length - tmp.length();\nfor (int pos = 0; pos < insertLength; pos++) {\ntmp.insert(0, \"0\");\ntmpStr = tmp.toString();\n} else {\ntmpStr = tmp.substring(tmp.length() - length);\nout.write(tmpStr.getBytes());\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:putNextEntry(Lorg/apache/commons/compress/archivers/cpio/CpioArchiveEntry;)V",
+            "method_body": "public void putNextEntry(final CpioArchiveEntry e) throws IOException {\nensureOpen();\nif (this.cpioEntry != null) {\nif (e.getTime() == -1) {\ne.setTime(System.currentTimeMillis());\nif (e.getFormat() == -1) {\nif (this.names.put(e.getName(), e) != null) {\nwriteHeader(e);\nthis.cpioEntry = e;\nthis.written = 0;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:writeNewEntry(Lorg/apache/commons/compress/archivers/cpio/CpioArchiveEntry;)V",
+            "method_body": "private void writeNewEntry(final CpioArchiveEntry entry) throws IOException {\nwriteAsciiLong(entry.getInode(), 8, 16);\nwriteAsciiLong(entry.getMode(), 8, 16);\nwriteAsciiLong(entry.getUID(), 8, 16);\nwriteAsciiLong(entry.getGID(), 8, 16);\nwriteAsciiLong(entry.getNumberOfLinks(), 8, 16);\nwriteAsciiLong(entry.getTime(), 8, 16);\nwriteAsciiLong(entry.getSize(), 8, 16);\nwriteAsciiLong(entry.getDeviceMaj(), 8, 16);\nwriteAsciiLong(entry.getDeviceMin(), 8, 16);\nwriteAsciiLong(entry.getRemoteDeviceMaj(), 8, 16);\nwriteAsciiLong(entry.getRemoteDeviceMin(), 8, 16);\nwriteAsciiLong(entry.getName().length() + 1, 8, 16);\nwriteAsciiLong(entry.getChksum(), 8, 16);\nwriteCString(entry.getName());\npad(entry.getHeaderSize() + entry.getName().length() + 1, 4);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:closeArchiveEntry()V",
+            "method_body": "public void closeArchiveEntry() throws IOException {\nensureOpen();\nif (this.cpioEntry.getSize() != this.written) {\nif ((this.cpioEntry.getFormat() | FORMAT_NEW_MASK) == FORMAT_NEW_MASK) {\npad(this.cpioEntry.getSize(), 4);\nif ((this.cpioEntry.getFormat() | FORMAT_NEW_CRC) == FORMAT_NEW_CRC) {\nthis.cpioEntry = null;\nthis.crc = 0;\nthis.written = 0;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (!this.closed) {\nsuper.close();\nthis.closed = true;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:writeHeader(Lorg/apache/commons/compress/archivers/cpio/CpioArchiveEntry;)V",
+            "method_body": "private void writeHeader(final CpioArchiveEntry e) throws IOException {\nswitch (e.getFormat()) {\nout.write(MAGIC_NEW.getBytes());\nwriteNewEntry(e);\nbreak;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:writeCString(Ljava/lang/String;)V",
+            "method_body": "private void writeCString(final String str) throws IOException {\nout.write(str.getBytes());\nout.write('\\0');\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:setFormat(S)V",
+            "method_body": "private void setFormat(final short format) {\nswitch (format) {\nbreak;\nsynchronized (this) {\nthis.entryFormat = format;\n}\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:<init>(Ljava/io/OutputStream;S)V",
+            "method_body": "private CpioArchiveEntry cpioEntry;\nprivate boolean closed = false;\nprivate short entryFormat = FORMAT_NEW;\nprivate final HashMap names = new HashMap();\nprivate long crc = 0;\npublic CpioArchiveOutputStream(final OutputStream out, final short format) {\nthis.out = new FilterOutputStream(out);\nsetFormat(format);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveEntry:<init>(S)V",
+            "method_body": "public CpioArchiveEntry(final short format) {\nsetFormat(format);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public CpioArchiveOutputStream(final OutputStream out) {\nthis(out, FORMAT_NEW);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:ensureOpen()V",
+            "method_body": "private void ensureOpen() throws IOException {\nif (this.closed) {\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public CpioArchiveInputStream(final InputStream in) {\nthis.in = in;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream:putArchiveEntry(Lorg/apache/commons/compress/archivers/ArchiveEntry;)V",
+            "method_body": "public void putArchiveEntry(ArchiveEntry entry) throws IOException {\nthis.putNextEntry((CpioArchiveEntry) entry);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveInputStream(Ljava/lang/String;Ljava/io/InputStream;)Lorg/apache/commons/compress/archivers/ArchiveInputStream;",
+            "method_body": "public ArchiveInputStream createArchiveInputStream(\nif (archiverName == null || in == null) {\nif (\"ar\".equalsIgnoreCase(archiverName)) {\n} else if (\"zip\".equalsIgnoreCase(archiverName)) {\n} else if (\"tar\".equalsIgnoreCase(archiverName)) {\n} else if (\"jar\".equalsIgnoreCase(archiverName)) {\n} else if (\"cpio\".equalsIgnoreCase(archiverName)) {\nreturn new CpioArchiveInputStream(in);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveOutputStream(Ljava/lang/String;Ljava/io/OutputStream;)Lorg/apache/commons/compress/archivers/ArchiveOutputStream;",
+            "method_body": "public ArchiveOutputStream createArchiveOutputStream(\nif (archiverName == null || out == null) {\nif (\"ar\".equalsIgnoreCase(archiverName)) {\n} else if (\"zip\".equalsIgnoreCase(archiverName)) {\n} else if (\"tar\".equalsIgnoreCase(archiverName)) {\n} else if (\"jar\".equalsIgnoreCase(archiverName)) {\n} else if (\"cpio\".equalsIgnoreCase(archiverName)) {\nreturn new CpioArchiveOutputStream(out);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:copy(Ljava/io/InputStream;Ljava/io/OutputStream;I)V",
+            "method_body": "public static void copy(final InputStream input, final OutputStream output, int buffersize) throws IOException {\nfinal byte[] buffer = new byte[buffersize];\nint n = 0;\nwhile (-1 != (n = input.read(buffer))) {\noutput.write(buffer, 0, n);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:copy(Ljava/io/InputStream;Ljava/io/OutputStream;)V",
+            "method_body": "public static void copy(final InputStream input, final OutputStream output) throws IOException {\ncopy(input, output, 8024);\n}",
+            "method_id": 20
+        }
+    ]
+}

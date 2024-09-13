@@ -1,0 +1,69 @@
+{
+    "bug_id": 5,
+    "test_id": 0,
+    "test_name": "com.google.gson.DefaultDateTypeAdapterTest.testDateDeserializationISO8601",
+    "test_body": "public void testDateDeserializationISO8601() throws Exception {\nDefaultDateTypeAdapter adapter = new DefaultDateTypeAdapter();\nassertParsed(\"1970-01-01T00:00:00.000Z\", adapter);\nassertParsed(\"1970-01-01T00:00Z\", adapter);\nassertParsed(\"1970-01-01T00:00:00+00:00\", adapter);\nassertParsed(\"1970-01-01T01:00:00+01:00\", adapter);\nassertParsed(\"1970-01-01T01:00:00+01\", adapter);\n}\nprivate void assertParsed(String date, DefaultDateTypeAdapter  adapter) {assertEquals(date, new Date(0), adapter.deserialize(new JsonPrimitive(date), Date.class, null));assertEquals(\"ISO 8601\", new Date(0), adapter.deserialize(new JsonPrimitive(\"1970-01-01T00:00:00Z\"), Date.class, null));}",
+    "stack_trace": "com.google.gson.JsonSyntaxException: 1970-01-01T01:00:00+01\nat com.google.gson.DefaultDateTypeAdapter.deserializeToDate(DefaultDateTypeAdapter.java:107)\nat com.google.gson.DefaultDateTypeAdapter.deserialize(DefaultDateTypeAdapter.java:84)\nat com.google.gson.DefaultDateTypeAdapterTest.assertParsed(DefaultDateTypeAdapterTest.java:168)\nat com.google.gson.DefaultDateTypeAdapterTest.testDateDeserializationISO8601(DefaultDateTypeAdapterTest.java:133)",
+    "covered_methods": [
+        {
+            "method_signature": "com.google.gson.DefaultDateTypeAdapter:deserialize(Lcom/google/gson/JsonElement;Ljava/lang/reflect/Type;Lcom/google/gson/JsonDeserializationContext;)Ljava/util/Date;",
+            "method_body": "public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)\nif (!(json instanceof JsonPrimitive)) {\nDate date = deserializeToDate(json);\nif (typeOfT == Date.class) {\nreturn date;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.google.gson.internal.bind.util.ISO8601Utils:parse(Ljava/lang/String;Ljava/text/ParsePosition;)Ljava/util/Date;",
+            "method_body": "public static Date parse(String date, ParsePosition pos) throws ParseException {\nException fail = null;\nint offset = pos.getIndex();\nint year = parseInt(date, offset, offset += 4);\nif (checkOffset(date, offset, '-')) {\noffset += 1;\nint month = parseInt(date, offset, offset += 2);\nif (checkOffset(date, offset, '-')) {\noffset += 1;\nint day = parseInt(date, offset, offset += 2);\nint hour = 0;\nint minutes = 0;\nint seconds = 0;\nint milliseconds = 0; // always use 0 otherwise returned date will include millis of current time\nboolean hasT = checkOffset(date, offset, 'T');\nif (!hasT && (date.length() <= offset)) {\nif (hasT) {\nhour = parseInt(date, offset += 1, offset += 2);\nif (checkOffset(date, offset, ':')) {\noffset += 1;\nminutes = parseInt(date, offset, offset += 2);\nif (checkOffset(date, offset, ':')) {\noffset += 1;\nif (date.length() > offset) {\nchar c = date.charAt(offset);\nif (c != 'Z' && c != '+' && c != '-') {\nseconds = parseInt(date, offset, offset += 2);\nif (seconds > 59 && seconds < 63) seconds = 59; // truncate up to 3 leap seconds\nif (checkOffset(date, offset, '.')) {\noffset += 1;\nint endOffset = indexOfNonDigit(date, offset + 1); // assume at least one digit\nint parseEndOffset = Math.min(endOffset, offset + 3); // parse up to 3 digits\nint fraction = parseInt(date, offset, parseEndOffset);\nswitch (parseEndOffset - offset) { // number of digits parsed\nmilliseconds = fraction;\noffset = endOffset;\nif (date.length() <= offset) {\nTimeZone timezone = null;\nchar timezoneIndicator = date.charAt(offset);\nif (timezoneIndicator == 'Z') {\ntimezone = TIMEZONE_UTC;\noffset += 1;\n} else if (timezoneIndicator == '+' || timezoneIndicator == '-') {\nString timezoneOffset = date.substring(offset);\noffset += timezoneOffset.length();\nif (\"+0000\".equals(timezoneOffset) || \"+00:00\".equals(timezoneOffset)) {\ntimezone = TIMEZONE_UTC;\nString timezoneId = \"GMT\" + timezoneOffset;\ntimezone = TimeZone.getTimeZone(timezoneId);\nString act = timezone.getID();\nif (!act.equals(timezoneId)) {\nString cleaned = act.replace(\":\", \"\");\nif (!cleaned.equals(timezoneId)) {\nthrow new IndexOutOfBoundsException(\"Mismatching time zone indicator: \"+timezoneId+\" given, resolves to \"\n} else {\nCalendar calendar = new GregorianCalendar(timezone);\ncalendar.setLenient(false);\ncalendar.set(Calendar.YEAR, year);\ncalendar.set(Calendar.MONTH, month - 1);\ncalendar.set(Calendar.DAY_OF_MONTH, day);\ncalendar.set(Calendar.HOUR_OF_DAY, hour);\ncalendar.set(Calendar.MINUTE, minutes);\ncalendar.set(Calendar.SECOND, seconds);\ncalendar.set(Calendar.MILLISECOND, milliseconds);\npos.setIndex(offset);\nreturn calendar.getTime();\n} catch (IndexOutOfBoundsException e) {\nfail = e;\n}\nString input = (date == null) ? null : ('\"' + date + \"'\");\nString msg = fail.getMessage();\nif (msg == null || msg.isEmpty()) {\nParseException ex = new ParseException(\"Failed to parse date [\" + input + \"]: \" + msg, pos.getIndex());\nex.initCause(fail);\nthrow ex;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.google.gson.internal.bind.util.ISO8601Utils:parseInt(Ljava/lang/String;II)I",
+            "method_body": "private static int parseInt(String value, int beginIndex, int endIndex) throws NumberFormatException {\nif (beginIndex < 0 || endIndex > value.length() || beginIndex > endIndex) {\nint i = beginIndex;\nint result = 0;\nif (i < endIndex) {\ndigit = Character.digit(value.charAt(i++), 10);\nif (digit < 0) {\nresult = -digit;\nwhile (i < endIndex) {\ndigit = Character.digit(value.charAt(i++), 10);\nif (digit < 0) {\nresult *= 10;\nresult -= digit;\nreturn -result;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.google.gson.internal.bind.util.ISO8601Utils:indexOfNonDigit(Ljava/lang/String;I)I",
+            "method_body": "private static int indexOfNonDigit(String string, int offset) {\nfor (int i = offset; i < string.length(); i++) {\nchar c = string.charAt(i);\nif (c < '0' || c > '9') return i;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.google.gson.DefaultDateTypeAdapter:<init>(Ljava/text/DateFormat;Ljava/text/DateFormat;)V",
+            "method_body": "DefaultDateTypeAdapter(DateFormat enUsFormat, DateFormat localFormat) {\nthis.enUsFormat = enUsFormat;\nthis.localFormat = localFormat;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.google.gson.DefaultDateTypeAdapter:<init>()V",
+            "method_body": "DefaultDateTypeAdapter() {\nthis(DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US),\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.google.gson.internal.bind.util.ISO8601Utils:checkOffset(Ljava/lang/String;IC)Z",
+            "method_body": "private static boolean checkOffset(String value, int offset, char expected) {\nreturn (offset < value.length()) && (value.charAt(offset) == expected);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.google.gson.DefaultDateTypeAdapter:deserializeToDate(Lcom/google/gson/JsonElement;)Ljava/util/Date;",
+            "method_body": "private final DateFormat localFormat;\nprivate Date deserializeToDate(JsonElement json) {\nsynchronized (localFormat) {\nreturn localFormat.parse(json.getAsString());\n} catch (ParseException ignored) {}\nreturn enUsFormat.parse(json.getAsString());\n} catch (ParseException ignored) {}\nreturn ISO8601Utils.parse(json.getAsString(), new ParsePosition(0));\n} catch (ParseException e) {\nthrow new JsonSyntaxException(json.getAsString(), e);\n}\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.google.gson.JsonParseException:<init>(Ljava/lang/String;Ljava/lang/Throwable;)V",
+            "method_body": "public JsonParseException(String msg, Throwable cause) {\nsuper(msg, cause);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.google.gson.JsonSyntaxException:<init>(Ljava/lang/String;Ljava/lang/Throwable;)V",
+            "method_body": "public JsonSyntaxException(String msg, Throwable cause) {\nsuper(msg, cause);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.google.gson.JsonPrimitive:<init>(Ljava/lang/String;)V",
+            "method_body": "public JsonPrimitive(String string) {\nsetValue(string);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.google.gson.internal.bind.util.ISO8601Utils:<clinit>()V",
+            "method_body": "private static final String UTC_ID = \"UTC\";\nprivate static final TimeZone TIMEZONE_UTC = TimeZone.getTimeZone(UTC_ID);\n}",
+            "method_id": 11
+        }
+    ]
+}

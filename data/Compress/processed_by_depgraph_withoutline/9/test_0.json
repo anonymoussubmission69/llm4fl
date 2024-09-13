@@ -1,0 +1,74 @@
+{
+    "bug_id": 9,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest.testCount",
+    "test_body": "31: public void testCount() throws Exception {\n32: File f = File.createTempFile(\"commons-compress-tarcount\", \".tar\");\n33: f.deleteOnExit();\n34: FileOutputStream fos = new FileOutputStream(f);\n35: 36: ArchiveOutputStream tarOut = new ArchiveStreamFactory()\n37: .createArchiveOutputStream(ArchiveStreamFactory.TAR, fos);\n38: 39: File file1 = getFile(\"test1.xml\");\n40: TarArchiveEntry sEntry = new TarArchiveEntry(file1);\n41: tarOut.putArchiveEntry(sEntry);\n42: 43: FileInputStream in = new FileInputStream(file1);\n44: byte[] buf = new byte[8192];\n45: 46: int read = 0;\n47: while ((read = in.read(buf)) > 0) {\n48: tarOut.write(buf, 0, read);\n49: }\n50: 51: in.close();\n52: tarOut.closeArchiveEntry();\n53: tarOut.close();\n54: 55: assertEquals(f.length(), tarOut.getBytesWritten());\n56: }\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<10240> but was:<76>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.Assert.assertEquals(Assert.java:159)\nat junit.framework.Assert.assertEquals(Assert.java:166)\nat junit.framework.TestCase.assertEquals(TestCase.java:324)\nat org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest.testCount(TarArchiveOutputStreamTest.java:55)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>(Ljava/io/File;Ljava/lang/String;)V",
+            "method_body": "public TarArchiveEntry(File file, String fileName) {\nthis();\nthis.file = file;\nthis.linkName = \"\";\nif (file.isDirectory()) {\nthis.mode = DEFAULT_FILE_MODE;\nthis.linkFlag = LF_NORMAL;\nthis.size = file.length();\nthis.name = fileName;\nthis.modTime = file.lastModified() / MILLIS_PER_SECOND;\nthis.devMajor = 0;\nthis.devMinor = 0;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:write([BII)V",
+            "method_body": "public void write(byte[] wBuf, int wOffset, int numToWrite) throws IOException {\nif ((currBytes + numToWrite) > currSize) {\nif (assemLen > 0) {\nwhile (numToWrite > 0) {\nif (numToWrite < recordBuf.length) {\nSystem.arraycopy(wBuf, wOffset, assemBuf, assemLen,\nassemLen += numToWrite;\nbreak;\ncount(numToWrite);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:putArchiveEntry(Lorg/apache/commons/compress/archivers/ArchiveEntry;)V",
+            "method_body": "public void putArchiveEntry(ArchiveEntry archiveEntry) throws IOException {\nif(finished) {\nTarArchiveEntry entry = (TarArchiveEntry) archiveEntry;\nif (entry.getName().length() >= TarConstants.NAMELEN) {\nentry.writeEntryHeader(recordBuf);\nbuffer.writeRecord(recordBuf);\ncurrBytes = 0;\nif (entry.isDirectory()) {\ncurrSize = entry.getSize();\ncurrName = entry.getName();\nhaveUnclosedEntry = true;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:closeArchiveEntry()V",
+            "method_body": "public void closeArchiveEntry() throws IOException {\nif(finished) {\nif (!haveUnclosedEntry){\nif (assemLen > 0) {\nfor (int i = assemLen; i < assemBuf.length; ++i) {\nassemBuf[i] = 0;\nbuffer.writeRecord(assemBuf);\ncurrBytes += assemLen;\nassemLen = 0;\nif (currBytes < currSize) {\nhaveUnclosedEntry = false;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif(!finished) {\nfinish();\nif (!closed) {\nbuffer.close();\nout.close();\nclosed = true;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:finish()V",
+            "method_body": "public void finish() throws IOException {\nif (finished) {\nif(haveUnclosedEntry) {\nwriteEOFRecord();\nwriteEOFRecord();\nbuffer.flushBlock();\nfinished = true;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:<init>(Ljava/io/OutputStream;II)V",
+            "method_body": "public TarArchiveOutputStream(OutputStream os, int blockSize, int recordSize) {\nout = new CountingOutputStream(os);\nthis.buffer = new TarBuffer(out, blockSize, recordSize);\nthis.assemLen = 0;\nthis.assemBuf = new byte[recordSize];\nthis.recordBuf = new byte[recordSize];\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>()V",
+            "method_body": "private TarArchiveEntry () {\nthis.magic = MAGIC_POSIX;\nthis.version = VERSION_POSIX;\nthis.name = \"\";\nthis.linkName = \"\";\nString user = System.getProperty(\"user.name\", \"\");\nif (user.length() > MAX_NAMELEN) {\nthis.userId = 0;\nthis.groupId = 0;\nthis.userName = user;\nthis.groupName = \"\";\nthis.file = null;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveEntry:<init>(Ljava/io/File;)V",
+            "method_body": "public TarArchiveEntry(File file) {\nthis(file, normalizeFileName(file.getPath(), false));\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveOutputStream:getBytesWritten()J",
+            "method_body": "public long getBytesWritten() {\nreturn bytesWritten;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveOutputStream(Ljava/lang/String;Ljava/io/OutputStream;)Lorg/apache/commons/compress/archivers/ArchiveOutputStream;",
+            "method_body": "public ArchiveOutputStream createArchiveOutputStream(\nif (archiverName == null) {\nif (out == null) {\nif (AR.equalsIgnoreCase(archiverName)) {\nif (ZIP.equalsIgnoreCase(archiverName)) {\nif (TAR.equalsIgnoreCase(archiverName)) {\nreturn new TarArchiveOutputStream(out);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:writeEOFRecord()V",
+            "method_body": "private void writeEOFRecord() throws IOException {\nfor (int i = 0; i < recordBuf.length; ++i) {\nrecordBuf[i] = 0;\nbuffer.writeRecord(recordBuf);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "public TarArchiveOutputStream(OutputStream os) {\nthis(os, TarBuffer.DEFAULT_BLKSIZE, TarBuffer.DEFAULT_RCDSIZE);\n}",
+            "method_id": 12
+        }
+    ]
+}

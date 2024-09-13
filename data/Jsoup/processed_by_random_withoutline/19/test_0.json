@@ -1,0 +1,969 @@
+{
+    "bug_id": 19,
+    "test_id": 0,
+    "test_name": "org.jsoup.safety.CleanerTest.handlesCustomProtocols",
+    "test_body": "117: @Test public void handlesCustomProtocols() {\n118: String html = \"<img src='cid:12345' /> <img src='data:gzzt' />\";\n119: String dropped = Jsoup.clean(html, Whitelist.basicWithImages());\n120: assertEquals(\"<img /> \\n<img />\", dropped);\n121: 122: String preserved = Jsoup.clean(html, Whitelist.basicWithImages().addProtocols(\"img\", \"src\", \"cid\", \"data\"));\n123: assertEquals(\"<img src=\\\"cid:12345\\\" /> \\n<img src=\\\"data:gzzt\\\" />\", preserved);\n124: }\n",
+    "stack_trace": "",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.Jsoup:parseBodyFragment(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public static Document parseBodyFragment(String bodyHtml, String baseUri) {\nreturn Parser.parseBodyFragment(bodyHtml, baseUri);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.jsoup.Jsoup:clean(Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/safety/Whitelist;)Ljava/lang/String;",
+            "method_body": "public static String clean(String bodyHtml, String baseUri, Whitelist whitelist) {\nDocument dirty = parseBodyFragment(bodyHtml, baseUri);\nCleaner cleaner = new Cleaner(whitelist);\nDocument clean = cleaner.clean(dirty);\nreturn clean.body().html();\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.jsoup.Jsoup:clean(Ljava/lang/String;Lorg/jsoup/safety/Whitelist;)Ljava/lang/String;",
+            "method_body": "public static String clean(String bodyHtml, Whitelist whitelist) {\nreturn clean(bodyHtml, \"\", whitelist);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.jsoup.parser.Parser:parseFragment(Ljava/lang/String;Lorg/jsoup/nodes/Element;Ljava/lang/String;)Ljava/util/List;",
+            "method_body": "public static List<Node> parseFragment(String fragmentHtml, Element context, String baseUri) {\nTreeBuilder treeBuilder = new TreeBuilder();\nreturn treeBuilder.parseFragment(fragmentHtml, context, baseUri);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.jsoup.parser.Parser:parseBodyFragment(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public static Document parseBodyFragment(String bodyHtml, String baseUri) {\nDocument doc = Document.createShell(baseUri);\nElement body = doc.body();\nList<Node> nodeList = parseFragment(bodyHtml, body, baseUri);\nNode[] nodes = nodeList.toArray(new Node[nodeList.size()]); // the node list gets modified when re-parented\nfor (Node node : nodes) {\nbody.appendChild(node);\nreturn doc;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:<init>()V",
+            "method_body": "CharacterReader reader;\nprivate DescendableLinkedList<Element> formattingElements = new DescendableLinkedList<Element>(); // active (open) formatting elements\nprivate List<Token.Character> pendingTableCharacters = new ArrayList<Token.Character>(); // chars in table to be shifted out\nprivate boolean framesetOk = true; // if ok to go into frameset\nprivate boolean fosterInserts = false; // if next inserts should be fostered\nprivate boolean fragmentParsing = false; // if parsing a fragment of html\nprivate boolean trackErrors = false;\nprivate List<ParseError> errors = new ArrayList<ParseError>();\nTreeBuilder() {}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:initialiseParse(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "private void initialiseParse(String input, String baseUri) {\ndoc = new Document(baseUri);\nreader = new CharacterReader(input);\ntokeniser = new Tokeniser(reader);\nstack = new DescendableLinkedList<Element>();\nthis.baseUri = baseUri;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:parseFragment(Ljava/lang/String;Lorg/jsoup/nodes/Element;Ljava/lang/String;)Ljava/util/List;",
+            "method_body": "List<Node> parseFragment(String inputFragment, Element context, String baseUri) {\ninitialiseParse(inputFragment, baseUri);\ncontextElement = context;\nfragmentParsing = true;\nElement root = null;\nif (context != null) {\nif (context.ownerDocument() != null) // quirks setup:\ndoc.quirksMode(context.ownerDocument().quirksMode());\nString contextTag = context.tagName();\nif (StringUtil.in(contextTag, \"title\", \"textarea\"))\nelse if (StringUtil.in(contextTag, \"iframe\", \"noembed\", \"noframes\", \"style\", \"xmp\"))\nelse if (contextTag.equals(\"script\"))\nelse if (contextTag.equals((\"noscript\")))\nelse if (contextTag.equals(\"plaintext\"))\ntokeniser.transition(TokeniserState.Data); // default\nroot = new Element(Tag.valueOf(\"html\"), baseUri);\ndoc.appendChild(root);\nstack.push(root);\nresetInsertionMode();\nrunParser();\nif (context != null)\nreturn root.childNodes();\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:runParser()V",
+            "method_body": "private void runParser() {\nToken token = tokeniser.read();\nprocess(token);\nif (token.type == Token.TokenType.EOF)\nbreak;\n}\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:process(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "boolean process(Token token) {\ncurrentToken = token;\nreturn this.state.process(token, this);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:transition(Lorg/jsoup/parser/TreeBuilderState;)V",
+            "method_body": "void transition(TreeBuilderState state) {\nthis.state = state;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:framesetOk(Z)V",
+            "method_body": "void framesetOk(boolean framesetOk) {\nthis.framesetOk = framesetOk;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:currentElement()Lorg/jsoup/nodes/Element;",
+            "method_body": "Element currentElement() {\nreturn stack.getLast();\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:insertEmpty(Lorg/jsoup/parser/Token$StartTag;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insertEmpty(Token.StartTag startTag) {\nTag tag = Tag.valueOf(startTag.name());\nElement el = new Element(tag, baseUri, startTag.attributes);\ninsertNode(el);\nif (startTag.isSelfClosing()) {\ntokeniser.acknowledgeSelfClosingFlag();\nif (!tag.isKnownTag()) // unknown tag, remember this is self closing for output\nreturn el;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:insert(Lorg/jsoup/parser/Token$Character;)V",
+            "method_body": "void insert(Token.Character characterToken) {\nif (StringUtil.in(currentElement().tagName(), \"script\", \"style\"))\nnode = new TextNode(characterToken.getData(), baseUri);\ncurrentElement().appendChild(node); // doesn't use insertNode, because we don't foster these; and will always have a stack.\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:insertNode(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "private void insertNode(Node node) {\nif (stack.size() == 0)\nelse if (isFosterInserts())\ncurrentElement().appendChild(node);\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:resetInsertionMode()V",
+            "method_body": "void resetInsertionMode() {\nboolean last = false;\nIterator<Element> it = stack.descendingIterator();\nwhile (it.hasNext()) {\nElement node = it.next();\nif (!it.hasNext()) {\nlast = true;\nnode = contextElement;\nString name = node.nodeName();\nif (\"select\".equals(name)) {\n} else if ((\"td\".equals(name) || \"td\".equals(name) && !last)) {\n} else if (\"tr\".equals(name)) {\n} else if (\"tbody\".equals(name) || \"thead\".equals(name) || \"tfoot\".equals(name)) {\n} else if (\"caption\".equals(name)) {\n} else if (\"colgroup\".equals(name)) {\n} else if (\"table\".equals(name)) {\n} else if (\"head\".equals(name)) {\n} else if (\"body\".equals(name)) {\ntransition(TreeBuilderState.InBody);\nbreak;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:isFosterInserts()Z",
+            "method_body": "boolean isFosterInserts() {\nreturn fosterInserts;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilder:reconstructFormattingElements()V",
+            "method_body": "void reconstructFormattingElements() {\nint size = formattingElements.size();\nif (size == 0 || formattingElements.getLast() == null || onStack(formattingElements.getLast()))\nreturn;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:<init>()V",
+            "method_body": "public DescendableLinkedList() {\nsuper();\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:push(Ljava/lang/Object;)V",
+            "method_body": "public void push(E e) {\naddFirst(e);\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList:descendingIterator()Ljava/util/Iterator;",
+            "method_body": "public Iterator<E> descendingIterator() {\nreturn new DescendingIterator<E>(size());\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilderState:<init>(Ljava/lang/String;I)V",
+            "method_body": "boolean process(Token t, TreeBuilder tb) {\nswitch (t.type) {\nreturn anythingElse(t, tb);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilderState:isWhitespace(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "abstract boolean process(Token t, TreeBuilder tb);\nif (t.isCharacter()) {\nString data = t.asCharacter().getData();\nfor (int i = 0; i < data.length(); i++) {\nchar c = data.charAt(i);\nif (!Character.isWhitespace(c))\nreturn true;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilderState$7:process(Lorg/jsoup/parser/Token;Lorg/jsoup/parser/TreeBuilder;)Z",
+            "method_body": "boolean process(Token t, TreeBuilder tb) {\nswitch (t.type) {\nToken.Character c = t.asCharacter();\nif (c.getData().equals(nullString)) {\n} else if (isWhitespace(c)) {\ntb.reconstructFormattingElements();\ntb.insert(c);\nToken.StartTag startTag = t.asStartTag();\nString name = startTag.name();\nif (name.equals(\"html\")) {\n} else if (StringUtil.in(name, \"base\", \"basefont\", \"bgsound\", \"command\", \"link\", \"meta\", \"noframes\", \"script\", \"style\", \"title\")) {\n} else if (name.equals(\"body\")) {\n} else if (name.equals(\"frameset\")) {\n} else if (StringUtil.in(name,\n} else if (StringUtil.in(name, \"h1\", \"h2\", \"h3\", \"h4\", \"h5\", \"h6\")) {\n} else if (StringUtil.in(name, \"pre\", \"listing\")) {\n} else if (name.equals(\"form\")) {\n} else if (name.equals(\"li\")) {\n} else if (StringUtil.in(name, \"dd\", \"dt\")) {\n} else if (name.equals(\"plaintext\")) {\n} else if (name.equals(\"button\")) {\n} else if (name.equals(\"a\")) {\n} else if (StringUtil.in(name,\n} else if (name.equals(\"nobr\")) {\n} else if (StringUtil.in(name, \"applet\", \"marquee\", \"object\")) {\n} else if (name.equals(\"table\")) {\n} else if (StringUtil.in(name, \"area\", \"br\", \"embed\", \"img\", \"keygen\", \"wbr\")) {\ntb.reconstructFormattingElements();\ntb.insertEmpty(startTag);\ntb.framesetOk(false);\nreturn true;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:<init>(Ljava/lang/String;Lorg/jsoup/nodes/Attributes;)V",
+            "method_body": "protected Node(String baseUri, Attributes attributes) {\nValidate.notNull(baseUri);\nValidate.notNull(attributes);\nchildNodes = new ArrayList<Node>(4);\nthis.baseUri = baseUri.trim();\nthis.attributes = attributes;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:<init>()V",
+            "method_body": "protected Node() {\nchildNodes = Collections.emptyList();\nattributes = null;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:attr(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String attr(String attributeKey) {\nValidate.notNull(attributeKey);\nif (attributes.hasKey(attributeKey))\nreturn attributes.get(attributeKey);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:attributes()Lorg/jsoup/nodes/Attributes;",
+            "method_body": "public Attributes attributes() {\nreturn attributes;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:hasAttr(Ljava/lang/String;)Z",
+            "method_body": "public boolean hasAttr(String attributeKey) {\nValidate.notNull(attributeKey);\nif (attributeKey.toLowerCase().startsWith(\"abs:\")) {\nreturn attributes.hasKey(attributeKey);\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:baseUri()Ljava/lang/String;",
+            "method_body": "public String baseUri() {\nreturn baseUri;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:absUrl(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String absUrl(String attributeKey) {\nValidate.notEmpty(attributeKey);\nString relUrl = attr(attributeKey);\nif (!hasAttr(attributeKey)) {\nbase = new URL(baseUri);\n} catch (MalformedURLException e) {\nURL abs = new URL(relUrl);\n} catch (MalformedURLException e) {\nreturn \"\";\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:childNodes()Ljava/util/List;",
+            "method_body": "public List<Node> childNodes() {\nreturn Collections.unmodifiableList(childNodes);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:parent()Lorg/jsoup/nodes/Node;",
+            "method_body": "public Node parent() {\nreturn parentNode;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:ownerDocument()Lorg/jsoup/nodes/Document;",
+            "method_body": "public Document ownerDocument() {\nif (this instanceof Document)\nreturn (Document) this;\nelse if (parentNode == null)\nreturn parentNode.ownerDocument();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:setParentNode(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "protected void setParentNode(Node parentNode) {\nif (this.parentNode != null)\nthis.parentNode = parentNode;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:removeChild(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "protected void removeChild(Node out) {\nValidate.isTrue(out.parentNode == this);\nint index = out.siblingIndex();\nchildNodes.remove(index);\nreindexChildren();\nout.parentNode = null;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:addChildren([Lorg/jsoup/nodes/Node;)V",
+            "method_body": "protected void addChildren(Node... children) {\nfor (Node child: children) {\nreparentChild(child);\nchildNodes.add(child);\nchild.setSiblingIndex(childNodes.size()-1);\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:reparentChild(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "private void reparentChild(Node child) {\nif (child.parentNode != null)\nchild.parentNode.removeChild(child);\nchild.setParentNode(this);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:reindexChildren()V",
+            "method_body": "private void reindexChildren() {\nfor (int i = 0; i < childNodes.size(); i++) {\nchildNodes.get(i).setSiblingIndex(i);\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:nextSibling()Lorg/jsoup/nodes/Node;",
+            "method_body": "public Node nextSibling() {\nif (parentNode == null)\nList<Node> siblings = parentNode.childNodes;\nInteger index = siblingIndex();\nValidate.notNull(index);\nif (siblings.size() > index+1)\nreturn siblings.get(index+1);\nreturn null;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:siblingIndex()I",
+            "method_body": "public int siblingIndex() {\nreturn siblingIndex;\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:setSiblingIndex(I)V",
+            "method_body": "protected void setSiblingIndex(int siblingIndex) {\nthis.siblingIndex = siblingIndex;\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:outerHtml(Ljava/lang/StringBuilder;)V",
+            "method_body": "protected void outerHtml(StringBuilder accum) {\nnew NodeTraversor(new OuterHtmlVisitor(accum, getOutputSettings())).traverse(this);\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:getOutputSettings()Lorg/jsoup/nodes/Document$OutputSettings;",
+            "method_body": "private Document.OutputSettings getOutputSettings() {\nreturn ownerDocument() != null ? ownerDocument().outputSettings() : (new Document(\"\")).outputSettings();\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node:indent(Ljava/lang/StringBuilder;ILorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "protected void indent(StringBuilder accum, int depth, Document.OutputSettings out) {\naccum.append(\"\\n\").append(StringUtil.padding(depth * out.indentAmount()));\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:<init>(Lorg/jsoup/parser/Tag;Ljava/lang/String;Lorg/jsoup/nodes/Attributes;)V",
+            "method_body": "public Element(Tag tag, String baseUri, Attributes attributes) {\nsuper(baseUri, attributes);\nValidate.notNull(tag);\nthis.tag = tag;\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:<init>(Lorg/jsoup/parser/Tag;Ljava/lang/String;)V",
+            "method_body": "public Element(Tag tag, String baseUri) {\nthis(tag, baseUri, new Attributes());\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:nodeName()Ljava/lang/String;",
+            "method_body": "public String nodeName() {\nreturn tag.getName();\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:tagName()Ljava/lang/String;",
+            "method_body": "public String tagName() {\nreturn tag.getName();\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:tag()Lorg/jsoup/parser/Tag;",
+            "method_body": "public Tag tag() {\nreturn tag;\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:parent()Lorg/jsoup/nodes/Element;",
+            "method_body": "public final Element parent() {\nreturn (Element) parentNode;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:appendChild(Lorg/jsoup/nodes/Node;)Lorg/jsoup/nodes/Element;",
+            "method_body": "public Element appendChild(Node child) {\nValidate.notNull(child);\naddChildren(child);\nreturn this;\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:appendElement(Ljava/lang/String;)Lorg/jsoup/nodes/Element;",
+            "method_body": "public Element appendElement(String tagName) {\nElement child = new Element(Tag.valueOf(tagName), baseUri());\nappendChild(child);\nreturn child;\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:preserveWhitespace()Z",
+            "method_body": "boolean preserveWhitespace() {\nreturn tag.preserveWhitespace() || parent() != null && parent().preserveWhitespace();\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:outerHtmlHead(Ljava/lang/StringBuilder;ILorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "void outerHtmlHead(StringBuilder accum, int depth, Document.OutputSettings out) {\nif (accum.length() > 0 && out.prettyPrint() && (tag.formatAsBlock() || (parent() != null && parent().tag().formatAsBlock())))\nindent(accum, depth, out);\naccum\nattributes.html(accum, out);\nif (childNodes.isEmpty() && tag.isSelfClosing())\naccum.append(\" />\");\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:outerHtmlTail(Ljava/lang/StringBuilder;ILorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "void outerHtmlTail(StringBuilder accum, int depth, Document.OutputSettings out) {\nif (!(childNodes.isEmpty() && tag.isSelfClosing())) {\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:html()Ljava/lang/String;",
+            "method_body": "public String html() {\nStringBuilder accum = new StringBuilder();\nhtml(accum);\nreturn accum.toString().trim();\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Element:html(Ljava/lang/StringBuilder;)V",
+            "method_body": "private void html(StringBuilder accum) {\nfor (Node node : childNodes)\nnode.outerHtml(accum);\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:<init>(Ljava/lang/String;)V",
+            "method_body": "public Document(String baseUri) {\nsuper(Tag.valueOf(\"#root\"), baseUri);\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:createShell(Ljava/lang/String;)Lorg/jsoup/nodes/Document;",
+            "method_body": "static public Document createShell(String baseUri) {\nValidate.notNull(baseUri);\nDocument doc = new Document(baseUri);\nElement html = doc.appendElement(\"html\");\nhtml.appendElement(\"head\");\nhtml.appendElement(\"body\");\nreturn doc;\n}",
+            "method_id": 60
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:body()Lorg/jsoup/nodes/Element;",
+            "method_body": "public Element body() {\nreturn findFirstElementByTagName(\"body\", this);\n}",
+            "method_id": 61
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:findFirstElementByTagName(Ljava/lang/String;Lorg/jsoup/nodes/Node;)Lorg/jsoup/nodes/Element;",
+            "method_body": "private Element findFirstElementByTagName(String tag, Node node) {\nif (node.nodeName().equals(tag))\nreturn (Element) node;\nfor (Node child: node.childNodes) {\nElement found = findFirstElementByTagName(tag, child);\nif (found != null)\nreturn found;\n}\nreturn null;\n}",
+            "method_id": 62
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:nodeName()Ljava/lang/String;",
+            "method_body": "public String nodeName() {\nreturn \"#document\";\n}",
+            "method_id": 63
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:outputSettings()Lorg/jsoup/nodes/Document$OutputSettings;",
+            "method_body": "public OutputSettings outputSettings() {\nreturn outputSettings;\n}",
+            "method_id": 64
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:quirksMode()Lorg/jsoup/nodes/Document$QuirksMode;",
+            "method_body": "public QuirksMode quirksMode() {\nreturn quirksMode;\n}",
+            "method_id": 65
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document:quirksMode(Lorg/jsoup/nodes/Document$QuirksMode;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public Document quirksMode(QuirksMode quirksMode) {\nthis.quirksMode = quirksMode;\nreturn this;\n}",
+            "method_id": 66
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:<init>(Ljava/lang/String;)V",
+            "method_body": "private static final Map<String, Tag> tags = new HashMap<String, Tag>(); // map of known tags\nprivate boolean isBlock = true; // block or inline\nprivate boolean formatAsBlock = true; // should be formatted as a block\nprivate boolean canContainBlock = true; // Can this tag hold block level tags?\nprivate boolean canContainInline = true; // only pcdata if not\nprivate boolean empty = false; // can hold nothing; e.g. img\nprivate boolean selfClosing = false; // can self close (<foo />). used for unknown tags that self close, without forcing them as empty.\nprivate boolean preserveWhitespace = false; // for pre, textarea, script etc\nprivate Tag(String tagName) {\nthis.tagName = tagName.toLowerCase();\n}",
+            "method_id": 67
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:getName()Ljava/lang/String;",
+            "method_body": "public String getName() {\nreturn tagName;\n}",
+            "method_id": 68
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:valueOf(Ljava/lang/String;)Lorg/jsoup/parser/Tag;",
+            "method_body": "public static Tag valueOf(String tagName) {\nValidate.notNull(tagName);\ntagName = tagName.trim().toLowerCase();\nValidate.notEmpty(tagName);\nsynchronized (tags) {\nTag tag = tags.get(tagName);\nif (tag == null) {\ntag = new Tag(tagName);\ntag.isBlock = false;\ntag.canContainBlock = true;\nreturn tag;\n}",
+            "method_id": 69
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:formatAsBlock()Z",
+            "method_body": "public boolean formatAsBlock() {\nreturn formatAsBlock;\n}",
+            "method_id": 70
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:isSelfClosing()Z",
+            "method_body": "public boolean isSelfClosing() {\nreturn empty || selfClosing;\n}",
+            "method_id": 71
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:isKnownTag()Z",
+            "method_body": "public boolean isKnownTag() {\nreturn tags.containsKey(tagName);\n}",
+            "method_id": 72
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:preserveWhitespace()Z",
+            "method_body": "public boolean preserveWhitespace() {\nreturn preserveWhitespace;\n}",
+            "method_id": 73
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:register(Lorg/jsoup/parser/Tag;)Lorg/jsoup/parser/Tag;",
+            "method_body": "private static Tag register(Tag tag) {\nsynchronized (tags) {\ntags.put(tag.tagName, tag);\n}\nreturn tag;\n}",
+            "method_id": 74
+        },
+        {
+            "method_signature": "org.jsoup.helper.Validate:notNull(Ljava/lang/Object;)V",
+            "method_body": "public static void notNull(Object obj) {\nif (obj == null)\n}",
+            "method_id": 75
+        },
+        {
+            "method_signature": "org.jsoup.helper.Validate:isTrue(Z)V",
+            "method_body": "public static void isTrue(boolean val) {\nif (!val)\n}",
+            "method_id": 76
+        },
+        {
+            "method_signature": "org.jsoup.helper.Validate:isFalse(Z)V",
+            "method_body": "public static void isFalse(boolean val) {\nif (val)\n}",
+            "method_id": 77
+        },
+        {
+            "method_signature": "org.jsoup.helper.Validate:isFalse(ZLjava/lang/String;)V",
+            "method_body": "public static void isFalse(boolean val, String msg) {\nif (val)\n}",
+            "method_id": 78
+        },
+        {
+            "method_signature": "org.jsoup.helper.Validate:notEmpty(Ljava/lang/String;)V",
+            "method_body": "public static void notEmpty(String string) {\nif (string == null || string.length() == 0)\n}",
+            "method_id": 79
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:get(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String get(String key) {\nValidate.notEmpty(key);\nif (attributes == null)\nAttribute attr = attributes.get(key.toLowerCase());\nreturn attr != null ? attr.getValue() : \"\";\n}",
+            "method_id": 80
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:put(Lorg/jsoup/nodes/Attribute;)V",
+            "method_body": "public void put(Attribute attribute) {\nValidate.notNull(attribute);\nif (attributes == null)\nattributes = new LinkedHashMap<String, Attribute>(2);\nattributes.put(attribute.getKey(), attribute);\n}",
+            "method_id": 81
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:hasKey(Ljava/lang/String;)Z",
+            "method_body": "public boolean hasKey(String key) {\nreturn attributes != null && attributes.containsKey(key.toLowerCase());\n}",
+            "method_id": 82
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:size()I",
+            "method_body": "public int size() {\nif (attributes == null)\nreturn 0;\n}",
+            "method_id": 83
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:addAll(Lorg/jsoup/nodes/Attributes;)V",
+            "method_body": "public void addAll(Attributes incoming) {\nif (incoming.size() == 0)\nreturn;\n}",
+            "method_id": 84
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:iterator()Ljava/util/Iterator;",
+            "method_body": "public Iterator<Attribute> iterator() {\nreturn asList().iterator();\n}",
+            "method_id": 85
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:asList()Ljava/util/List;",
+            "method_body": "public List<Attribute> asList() {\nif (attributes == null)\nList<Attribute> list = new ArrayList<Attribute>(attributes.size());\nfor (Map.Entry<String, Attribute> entry : attributes.entrySet()) {\nlist.add(entry.getValue());\n}\nreturn Collections.unmodifiableList(list);\n}",
+            "method_id": 86
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:html(Ljava/lang/StringBuilder;Lorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "void html(StringBuilder accum, Document.OutputSettings out) {\nif (attributes == null)\nreturn;\n}",
+            "method_id": 87
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:<init>()V",
+            "method_body": "private Entities.EscapeMode escapeMode = Entities.EscapeMode.base;\nprivate Charset charset = Charset.forName(\"UTF-8\");\nprivate CharsetEncoder charsetEncoder = charset.newEncoder();\nprivate boolean prettyPrint = true;\nprivate int indentAmount = 1;\npublic OutputSettings() {}",
+            "method_id": 88
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:escapeMode()Lorg/jsoup/nodes/Entities$EscapeMode;",
+            "method_body": "public Entities.EscapeMode escapeMode() {\nreturn escapeMode;\n}",
+            "method_id": 89
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:encoder()Ljava/nio/charset/CharsetEncoder;",
+            "method_body": "CharsetEncoder encoder() {\nreturn charsetEncoder;\n}",
+            "method_id": 90
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:prettyPrint()Z",
+            "method_body": "public boolean prettyPrint() {\nreturn prettyPrint;\n}",
+            "method_id": 91
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:indentAmount()I",
+            "method_body": "public int indentAmount() {\nreturn indentAmount;\n}",
+            "method_id": 92
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities$EscapeMode:<init>(Ljava/lang/String;ILjava/util/Map;)V",
+            "method_body": "EscapeMode(Map<Character, String> map) {\nthis.map = map;\n}",
+            "method_id": 93
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities$EscapeMode:getMap()Ljava/util/Map;",
+            "method_body": "public Map<Character, String> getMap() {\nreturn map;\n}",
+            "method_id": 94
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:<clinit>()V",
+            "method_body": "private static final Object[][] xhtmlArray = {\n};",
+            "method_id": 95
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:escape(Ljava/lang/String;Lorg/jsoup/nodes/Document$OutputSettings;)Ljava/lang/String;",
+            "method_body": "static String escape(String string, Document.OutputSettings out) {\nreturn escape(string, out.encoder(), out.escapeMode());\n}",
+            "method_id": 96
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Entities:escape(Ljava/lang/String;Ljava/nio/charset/CharsetEncoder;Lorg/jsoup/nodes/Entities$EscapeMode;)Ljava/lang/String;",
+            "method_body": "static String escape(String string, CharsetEncoder encoder, EscapeMode escapeMode) {\nStringBuilder accum = new StringBuilder(string.length() * 2);\nMap<Character, String> map = escapeMode.getMap();\nfor (int pos = 0; pos < string.length(); pos++) {\nCharacter c = string.charAt(pos);\nif (map.containsKey(c))\nelse if (encoder.canEncode(c))\naccum.append(c.charValue());\nreturn accum.toString();\n}",
+            "method_id": 97
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:<init>(Ljava/lang/String;)V",
+            "method_body": "CharacterReader(String input) {\nValidate.notNull(input);\ninput = input.replaceAll(\"\\r\\n?\", \"\\n\"); // normalise carriage returns to newlines\nthis.input = input;\nthis.length = input.length();\n}",
+            "method_id": 98
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:pos()I",
+            "method_body": "int pos() {\nreturn pos;\n}",
+            "method_id": 99
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:isEmpty()Z",
+            "method_body": "boolean isEmpty() {\nreturn pos >= length;\n}",
+            "method_id": 100
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:current()C",
+            "method_body": "char current() {\nreturn isEmpty() ? EOF : input.charAt(pos);\n}",
+            "method_id": 101
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:consume()C",
+            "method_body": "char consume() {\nchar val = isEmpty() ? EOF : input.charAt(pos);\npos++;\nreturn val;\n}",
+            "method_id": 102
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:unconsume()V",
+            "method_body": "void unconsume() {\npos--;\n}",
+            "method_id": 103
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:advance()V",
+            "method_body": "void advance() {\npos++;\n}",
+            "method_id": 104
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:consumeToAny([C)Ljava/lang/String;",
+            "method_body": "String consumeToAny(char... seq) {\nint start = pos;\nOUTER: while (!isEmpty()) {\nchar c = input.charAt(pos);\nfor (char seek : seq) {\nif (seek == c)\nbreak OUTER;\npos++;\n}\nreturn pos > start ? input.substring(start, pos) : \"\";\n}",
+            "method_id": 105
+        },
+        {
+            "method_signature": "org.jsoup.parser.CharacterReader:matchesLetter()Z",
+            "method_body": "boolean matchesLetter() {\nif (isEmpty())\nchar c = input.charAt(pos);\nreturn (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');\n}",
+            "method_id": 106
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:<init>(Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "Tokeniser(CharacterReader reader) {\nthis.reader = reader;\n}",
+            "method_id": 107
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:read()Lorg/jsoup/parser/Token;",
+            "method_body": "Token read() {\nif (!selfClosingFlagAcknowledged) {\nerror(\"Self closing flag not acknowledged\");\nselfClosingFlagAcknowledged = true;\nwhile (!isEmitPending)\nstate.read(this, reader);\nif (charBuffer.length() > 0) {\nString str = charBuffer.toString();\ncharBuffer.delete(0, charBuffer.length());\nreturn new Token.Character(str);\nisEmitPending = false;\nreturn emitPending;\n}",
+            "method_id": 108
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:emit(Lorg/jsoup/parser/Token;)V",
+            "method_body": "void emit(Token token) {\nValidate.isFalse(isEmitPending, \"There is an unread token pending!\");\nemitPending = token;\nisEmitPending = true;\nif (token.type == Token.TokenType.StartTag) {\nToken.StartTag startTag = (Token.StartTag) token;\nlastStartTag = startTag;\nif (startTag.selfClosing)\nselfClosingFlagAcknowledged = false;\n} else if (token.type == Token.TokenType.EndTag) {\n}",
+            "method_id": 109
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:emit(Ljava/lang/String;)V",
+            "method_body": "void emit(String str) {\ncharBuffer.append(str);\n}",
+            "method_id": 110
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:transition(Lorg/jsoup/parser/TokeniserState;)V",
+            "method_body": "void transition(TokeniserState state) {\nthis.state = state;\n}",
+            "method_id": 111
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:advanceTransition(Lorg/jsoup/parser/TokeniserState;)V",
+            "method_body": "void advanceTransition(TokeniserState state) {\nreader.advance();\nthis.state = state;\n}",
+            "method_id": 112
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:acknowledgeSelfClosingFlag()V",
+            "method_body": "void acknowledgeSelfClosingFlag() {\nselfClosingFlagAcknowledged = true;\n}",
+            "method_id": 113
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:createTagPending(Z)Lorg/jsoup/parser/Token$Tag;",
+            "method_body": "Token.Tag createTagPending(boolean start) {\ntagPending = start ? new Token.StartTag() : new Token.EndTag();\nreturn tagPending;\n}",
+            "method_id": 114
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:emitTagPending()V",
+            "method_body": "void emitTagPending() {\ntagPending.finaliseTag();\nemit(tagPending);\n}",
+            "method_id": 115
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:error(Ljava/lang/String;)V",
+            "method_body": "private void error(String errorMsg) {\nif (trackErrors)\nerrors.add(new ParseError(errorMsg, reader.pos()));\n}",
+            "method_id": 116
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$1:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nswitch (r.current()) {\nt.advanceTransition(TagOpen);\nbreak;\nt.emit(new Token.EOF());\nbreak;\nString data = r.consumeToAny('&', '<', nullChar);\nt.emit(data);\n}",
+            "method_id": 117
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$8:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nswitch (r.current()) {\nif (r.matchesLetter()) {\nt.createTagPending(true);\nt.transition(TagName);\n}",
+            "method_id": 118
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$10:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nString tagName = r.consumeToAny('\\t', '\\n', '\\f', ' ', '/', '>', nullChar).toLowerCase();\nt.tagPending.appendTagName(tagName);\nswitch (r.consume()) {\nt.transition(BeforeAttributeName);\nbreak;\n}",
+            "method_id": 119
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$34:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.transition(SelfClosingStartTag);\nbreak;\nt.tagPending.newAttribute();\nr.unconsume();\nt.transition(AttributeName);\n}",
+            "method_id": 120
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$35:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nString name = r.consumeToAny('\\t', '\\n', '\\f', ' ', '/', '=', '>', nullChar, '\"', '\\'', '<');\nt.tagPending.appendAttributeName(name.toLowerCase());\nchar c = r.consume();\nswitch (c) {\nt.transition(BeforeAttributeValue);\nbreak;\n}",
+            "method_id": 121
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$37:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.transition(AttributeValue_singleQuoted);\nbreak;\n}",
+            "method_id": 122
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$39:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nString value = r.consumeToAny('\\'', '&', nullChar);\nif (value.length() > 0)\nt.tagPending.appendAttributeValue(value);\nchar c = r.consume();\nswitch (c) {\nt.transition(AfterAttributeValue_quoted);\nbreak;\n}",
+            "method_id": 123
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$41:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.transition(BeforeAttributeName);\nbreak;\n}",
+            "method_id": 124
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$42:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.tagPending.selfClosing = true;\nt.emitTagPending();\nt.transition(Data);\nbreak;\n}",
+            "method_id": 125
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token:<init>()V",
+            "method_body": "private Token() {\n}",
+            "method_id": 126
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token:asStartTag()Lorg/jsoup/parser/Token$StartTag;",
+            "method_body": "StartTag asStartTag() {\nreturn (StartTag) this;\n}",
+            "method_id": 127
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token:isCharacter()Z",
+            "method_body": "boolean isCharacter() {\nreturn type == TokenType.Character;\n}",
+            "method_id": 128
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token:asCharacter()Lorg/jsoup/parser/Token$Character;",
+            "method_body": "Character asCharacter() {\nreturn (Character) this;\n}",
+            "method_id": 129
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:newAttribute()V",
+            "method_body": "void newAttribute() {\nif (pendingAttributeName != null) {\nif (pendingAttributeValue == null)\nAttribute attribute = new Attribute(pendingAttributeName, pendingAttributeValue);\nattributes.put(attribute);\npendingAttributeName = null;\npendingAttributeValue = null;\n}",
+            "method_id": 130
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:finaliseTag()V",
+            "method_body": "void finaliseTag() {\nif (pendingAttributeName != null) {\nnewAttribute();\n}",
+            "method_id": 131
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:name()Ljava/lang/String;",
+            "method_body": "String name() {\nValidate.isFalse(tagName.length() == 0);\nreturn tagName;\n}",
+            "method_id": 132
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:isSelfClosing()Z",
+            "method_body": "boolean isSelfClosing() {\nreturn selfClosing;\n}",
+            "method_id": 133
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:appendTagName(Ljava/lang/String;)V",
+            "method_body": "void appendTagName(String append) {\ntagName = tagName == null ? append : tagName.concat(append);\n}",
+            "method_id": 134
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:appendAttributeName(Ljava/lang/String;)V",
+            "method_body": "void appendAttributeName(String append) {\npendingAttributeName = pendingAttributeName == null ? append : pendingAttributeName.concat(append);\n}",
+            "method_id": 135
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Tag:appendAttributeValue(Ljava/lang/String;)V",
+            "method_body": "void appendAttributeValue(String append) {\npendingAttributeValue = pendingAttributeValue == null ? append : pendingAttributeValue.concat(append);\n}",
+            "method_id": 136
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$StartTag:<init>()V",
+            "method_body": "StartTag() {\nsuper();\ntype = TokenType.StartTag;\n}",
+            "method_id": 137
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public Attribute(String key, String value) {\nValidate.notEmpty(key);\nValidate.notNull(value);\nthis.key = key.trim().toLowerCase();\nthis.value = value;\n}",
+            "method_id": 138
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:getKey()Ljava/lang/String;",
+            "method_body": "public String getKey() {\nreturn key;\n}",
+            "method_id": 139
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:getValue()Ljava/lang/String;",
+            "method_body": "public String getValue() {\nreturn value;\n}",
+            "method_id": 140
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:setValue(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String setValue(String value) {\nValidate.notNull(value);\nString old = this.value;\nthis.value = value;\nreturn old;\n}",
+            "method_id": 141
+        },
+        {
+            "method_signature": "org.jsoup.parser.TreeBuilderState$24:<clinit>()V",
+            "method_body": "boolean process(Token t, TreeBuilder tb) {\nswitch (t.type) {\nreturn anythingElse(t, tb);\n}",
+            "method_id": 142
+        },
+        {
+            "method_signature": "org.jsoup.helper.StringUtil:<clinit>()V",
+            "method_body": "private static final String[] padding = {\"\", \" \", \"  \", \"   \", \"    \", \"     \", \"      \", \"       \", \"        \", \"         \", \"          \"};\nprivate static final String[] padding = {\"\", \" \", \"  \", \"   \", \"    \", \"     \", \"      \", \"       \", \"        \", \"         \", \"          \"};",
+            "method_id": 143
+        },
+        {
+            "method_signature": "org.jsoup.helper.StringUtil:padding(I)Ljava/lang/String;",
+            "method_body": "public static String padding(int width) {\nif (width < 0)\nif (width < padding.length)\nreturn padding[width];\n}",
+            "method_id": 144
+        },
+        {
+            "method_signature": "org.jsoup.helper.StringUtil:normaliseWhitespace(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String normaliseWhitespace(String string) {\nStringBuilder sb = new StringBuilder(string.length());\nboolean lastWasWhite = false;\nboolean modified = false;\nint l = string.length();\nfor (int i = 0; i < l; i++) {\nint c = string.codePointAt(i);\nif (Character.isWhitespace(c)) {\nif (lastWasWhite) {\nif (c != ' ')\nsb.append(' ');\nlastWasWhite = true;\nreturn modified ? sb.toString() : string;\n}",
+            "method_id": 145
+        },
+        {
+            "method_signature": "org.jsoup.helper.StringUtil:in(Ljava/lang/String;[Ljava/lang/String;)Z",
+            "method_body": "public static boolean in(String needle, String... haystack) {\nfor (String hay : haystack) {\nif (hay.equals(needle))\nreturn true;\nreturn false;\n}",
+            "method_id": 146
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList$DescendingIterator:<init>(Lorg/jsoup/helper/DescendableLinkedList;I)V",
+            "method_body": "private DescendingIterator(int index) {\niter = (ListIterator<E>) listIterator(index);\n}",
+            "method_id": 147
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList$DescendingIterator:hasNext()Z",
+            "method_body": "public boolean hasNext() {\nreturn iter.hasPrevious();\n}",
+            "method_id": 148
+        },
+        {
+            "method_signature": "org.jsoup.helper.DescendableLinkedList$DescendingIterator:next()Ljava/lang/Object;",
+            "method_body": "public E next() {\nreturn iter.previous();\n}",
+            "method_id": 149
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Character:<init>(Ljava/lang/String;)V",
+            "method_body": "Character(String data) {\ntype = TokenType.Character;\nthis.data = data;\n}",
+            "method_id": 150
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Character:getData()Ljava/lang/String;",
+            "method_body": "String getData() {\nreturn data;\n}",
+            "method_id": 151
+        },
+        {
+            "method_signature": "org.jsoup.nodes.TextNode:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public TextNode(String text, String baseUri) {\nthis.baseUri = baseUri;\nthis.text = text;\n}",
+            "method_id": 152
+        },
+        {
+            "method_signature": "org.jsoup.nodes.TextNode:nodeName()Ljava/lang/String;",
+            "method_body": "public String nodeName() {\nreturn \"#text\";\n}",
+            "method_id": 153
+        },
+        {
+            "method_signature": "org.jsoup.nodes.TextNode:getWholeText()Ljava/lang/String;",
+            "method_body": "public String getWholeText() {\nreturn attributes == null ? text : attributes.get(TEXT_KEY);\n}",
+            "method_id": 154
+        },
+        {
+            "method_signature": "org.jsoup.nodes.TextNode:outerHtmlHead(Ljava/lang/StringBuilder;ILorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "void outerHtmlHead(StringBuilder accum, int depth, Document.OutputSettings out) {\nString html = Entities.escape(getWholeText(), out);\nif (out.prettyPrint() && parent() instanceof Element && !((Element) parent()).preserveWhitespace()) {\nhtml = normaliseWhitespace(html);\nif (out.prettyPrint() && siblingIndex() == 0 && parentNode instanceof Element && ((Element) parentNode).tag().formatAsBlock() && !isBlank())\naccum.append(html);\n}",
+            "method_id": 155
+        },
+        {
+            "method_signature": "org.jsoup.nodes.TextNode:normaliseWhitespace(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "static String normaliseWhitespace(String text) {\ntext = StringUtil.normaliseWhitespace(text);\nreturn text;\n}",
+            "method_id": 156
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$EOF:<init>()V",
+            "method_body": "EOF() {\ntype = Token.TokenType.EOF;\n}",
+            "method_id": 157
+        },
+        {
+            "method_signature": "org.jsoup.select.NodeTraversor:<init>(Lorg/jsoup/select/NodeVisitor;)V",
+            "method_body": "public NodeTraversor(NodeVisitor visitor) {\nthis.visitor = visitor;\n}",
+            "method_id": 158
+        },
+        {
+            "method_signature": "org.jsoup.select.NodeTraversor:traverse(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "public void traverse(Node root) {\nNode node = root;\nint depth = 0;\nwhile (node != null) {\nvisitor.head(node, depth);\nif (node.childNodes().size() > 0) {\nwhile (node.nextSibling() == null && depth > 0) {\nvisitor.tail(node, depth);\nif (node == root)\nbreak;\n}",
+            "method_id": 159
+        },
+        {
+            "method_signature": "org.jsoup.parser.ParseError:<init>(Ljava/lang/String;I)V",
+            "method_body": "ParseError(String errorMsg, int pos) {\nthis.errorMsg = errorMsg;\nthis.pos = pos;\n}",
+            "method_id": 160
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node$OuterHtmlVisitor:<init>(Ljava/lang/StringBuilder;Lorg/jsoup/nodes/Document$OutputSettings;)V",
+            "method_body": "OuterHtmlVisitor(StringBuilder accum, Document.OutputSettings out) {\nthis.accum = accum;\nthis.out = out;\n}",
+            "method_id": 161
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node$OuterHtmlVisitor:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void head(Node node, int depth) {\nnode.outerHtmlHead(accum, depth, out);\n}",
+            "method_id": 162
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Node$OuterHtmlVisitor:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void tail(Node node, int depth) {\nif (!node.nodeName().equals(\"#text\")) // saves a void hit.\nnode.outerHtmlTail(accum, depth, out);\n}",
+            "method_id": 163
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:<init>()V",
+            "method_body": "public Whitelist() {\ntagNames = new HashSet<TagName>();\nattributes = new HashMap<TagName, Set<AttributeKey>>();\nenforcedAttributes = new HashMap<TagName, Map<AttributeKey, AttributeValue>>();\nprotocols = new HashMap<TagName, Map<AttributeKey, Set<Protocol>>>();\npreserveRelativeLinks = false;\n}",
+            "method_id": 164
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:basic()Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public static Whitelist basic() {\nreturn new Whitelist()\n}",
+            "method_id": 165
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:basicWithImages()Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public static Whitelist basicWithImages() {\nreturn basic()\n}",
+            "method_id": 166
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:addTags([Ljava/lang/String;)Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public Whitelist addTags(String... tags) {\nValidate.notNull(tags);\nfor (String tagName : tags) {\nValidate.notEmpty(tagName);\ntagNames.add(TagName.valueOf(tagName));\nreturn this;\n}",
+            "method_id": 167
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:addAttributes(Ljava/lang/String;[Ljava/lang/String;)Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public Whitelist addAttributes(String tag, String... keys) {\nValidate.notEmpty(tag);\nValidate.notNull(keys);\nTagName tagName = TagName.valueOf(tag);\nSet<AttributeKey> attributeSet = new HashSet<AttributeKey>();\nfor (String key : keys) {\nValidate.notEmpty(key);\nattributeSet.add(AttributeKey.valueOf(key));\nif (attributes.containsKey(tagName)) {\nattributes.put(tagName, attributeSet);\nreturn this;\n}",
+            "method_id": 168
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:addEnforcedAttribute(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public Whitelist addEnforcedAttribute(String tag, String key, String value) {\nValidate.notEmpty(tag);\nValidate.notEmpty(key);\nValidate.notEmpty(value);\nTagName tagName = TagName.valueOf(tag);\nAttributeKey attrKey = AttributeKey.valueOf(key);\nAttributeValue attrVal = AttributeValue.valueOf(value);\nif (enforcedAttributes.containsKey(tagName)) {\nMap<AttributeKey, AttributeValue> attrMap = new HashMap<AttributeKey, AttributeValue>();\nattrMap.put(attrKey, attrVal);\nenforcedAttributes.put(tagName, attrMap);\nreturn this;\n}",
+            "method_id": 169
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:addProtocols(Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)Lorg/jsoup/safety/Whitelist;",
+            "method_body": "public Whitelist addProtocols(String tag, String key, String... protocols) {\nValidate.notEmpty(tag);\nValidate.notEmpty(key);\nValidate.notNull(protocols);\nTagName tagName = TagName.valueOf(tag);\nAttributeKey attrKey = AttributeKey.valueOf(key);\nif (this.protocols.containsKey(tagName)) {\nattrMap = this.protocols.get(tagName);\nattrMap = new HashMap<AttributeKey, Set<Protocol>>();\nthis.protocols.put(tagName, attrMap);\nif (attrMap.containsKey(attrKey)) {\nprotSet = attrMap.get(attrKey);\nprotSet = new HashSet<Protocol>();\nattrMap.put(attrKey, protSet);\nfor (String protocol : protocols) {\nValidate.notEmpty(protocol);\nProtocol prot = Protocol.valueOf(protocol);\nprotSet.add(prot);\nreturn this;\n}",
+            "method_id": 170
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:isSafeTag(Ljava/lang/String;)Z",
+            "method_body": "boolean isSafeTag(String tag) {\nreturn tagNames.contains(TagName.valueOf(tag));\n}",
+            "method_id": 171
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:isSafeAttribute(Ljava/lang/String;Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Attribute;)Z",
+            "method_body": "boolean isSafeAttribute(String tagName, Element el, Attribute attr) {\nTagName tag = TagName.valueOf(tagName);\nAttributeKey key = AttributeKey.valueOf(attr.getKey());\nif (attributes.containsKey(tag)) {\nif (attributes.get(tag).contains(key)) {\nif (protocols.containsKey(tag)) {\nMap<AttributeKey, Set<Protocol>> attrProts = protocols.get(tag);\nreturn !attrProts.containsKey(key) || testValidProtocol(el, attr, attrProts.get(key));\n}",
+            "method_id": 172
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:testValidProtocol(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Attribute;Ljava/util/Set;)Z",
+            "method_body": "private boolean testValidProtocol(Element el, Attribute attr, Set<Protocol> protocols) {\nString value = el.absUrl(attr.getKey());\nif (!preserveRelativeLinks)\nattr.setValue(value);\nfor (Protocol protocol : protocols) {\nString prot = protocol.toString() + \":\";\nif (value.toLowerCase().startsWith(prot)) {\n}\nreturn false;\n}",
+            "method_id": 173
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist:getEnforcedAttributes(Ljava/lang/String;)Lorg/jsoup/nodes/Attributes;",
+            "method_body": "Attributes getEnforcedAttributes(String tagName) {\nAttributes attrs = new Attributes();\nTagName tag = TagName.valueOf(tagName);\nif (enforcedAttributes.containsKey(tag)) {\nreturn attrs;\n}",
+            "method_id": 174
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TypedValue:<init>(Ljava/lang/String;)V",
+            "method_body": "TypedValue(String value) {\nValidate.notNull(value);\nthis.value = value;\n}",
+            "method_id": 175
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TypedValue:hashCode()I",
+            "method_body": "public int hashCode() {\nfinal int prime = 31;\nint result = 1;\nresult = prime * result + ((value == null) ? 0 : value.hashCode());\nreturn result;\n}",
+            "method_id": 176
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TypedValue:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object obj) {\nif (this == obj) return true;\nif (obj == null) return false;\nif (getClass() != obj.getClass()) return false;\nTypedValue other = (TypedValue) obj;\nif (value == null) {\n} else if (!value.equals(other.value)) return false;\nreturn true;\n}",
+            "method_id": 177
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TypedValue:toString()Ljava/lang/String;",
+            "method_body": "public String toString() {\nreturn value;\n}",
+            "method_id": 178
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TagName:<init>(Ljava/lang/String;)V",
+            "method_body": "TagName(String value) {\nsuper(value);\n}",
+            "method_id": 179
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$TagName:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$TagName;",
+            "method_body": "static TagName valueOf(String value) {\nreturn new TagName(value);\n}",
+            "method_id": 180
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeKey:<init>(Ljava/lang/String;)V",
+            "method_body": "AttributeKey(String value) {\nsuper(value);\n}",
+            "method_id": 181
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeKey:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$AttributeKey;",
+            "method_body": "static AttributeKey valueOf(String value) {\nreturn new AttributeKey(value);\n}",
+            "method_id": 182
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$Protocol:<init>(Ljava/lang/String;)V",
+            "method_body": "Protocol(String value) {\nsuper(value);\n}",
+            "method_id": 183
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$Protocol:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$Protocol;",
+            "method_body": "static Protocol valueOf(String value) {\nreturn new Protocol(value);\n}",
+            "method_id": 184
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeValue:<init>(Ljava/lang/String;)V",
+            "method_body": "AttributeValue(String value) {\nsuper(value);\n}",
+            "method_id": 185
+        },
+        {
+            "method_signature": "org.jsoup.safety.Whitelist$AttributeValue:valueOf(Ljava/lang/String;)Lorg/jsoup/safety/Whitelist$AttributeValue;",
+            "method_body": "static AttributeValue valueOf(String value) {\nreturn new AttributeValue(value);\n}",
+            "method_id": 186
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:<init>(Lorg/jsoup/safety/Whitelist;)V",
+            "method_body": "public Cleaner(Whitelist whitelist) {\nValidate.notNull(whitelist);\nthis.whitelist = whitelist;\n}",
+            "method_id": 187
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:clean(Lorg/jsoup/nodes/Document;)Lorg/jsoup/nodes/Document;",
+            "method_body": "public Document clean(Document dirtyDocument) {\nValidate.notNull(dirtyDocument);\nDocument clean = Document.createShell(dirtyDocument.baseUri());\ncopySafeNodes(dirtyDocument.body(), clean.body());\nreturn clean;\n}",
+            "method_id": 188
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:copySafeNodes(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)I",
+            "method_body": "private int copySafeNodes(Element source, Element dest) {\nList<Node> sourceChildren = source.childNodes();\nint numDiscarded = 0;\nfor (Node sourceChild : sourceChildren) {\nif (sourceChild instanceof Element) {\nElement sourceEl = (Element) sourceChild;\nif (whitelist.isSafeTag(sourceEl.tagName())) { // safe, clone and copy safe attrs\nElementMeta meta = createSafeElement(sourceEl);\nElement destChild = meta.el;\ndest.appendChild(destChild);\nnumDiscarded += meta.numAttribsDiscarded;\nnumDiscarded += copySafeNodes(sourceEl, destChild); // recurs\n} else { // not a safe tag, but it may have children (els or text) that are, so recurse\n} else if (sourceChild instanceof TextNode) {\nTextNode sourceText = (TextNode) sourceChild;\nTextNode destText = new TextNode(sourceText.getWholeText(), sourceChild.baseUri());\ndest.appendChild(destText);\n}\nreturn numDiscarded;\n}",
+            "method_id": 189
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner:createSafeElement(Lorg/jsoup/nodes/Element;)Lorg/jsoup/safety/Cleaner$ElementMeta;",
+            "method_body": "private ElementMeta createSafeElement(Element sourceEl) {\nString sourceTag = sourceEl.tagName();\nAttributes destAttrs = new Attributes();\nElement dest = new Element(Tag.valueOf(sourceTag), sourceEl.baseUri(), destAttrs);\nint numDiscarded = 0;\nAttributes sourceAttrs = sourceEl.attributes();\nfor (Attribute sourceAttr : sourceAttrs) {\nif (whitelist.isSafeAttribute(sourceTag, sourceEl, sourceAttr))\nnumDiscarded++;\n}\nAttributes enforcedAttrs = whitelist.getEnforcedAttributes(sourceTag);\ndestAttrs.addAll(enforcedAttrs);\nreturn new ElementMeta(dest, numDiscarded);\n}",
+            "method_id": 190
+        },
+        {
+            "method_signature": "org.jsoup.safety.Cleaner$ElementMeta:<init>(Lorg/jsoup/nodes/Element;I)V",
+            "method_body": "ElementMeta(Element el, int numAttribsDiscarded) {\nthis.el = el;\nthis.numAttribsDiscarded = numAttribsDiscarded;\n}",
+            "method_id": 191
+        }
+    ]
+}

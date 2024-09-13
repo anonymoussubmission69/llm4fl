@@ -1,0 +1,89 @@
+{
+    "bug_id": 32,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.builder.HashCodeBuilderTest.testReflectionObjectCycle",
+    "test_body": "public void testReflectionObjectCycle() {\nReflectionTestCycleA a = new ReflectionTestCycleA();\nReflectionTestCycleB b = new ReflectionTestCycleB();\na.b = b;\nb.a = a;\n506: // Used to caused:\n// java.lang.StackOverflowError\n// at java.lang.ClassLoader.getCallerClassLoader(Native Method)\n// at java.lang.Class.getDeclaredFields(Class.java:992)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionAppend(HashCodeBuilder.java:373)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode(HashCodeBuilder.java:349)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode(HashCodeBuilder.java:155)\n// at\n// org.apache.commons.lang.builder.HashCodeBuilderTest$ReflectionTestCycleB.hashCode(HashCodeBuilderTest.java:53)\n// at org.apache.commons.lang.builder.HashCodeBuilder.append(HashCodeBuilder.java:422)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionAppend(HashCodeBuilder.java:383)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode(HashCodeBuilder.java:349)\n// at org.apache.commons.lang.builder.HashCodeBuilder.reflectionHashCode(HashCodeBuilder.java:155)\n// at\n// org.apache.commons.lang.builder.HashCodeBuilderTest$ReflectionTestCycleA.hashCode(HashCodeBuilderTest.java:42)\n// at org.apache.commons.lang.builder.HashCodeBuilder.append(HashCodeBuilder.java:422)\n523: a.hashCode();\nassertNull(HashCodeBuilder.getRegistry());\nb.hashCode();",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected: <null> but was: []\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.assertTrue(Assert.java:22)\nat junit.framework.Assert.assertNull(Assert.java:277)\nat junit.framework.Assert.assertNull(Assert.java:268)\nat junit.framework.TestCase.assertNull(TestCase.java:438)\nat org.apache.commons.lang3.builder.HashCodeBuilderTest.testReflectionObjectCycle(HashCodeBuilderTest.java:524)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:reflectionHashCode(IILjava/lang/Object;ZLjava/lang/Class;[Ljava/lang/String;)I",
+            "method_body": "public static <T> int reflectionHashCode(int initialNonZeroOddNumber, int multiplierNonZeroOddNumber, T object,\nif (object == null) {\nHashCodeBuilder builder = new HashCodeBuilder(initialNonZeroOddNumber, multiplierNonZeroOddNumber);\nClass<?> clazz = object.getClass();\nreflectionAppend(object, clazz, builder, testTransients, excludeFields);\nwhile (clazz.getSuperclass() != null && clazz != reflectUpToClass) {\nclazz = clazz.getSuperclass();\nreflectionAppend(object, clazz, builder, testTransients, excludeFields);\nreturn builder.toHashCode();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:getRegistry()Ljava/util/Set;",
+            "method_body": "static Set<IDKey> getRegistry() {\nreturn REGISTRY.get();\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:<init>(II)V",
+            "method_body": "public HashCodeBuilder(int initialNonZeroOddNumber, int multiplierNonZeroOddNumber) {\nif (initialNonZeroOddNumber == 0) {\nif (initialNonZeroOddNumber % 2 == 0) {\nif (multiplierNonZeroOddNumber == 0) {\nif (multiplierNonZeroOddNumber % 2 == 0) {\niConstant = multiplierNonZeroOddNumber;\niTotal = initialNonZeroOddNumber;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.IDKey:hashCode()I",
+            "method_body": "public int hashCode() {\nreturn id;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ArrayUtils:contains([Ljava/lang/Object;Ljava/lang/Object;)Z",
+            "method_body": "public static boolean contains(Object[] array, Object objectToFind) {\nreturn indexOf(array, objectToFind) != INDEX_NOT_FOUND;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.IDKey:<init>(Ljava/lang/Object;)V",
+            "method_body": "public IDKey(Object _value) {\nid = System.identityHashCode(_value);\nvalue = _value;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:unregister(Ljava/lang/Object;)V",
+            "method_body": "static void unregister(Object value) {\ngetRegistry().remove(new IDKey(value));\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ArrayUtils:indexOf([Ljava/lang/Object;Ljava/lang/Object;I)I",
+            "method_body": "public static int indexOf(Object[] array, Object objectToFind, int startIndex) {\nif (array == null) {\nreturn INDEX_NOT_FOUND;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:reflectionHashCode(Ljava/lang/Object;)I",
+            "method_body": "public static int reflectionHashCode(Object object) {\nreturn reflectionHashCode(17, 37, object, false, null, null);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.ArrayUtils:indexOf([Ljava/lang/Object;Ljava/lang/Object;)I",
+            "method_body": "public static int indexOf(Object[] array, Object objectToFind) {\nreturn indexOf(array, objectToFind, 0);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:reflectionAppend(Ljava/lang/Object;Ljava/lang/Class;Lorg/apache/commons/lang3/builder/HashCodeBuilder;Z[Ljava/lang/String;)V",
+            "method_body": "private static void reflectionAppend(Object object, Class<?> clazz, HashCodeBuilder builder, boolean useTransients,\nif (isRegistered(object)) {\nreturn;\nregister(object);\nField[] fields = clazz.getDeclaredFields();\nAccessibleObject.setAccessible(fields, true);\nfor (Field field : fields) {\nif (!ArrayUtils.contains(excludeFields, field.getName())\nObject fieldValue = field.get(object);\nbuilder.append(fieldValue);\n}\nunregister(object);\n}\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:isRegistered(Ljava/lang/Object;)Z",
+            "method_body": "static boolean isRegistered(Object value) {\nreturn getRegistry().contains(new IDKey(value));\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.IDKey:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object other) {\nif (!(other instanceof IDKey)) {\nIDKey idKey = (IDKey) other;\nif (id != idKey.id) {\nreturn value == idKey.value;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:register(Ljava/lang/Object;)V",
+            "method_body": "static void register(Object value) {\ngetRegistry().add(new IDKey(value));\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:toHashCode()I",
+            "method_body": "public int toHashCode() {\nreturn iTotal;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.builder.HashCodeBuilder:append(Ljava/lang/Object;)Lorg/apache/commons/lang3/builder/HashCodeBuilder;",
+            "method_body": "public HashCodeBuilder append(Object object) {\nif (object == null) {\nif(object.getClass().isArray()) {\niTotal = iTotal * iConstant + object.hashCode();\nreturn this;\n}",
+            "method_id": 15
+        }
+    ]
+}

@@ -1,0 +1,204 @@
+{
+    "bug_id": 2,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.ArTestCase.testArDelete",
+    "test_body": "89: public void testArDelete() throws Exception {\n90: final File output = new File(dir, \"bla.ar\");\n91: 92: final File file1 = getFile(\"test1.xml\");\n93: final File file2 = getFile(\"test2.xml\");\n94: {\n95: // create\n96: 97: final OutputStream out = new FileOutputStream(output);\n98: final ArchiveOutputStream os = new ArchiveStreamFactory().createArchiveOutputStream(\"ar\", out);\n99: os.putArchiveEntry(new ArArchiveEntry(\"test1.xml\", file1.length()));\n100: IOUtils.copy(new FileInputStream(file1), os);\n101: os.closeArchiveEntry();\n102: 103: os.putArchiveEntry(new ArArchiveEntry(\"test2.xml\", file2.length()));\n104: IOUtils.copy(new FileInputStream(file2), os);\n105: os.closeArchiveEntry();\n106: os.close();\n107: out.close();\n108: }\n109: 110: assertEquals(8\n111: + 60 + file1.length() + (file1.length() % 2)\n112: + 60 + file2.length() + (file2.length() % 2),\n113: output.length());\n114: 115: final File output2 = new File(dir, \"bla2.ar\");\n116: 117: int copied = 0;\n118: int deleted = 0;\n119: 120: {\n121: // remove all but one file\n122: 123: final InputStream is = new FileInputStream(output);\n124: final OutputStream os = new FileOutputStream(output2);\n125: final ArchiveOutputStream aos = new ArchiveStreamFactory().createArchiveOutputStream(\"ar\", os);\n126: final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));\n127: while(true) {\n128: final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();\n129: if (entry == null) {\n130: break;\n131: }\n132: 133: if (\"test1.xml\".equals(entry.getName())) {\n134: aos.putArchiveEntry(entry);\n135: IOUtils.copy(ais, aos);\n136: aos.closeArchiveEntry();\n137: copied++;\n138: } else {\n139: IOUtils.copy(ais, new ByteArrayOutputStream());\n140: deleted++;\n141: }\n142: 143: }\n144: ais.close();\n145: aos.close();\n146: is.close();\n147: os.close();\n148: }\n149: 150: assertEquals(1, copied);\n151: assertEquals(1, deleted);\n152: assertEquals(144, output2.length());\n153: 154: long files = 0;\n155: long sum = 0;\n156: 157: {\n158: final InputStream is = new FileInputStream(output2);\n159: final ArchiveInputStream ais = new ArchiveStreamFactory().createArchiveInputStream(new BufferedInputStream(is));\n160: while(true) {\n161: final ArArchiveEntry entry = (ArArchiveEntry)ais.getNextEntry();\n162: if (entry == null) {\n163: break;\n164: }\n165: 166: IOUtils.copy(ais, new ByteArrayOutputStream());\n167: 168: sum +=  entry.getLength();\n169: files++;\n170: }\n171: ais.close();\n172: is.close();\n173: }\n174: 175: assertEquals(1, files);\n176: assertEquals(76, sum);\n177: 178: }\n",
+    "stack_trace": "",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveOutputStream(Ljava/lang/String;Ljava/io/OutputStream;)Lorg/apache/commons/compress/archivers/ArchiveOutputStream;",
+            "method_body": "public ArchiveOutputStream createArchiveOutputStream(\nif (archiverName == null || out == null) {\nif (\"ar\".equalsIgnoreCase(archiverName)) {\nreturn new ArArchiveOutputStream(out);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ArchiveStreamFactory:createArchiveInputStream(Ljava/io/InputStream;)Lorg/apache/commons/compress/archivers/ArchiveInputStream;",
+            "method_body": "public ArchiveInputStream createArchiveInputStream(final InputStream in)\nif (in == null) {\nif (!in.markSupported()) {\nfinal byte[] signature = new byte[12];\nin.mark(signature.length);\nint signatureLength = in.read(signature);\nin.reset();\nif (ZipArchiveInputStream.matches(signature, signatureLength)) {\n} else if (JarArchiveInputStream\n} else if (TarArchiveInputStream\n} else if (ArArchiveInputStream.matches(signature, signatureLength)) {\nreturn new ArArchiveInputStream(in);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:copy(Ljava/io/InputStream;Ljava/io/OutputStream;)J",
+            "method_body": "public static long copy(final InputStream input, final OutputStream output) throws IOException {\nreturn copy(input, output, 8024);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:copy(Ljava/io/InputStream;Ljava/io/OutputStream;I)J",
+            "method_body": "public static long copy(final InputStream input, final OutputStream output, int buffersize) throws IOException {\nfinal byte[] buffer = new byte[buffersize];\nint n = 0;\nlong count=0;\nwhile (-1 != (n = input.read(buffer))) {\noutput.write(buffer, 0, n);\ncount += n;\nreturn count;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:<init>(Ljava/io/OutputStream;)V",
+            "method_body": "private final OutputStream out;\nprivate long archiveOffset = 0;\nprivate long entryOffset = 0;\nprivate boolean haveUnclosedEntry = true;\npublic ArArchiveOutputStream( final OutputStream pOut ) {\nthis.out = pOut;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:writeArchiveHeader()J",
+            "method_body": "private long writeArchiveHeader() throws IOException {\nbyte [] header = ArArchiveEntry.HEADER.getBytes();\nout.write(header);\nreturn header.length;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:closeArchiveEntry()V",
+            "method_body": "public void closeArchiveEntry() throws IOException {\nif (prevEntry != null && haveUnclosedEntry && (entryOffset % 2) != 0) {\nhaveUnclosedEntry = false;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:putArchiveEntry(Lorg/apache/commons/compress/archivers/ArchiveEntry;)V",
+            "method_body": "public void putArchiveEntry( final ArchiveEntry pEntry ) throws IOException {\nArArchiveEntry pArEntry = (ArArchiveEntry)pEntry;\nif (prevEntry == null) {\narchiveOffset += writeArchiveHeader();\nif (prevEntry.getLength() != entryOffset) {\ncloseArchiveEntry();\nprevEntry = pArEntry;\narchiveOffset += writeEntryHeader(pArEntry);\nentryOffset = 0;\nhaveUnclosedEntry = true;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:fill(JJC)J",
+            "method_body": "private long fill( final long pOffset, final long pNewOffset, final char pFill ) throws IOException {\nfinal long diff = pNewOffset - pOffset;\nif (diff > 0) {\nfor (int i = 0; i < diff; i++) {\nwrite(pFill);\nreturn pNewOffset;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:write(Ljava/lang/String;)J",
+            "method_body": "private long write( final String data ) throws IOException {\nfinal byte[] bytes = data.getBytes(\"ascii\");\nwrite(bytes);\nreturn bytes.length;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:writeEntryHeader(Lorg/apache/commons/compress/archivers/ar/ArArchiveEntry;)J",
+            "method_body": "private long writeEntryHeader( final ArArchiveEntry pEntry ) throws IOException {\nlong offset = 0;\nfinal String n = pEntry.getName();\nif (n.length() > 16) {\noffset += write(n);\noffset = fill(offset, 16, ' ');\nfinal String m = \"\" + (pEntry.getLastModified() / 1000);\nif (m.length() > 12) {\noffset += write(m);\noffset = fill(offset, 28, ' ');\nfinal String u = \"\" + pEntry.getUserId();\nif (u.length() > 6) {\noffset += write(u);\noffset = fill(offset, 34, ' ');\nfinal String g = \"\" + pEntry.getGroupId();\nif (g.length() > 6) {\noffset += write(g);\noffset = fill(offset, 40, ' ');\nfinal String fm = \"\" + Integer.toString(pEntry.getMode(), 8);\nif (fm.length() > 8) {\noffset += write(fm);\noffset = fill(offset, 48, ' ');\nfinal String s = \"\" + pEntry.getLength();\nif (s.length() > 10) {\noffset += write(s);\noffset = fill(offset, 58, ' ');\noffset += write(ArArchiveEntry.TRAILER);\nreturn offset;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:write(I)V",
+            "method_body": "public void write(int b) throws IOException {\nout.write(b);\nentryOffset++;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:write([BII)V",
+            "method_body": "public void write(byte[] b, int off, int len) throws IOException {\nout.write(b, off, len);\nentryOffset += len;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:write([B)V",
+            "method_body": "public void write(byte[] b) throws IOException {\nout.write(b);\nentryOffset += b.length;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream:close()V",
+            "method_body": "public void close() throws IOException {\ncloseArchiveEntry();\nout.close();\nprevEntry = null;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:<init>(Ljava/lang/String;J)V",
+            "method_body": "public ArArchiveEntry(String name, long length) {\nthis(name, length, 0, 0, DEFAULT_MODE, System.currentTimeMillis());\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:<init>(Ljava/lang/String;JIIIJ)V",
+            "method_body": "public ArArchiveEntry(String name, long length, int userId, int groupId, int mode, long lastModified) {\nthis.name = name;\nthis.length = length;\nthis.userId = userId;\nthis.groupId = groupId;\nthis.mode = mode;\nthis.lastModified = lastModified;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getName()Ljava/lang/String;",
+            "method_body": "public String getName() {\nreturn name;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getUserId()I",
+            "method_body": "public int getUserId() {\nreturn userId;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getGroupId()I",
+            "method_body": "public int getGroupId() {\nreturn groupId;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getMode()I",
+            "method_body": "public int getMode() {\nreturn mode;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getLastModified()J",
+            "method_body": "public long getLastModified() {\nreturn lastModified;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveEntry:getLength()J",
+            "method_body": "public long getLength() {\nreturn length;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < ZipArchiveOutputStream.LFH_SIG.length) {\nreturn checksig(signature, ZipArchiveOutputStream.LFH_SIG) // normal file\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream:checksig([B[B)Z",
+            "method_body": "private static boolean checksig(byte[] signature, byte[] expected){\nfor (int i = 0; i < expected.length; i++) {\nif (signature[i] != expected[i]) {\nreturn false;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream:<clinit>()V",
+            "method_body": "private static final byte[] LZERO = {0, 0, 0, 0};\nprivate static final byte[] LZERO = {0, 0, 0, 0};",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>(J)V",
+            "method_body": "public ZipLong(long value) {\nthis.value = value;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<clinit>()V",
+            "method_body": "private static final int WORD = 4;\npublic static final ZipLong CFH_SIG = new ZipLong(0X02014B50L);\npublic static final ZipLong LFH_SIG = new ZipLong(0X04034B50L);\npublic ZipLong(long value) {\nthis.value = value;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes()[B",
+            "method_body": "public byte[] getBytes() {\nreturn ZipLong.getBytes(value);\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getBytes(J)[B",
+            "method_body": "public static byte[] getBytes(long value) {\nbyte[] result = new byte[WORD];\nresult[0] = (byte) ((value & BYTE_MASK));\nresult[BYTE_1] = (byte) ((value & BYTE_1_MASK) >> BYTE_1_SHIFT);\nresult[BYTE_2] = (byte) ((value & BYTE_2_MASK) >> BYTE_2_SHIFT);\nresult[BYTE_3] = (byte) ((value & BYTE_3_MASK) >> BYTE_3_SHIFT);\nreturn result;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.jar.JarArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length ) {\nreturn ZipArchiveInputStream.matches(signature, length);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.tar.TarArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 8) {\nif (signature[0] != 0x74) {\nreturn false;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public ArArchiveInputStream( final InputStream pInput ) {\ninput = pInput;\nclosed = false;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:getNextArEntry()Lorg/apache/commons/compress/archivers/ar/ArArchiveEntry;",
+            "method_body": "public ArArchiveEntry getNextArEntry() throws IOException {\nif (offset == 0) {\nfinal byte[] expected = ArArchiveEntry.HEADER.getBytes();\nfinal byte[] realized = new byte[expected.length];\nfinal int read = read(realized);\nif (read != expected.length) {\nfor (int i = 0; i < expected.length; i++) {\nif (expected[i] != realized[i]) {\nif (input.available() == 0) {\nreturn null;\nif (offset % 2 != 0) {\nfinal byte[] name = new byte[16];\nfinal byte[] lastmodified = new byte[12];\nfinal byte[] userid = new byte[6];\nfinal byte[] groupid = new byte[6];\nfinal byte[] filemode = new byte[8];\nfinal byte[] length = new byte[10];\nread(name);\nread(lastmodified);\nread(userid);\nread(groupid);\nread(filemode);\nread(length);\nfinal byte[] expected = ArArchiveEntry.TRAILER.getBytes();\nfinal byte[] realized = new byte[expected.length];\nfinal int read = read(realized);\nif (read != expected.length) {\nfor (int i = 0; i < expected.length; i++) {\nif (expected[i] != realized[i]) {\nreturn new ArArchiveEntry(new String(name).trim(),\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:getNextEntry()Lorg/apache/commons/compress/archivers/ArchiveEntry;",
+            "method_body": "public ArchiveEntry getNextEntry() throws IOException {\nreturn getNextArEntry();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (!closed) {\nclosed = true;\ninput.close();\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:read([B)I",
+            "method_body": "public int read(byte[] b) throws IOException {\nreturn read(b, 0, b.length);\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:read([BII)I",
+            "method_body": "public int read(byte[] b, final int off, final int len) throws IOException {\nint toRead = len;\nfinal int ret = this.input.read(b, off, toRead);\noffset += (ret > 0 ? ret : 0);\nreturn ret;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.ar.ArArchiveInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 8) {\nif (signature[0] != 0x21) {\nif (signature[1] != 0x3c) {\nif (signature[2] != 0x61) {\nif (signature[3] != 0x72) {\nif (signature[4] != 0x63) {\nif (signature[5] != 0x68) {\nif (signature[6] != 0x3e) {\nif (signature[7] != 0x0a) {\nreturn true;\n}",
+            "method_id": 38
+        }
+    ]
+}

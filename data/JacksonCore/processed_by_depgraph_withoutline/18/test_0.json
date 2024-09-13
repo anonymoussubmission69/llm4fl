@@ -1,0 +1,169 @@
+{
+    "bug_id": 18,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures.testTooBigBigDecimal",
+    "test_body": "public void testTooBigBigDecimal() throws Exception\n{\nJsonFactory f = new JsonFactory();\nf.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);\n116: // 24-Aug-2016, tatu: Initial check limits scale to [-9999,+9999]\nBigDecimal BIG = new BigDecimal(\"1E+9999\");\nBigDecimal TOO_BIG = new BigDecimal(\"1E+10000\");\nBigDecimal SMALL = new BigDecimal(\"1E-9999\");\nBigDecimal TOO_SMALL = new BigDecimal(\"1E-10000\");\n122: for (boolean useBytes : new boolean[] { false, true } ) {\nfor (boolean asString : new boolean[] { false, true } ) {\nJsonGenerator g;\n126: if (useBytes) {\ng = f.createGenerator(new ByteArrayOutputStream());\n} else {\ng = f.createGenerator(new StringWriter());\n}\nif (asString) {\ng.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);\n}\n135: // first, ok cases:\ng.writeStartArray();\ng.writeNumber(BIG);\ng.writeNumber(SMALL);\ng.writeEndArray();\ng.close();\n142: // then invalid\nfor (BigDecimal input : new BigDecimal[] { TOO_BIG, TOO_SMALL }) {\nif (useBytes) {\ng = f.createGenerator(new ByteArrayOutputStream());\n} else {\ng = f.createGenerator(new StringWriter());\n}\nif (asString) {\ng.enable(JsonGenerator.Feature.WRITE_NUMBERS_AS_STRINGS);\n}\ntry {\ng.writeNumber(input);\nfail(\"Should not have written without exception: \"+input);\n} catch (JsonGenerationException e) {",
+    "stack_trace": "junit.framework.AssertionFailedError: Should not have written without exception: 1E+10000\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures.testTooBigBigDecimal(TestJsonGeneratorFeatures.java:154)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:writeRawLong(Ljava/lang/String;)V",
+            "method_body": "private void writeRawLong(String text) throws IOException\nint room = _outputEnd - _outputTail;\ntext.getChars(0, room, _outputBuffer, _outputTail);\n_outputTail += room;\n_flushBuffer();\nint offset = room;\nint len = text.length() - room;\nwhile (len > _outputEnd) {\nint amount = _outputEnd;\ntext.getChars(offset, offset+amount, _outputBuffer, 0);\n_outputHead = 0;\n_outputTail = amount;\n_flushBuffer();\noffset += amount;\nlen -= amount;\n}\ntext.getChars(offset, offset+len, _outputBuffer, 0);\n_outputHead = 0;\n_outputTail = len;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:writeNumber(Ljava/math/BigDecimal;)V",
+            "method_body": "public void writeNumber(BigDecimal value) throws IOException\n_verifyValueWrite(WRITE_NUMBER);\nif (value == null) {\n} else  if (_cfgNumbersAsStrings) {\n} else if (isEnabled(Feature.WRITE_BIGDECIMAL_AS_PLAIN)) {\nwriteRaw(value.toPlainString());\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:writeRaw(Ljava/lang/String;)V",
+            "method_body": "public void writeRaw(String text) throws IOException\nint len = text.length();\nint room = _outputEnd - _outputTail;\nif (room == 0) {\nif (room >= len) {\nwriteRawLong(text);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:enable(Lcom/fasterxml/jackson/core/JsonGenerator$Feature;)Lcom/fasterxml/jackson/core/JsonFactory;",
+            "method_body": "public JsonFactory enable(JsonGenerator.Feature f) {\n_generatorFeatures |= f.getMask();\nreturn this;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:close()V",
+            "method_body": "public void close() throws IOException\nsuper.close();\nif (_outputBuffer != null\nJsonStreamContext ctxt = getOutputContext();\nif (ctxt.inArray()) {\n} else if (ctxt.inObject()) {\n_flushBuffer();\n_outputHead = 0;\n_outputTail = 0;\nif (_writer != null) {\nif (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {\n_writer.close();\n_releaseBuffers();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:_verifyValueWrite(Ljava/lang/String;)V",
+            "method_body": "protected void _verifyValueWrite(String typeMsg) throws IOException\nif (_cfgPrettyPrinter != null) {\nfinal int status = _writeContext.writeValue();\nif (status == JsonWriteContext.STATUS_EXPECT_NAME) {\nswitch (status) {\nc = ',';\nbreak;\nreturn;\nif (_outputTail >= _outputEnd) {\n_outputBuffer[_outputTail] = c;\n++_outputTail;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:writeEndArray()V",
+            "method_body": "public void writeEndArray() throws IOException, JsonGenerationException\nif (!_writeContext.inArray()) {\nif (_cfgPrettyPrinter != null) {\nif (_outputTail >= _outputEnd) {\n_outputBuffer[_outputTail++] = ']';\n_writeContext = _writeContext.clearAndGetParent();\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createGenerator(Ljava/io/Writer;Lcom/fasterxml/jackson/core/io/IOContext;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException\nWriterBasedJsonGenerator gen = new WriterBasedJsonGenerator(ctxt,\nif (_characterEscapes != null) {\nSerializableString rootSep = _rootValueSeparator;\nif (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {\nreturn gen;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:writeStartArray()V",
+            "method_body": "public void writeStartArray() throws IOException, JsonGenerationException\n_verifyValueWrite(\"start an array\");\n_writeContext = _writeContext.createChildArrayContext();\nif (_cfgPrettyPrinter != null) {\nif (_outputTail >= _outputEnd) {\n_outputBuffer[_outputTail++] = '[';\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:_flushBuffer()V",
+            "method_body": "protected void _flushBuffer() throws IOException\nint len = _outputTail - _outputHead;\nif (len > 0) {\nint offset = _outputHead;\n_outputTail = _outputHead = 0;\n_writer.write(_outputBuffer, offset, len);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:createGenerator(Ljava/io/Writer;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "public JsonGenerator createGenerator(Writer w) throws IOException {\nIOContext ctxt = _createContext(w, false);\nreturn _createGenerator(_decorate(w, ctxt), ctxt);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:_releaseBuffers()V",
+            "method_body": "protected void _releaseBuffers()\nchar[] buf = _outputBuffer;\nif (buf != null) {\n_outputBuffer = null;\n_ioContext.releaseConcatBuffer(buf);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_getBufferRecycler()Lcom/fasterxml/jackson/core/util/BufferRecycler;",
+            "method_body": "public BufferRecycler _getBufferRecycler()\nif (isEnabled(Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)) {\nSoftReference<BufferRecycler> ref = _recyclerRef.get();\nbr = (ref == null) ? null : ref.get();\nif (br == null) {\nbr = new BufferRecycler();\n_recyclerRef.set(new SoftReference<BufferRecycler>(br));\n} else {\nreturn br;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.base.GeneratorBase:<init>(ILcom/fasterxml/jackson/core/ObjectCodec;)V",
+            "method_body": "protected GeneratorBase(int features, ObjectCodec codec) {\nsuper();\n_features = features;\n_objectCodec = codec;\nDupDetector dups = Feature.STRICT_DUPLICATE_DETECTION.enabledIn(features)\n_writeContext = JsonWriteContext.createRootContext(dups);\n_cfgNumbersAsStrings = Feature.WRITE_NUMBERS_AS_STRINGS.enabledIn(features);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_decorate(Ljava/io/Writer;Lcom/fasterxml/jackson/core/io/IOContext;)Ljava/io/Writer;",
+            "method_body": "protected final Writer _decorate(Writer out, IOContext ctxt) throws IOException {\nif (_outputDecorator != null) {\nreturn out;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:<init>(Lcom/fasterxml/jackson/core/io/IOContext;ILcom/fasterxml/jackson/core/ObjectCodec;Ljava/io/Writer;)V",
+            "method_body": "public WriterBasedJsonGenerator(IOContext ctxt, int features,\nsuper(ctxt, features, codec);\n_writer = w;\n_outputBuffer = ctxt.allocConcatBuffer();\n_outputEnd = _outputBuffer.length;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createContext(Ljava/lang/Object;Z)Lcom/fasterxml/jackson/core/io/IOContext;",
+            "method_body": "protected IOContext _createContext(Object srcRef, boolean resourceManaged) {\nreturn new IOContext(_getBufferRecycler(), srcRef, resourceManaged);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:isEnabled(Lcom/fasterxml/jackson/core/JsonFactory$Feature;)Z",
+            "method_body": "public final boolean isEnabled(JsonFactory.Feature f) {\nreturn (_factoryFeatures & f.getMask()) != 0;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonGenerator$Feature:getMask()I",
+            "method_body": "public int getMask() { return _mask; }\npublic int getMask() { return _mask; }",
+            "method_id": 18
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator:<clinit>()V",
+            "method_body": "final protected static int SHORT_WRITE = 32;\nfinal protected static char[] HEX_CHARS = CharTypes.copyHexChars();\n* being written using {@link #_writer}.",
+            "method_id": 19
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:<init>()V",
+            "method_body": "public JsonFactory() { this(null); }\npublic JsonFactory() { this(null); }",
+            "method_id": 20
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:<init>(Lcom/fasterxml/jackson/core/ObjectCodec;)V",
+            "method_body": "public JsonFactory(ObjectCodec oc) { _objectCodec = oc; }\npublic JsonFactory(ObjectCodec oc) { _objectCodec = oc; }",
+            "method_id": 21
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.base.GeneratorBase:<clinit>()V",
+            "method_body": "public final static int SURR1_FIRST = 0xD800;\nprotected final static int DERIVED_FEATURES_MASK =\n* This value is the limit of scale allowed for serializing {@link BigDecimal}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.base.GeneratorBase:close()V",
+            "method_body": "@Override public abstract void flush() throws IOException;\n@Override public void close() throws IOException { _closed = true; }",
+            "method_id": 23
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory$Feature:getMask()I",
+            "method_body": "public int getMask() { return (1 << ordinal()); }\npublic int getMask() { return (1 << ordinal()); }",
+            "method_id": 24
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonParser$Feature:getMask()I",
+            "method_body": "public int getMask() { return _mask; }\npublic int getMask() { return _mask; }",
+            "method_id": 25
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.base.GeneratorBase:isEnabled(Lcom/fasterxml/jackson/core/JsonGenerator$Feature;)Z",
+            "method_body": "@Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }\n@Override public final boolean isEnabled(Feature f) { return (_features & f.getMask()) != 0; }",
+            "method_id": 26
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.base.GeneratorBase:getOutputContext()Lcom/fasterxml/jackson/core/json/JsonWriteContext;",
+            "method_body": "@Override public JsonWriteContext getOutputContext() { return _writeContext; }\n@Override public JsonWriteContext getOutputContext() { return _writeContext; }",
+            "method_id": 27
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:<init>(Lcom/fasterxml/jackson/core/util/BufferRecycler;Ljava/lang/Object;Z)V",
+            "method_body": "public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource)\n{\n_bufferRecycler = br;\n_sourceRef = sourceRef;\n_managedResource = managedResource;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>()V",
+            "method_body": "public BufferRecycler() {\nthis(4, 4);\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>(II)V",
+            "method_body": "protected BufferRecycler(int bbCount, int cbCount) {\n_byteBuffers = new byte[bbCount][];\n_charBuffers = new char[cbCount][];\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:<init>(Lcom/fasterxml/jackson/core/JsonFactory;Lcom/fasterxml/jackson/core/ObjectCodec;)V",
+            "method_body": "final protected static ThreadLocal<SoftReference<BufferRecycler>> _recyclerRef\nprotected final transient CharsToNameCanonicalizer _rootCharSymbols = CharsToNameCanonicalizer.createRoot();\nprotected final transient ByteQuadsCanonicalizer _byteSymbolCanonicalizer = ByteQuadsCanonicalizer.createRoot();\nprotected int _factoryFeatures = DEFAULT_FACTORY_FEATURE_FLAGS;\nprotected int _parserFeatures = DEFAULT_PARSER_FEATURE_FLAGS;\nprotected int _generatorFeatures = DEFAULT_GENERATOR_FEATURE_FLAGS;\nprotected SerializableString _rootValueSeparator = DEFAULT_ROOT_VALUE_SEPARATOR;\npublic JsonFactory() { this(null); }",
+            "method_id": 31
+        }
+    ]
+}

@@ -1,0 +1,24 @@
+{
+    "bug_id": 36,
+    "test_id": 0,
+    "test_name": "org.jsoup.integration.ParseTest.testBrokenHtml5CharsetWithASingleDoubleQuote",
+    "test_body": "public void testBrokenHtml5CharsetWithASingleDoubleQuote() throws IOException {\nInputStream in = inputStreamFrom(\"<html>\\n\" +\n\"<head><meta charset=UTF-8\\\"></head>\\n\" +\n\"<body></body>\\n\" +\n\"</html>\");\nDocument doc = Jsoup.parse(in, null, \"http://example.com/\");\nassertEquals(\"UTF-8\", doc.outputSettings().charset().displayName());",
+    "stack_trace": "java.nio.charset.IllegalCharsetNameException: UTF-8\"\nat java.nio.charset.Charset.checkName(Charset.java:315)\nat java.nio.charset.Charset.lookup2(Charset.java:484)\nat java.nio.charset.Charset.lookup(Charset.java:464)\nat java.nio.charset.Charset.forName(Charset.java:528)\nat org.jsoup.helper.DataUtil.parseByteData(DataUtil.java:94)\nat org.jsoup.helper.DataUtil.load(DataUtil.java:55)\nat org.jsoup.Jsoup.parse(Jsoup.java:118)\nat org.jsoup.integration.ParseTest.testBrokenHtml5CharsetWithASingleDoubleQuote(ParseTest.java:149)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:parseByteData(Ljava/nio/ByteBuffer;Ljava/lang/String;Ljava/lang/String;Lorg/jsoup/parser/Parser;)Lorg/jsoup/nodes/Document;",
+            "method_body": "static Document parseByteData(ByteBuffer byteData, String charsetName, String baseUri, Parser parser) {\nDocument doc = null;\nif (charsetName == null) { // determine from meta. safe parse as UTF-8\ndocData = Charset.forName(defaultCharset).decode(byteData).toString();\ndoc = parser.parseInput(docData, baseUri);\nElement meta = doc.select(\"meta[http-equiv=content-type], meta[charset]\").first();\nif (meta != null) { // if not found, will keep utf-8 as best attempt\nif (meta.hasAttr(\"http-equiv\")) {\nfoundCharset = meta.attr(\"charset\");\nif (foundCharset != null && foundCharset.length() != 0 && !foundCharset.equals(defaultCharset)) { // need to re-decode\ncharsetName = foundCharset;\nbyteData.rewind();\ndocData = Charset.forName(foundCharset).decode(byteData).toString();\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:readToByteBuffer(Ljava/io/InputStream;I)Ljava/nio/ByteBuffer;",
+            "method_body": "static ByteBuffer readToByteBuffer(InputStream inStream, int maxSize) throws IOException {\nValidate.isTrue(maxSize >= 0, \"maxSize must be 0 (unlimited) or larger\");\nfinal boolean capped = maxSize > 0;\nbyte[] buffer = new byte[bufferSize];\nByteArrayOutputStream outStream = new ByteArrayOutputStream(bufferSize);\nint remaining = maxSize;\nread = inStream.read(buffer);\nif (read == -1) break;\nif (capped) {\noutStream.write(buffer, 0, read);\nByteBuffer byteData = ByteBuffer.wrap(outStream.toByteArray());\nreturn byteData;\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:readToByteBuffer(Ljava/io/InputStream;)Ljava/nio/ByteBuffer;",
+            "method_body": "static ByteBuffer readToByteBuffer(InputStream inStream) throws IOException {\nreturn readToByteBuffer(inStream, 0);\n}",
+            "method_id": 202
+        }
+    ]
+}

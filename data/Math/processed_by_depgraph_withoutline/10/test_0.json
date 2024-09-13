@@ -1,0 +1,114 @@
+{
+    "bug_id": 10,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.analysis.differentiation.DerivativeStructureTest.testAtan2SpecialCases",
+    "test_body": "public void testAtan2SpecialCases() {\n813: DerivativeStructure pp =\nDerivativeStructure.atan2(new DerivativeStructure(2, 2, 1, +0.0),\nnew DerivativeStructure(2, 2, 1, +0.0));\nAssert.assertEquals(0, pp.getValue(), 1.0e-15);\nAssert.assertEquals(+1, FastMath.copySign(1, pp.getValue()), 1.0e-15);",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<0.0> but was:<NaN>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math3.analysis.differentiation.DerivativeStructureTest.testAtan2SpecialCases(DerivativeStructureTest.java:816)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:atan([DI[DI)V",
+            "method_body": "public void atan(final double[] operand, final int operandOffset,\ndouble[] function = new double[1 + order];\nfinal double x = operand[operandOffset];\nfunction[0] = FastMath.atan(x);\nif (order > 0) {\nfinal double[] q = new double[order];\nq[0] = 1;\nfinal double x2    = x * x;\nfinal double f     = 1.0 / (1 + x2);\ndouble coeff = f;\nfunction[1] = coeff * q[0];\nfor (int n = 2; n <= order; ++n) {\ndouble v = 0;\nq[n - 1] = -n * q[n - 2];\nfor (int k = n - 1; k >= 0; k -= 2) {\nv = v * x2 + q[k];\nif (k > 2) {\n} else if (k == 2) {\nif ((n & 0x1) == 0) {\nv *= x;\ncoeff *= f;\nfunction[n] = coeff * v;\ncompose(operand, operandOffset, function, result, resultOffset);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:atan2(Lorg/apache/commons/math3/analysis/differentiation/DerivativeStructure;Lorg/apache/commons/math3/analysis/differentiation/DerivativeStructure;)Lorg/apache/commons/math3/analysis/differentiation/DerivativeStructure;",
+            "method_body": "public static DerivativeStructure atan2(final DerivativeStructure y, final DerivativeStructure x)\ny.compiler.checkCompatibility(x.compiler);\nfinal DerivativeStructure result = new DerivativeStructure(y.compiler);\ny.compiler.atan2(y.data, 0, x.data, 0, result.data, 0);\nreturn result;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:pow(DI)D",
+            "method_body": "public static double pow(double d, int e) {\nif (e == 0) {\n} else if (e < 0) {\nfinal int splitFactor = 0x8000001;\nfinal double cd       = splitFactor * d;\nfinal double d1High   = cd - (cd - d);\nfinal double d1Low    = d - d1High;\ndouble resultHigh = 1;\ndouble resultLow  = 0;\ndouble d2p     = d;\ndouble d2pHigh = d1High;\ndouble d2pLow  = d1Low;\nwhile (e != 0) {\nif ((e & 0x1) != 0) {\nfinal double tmpHigh = resultHigh * d2p;\nfinal double cRH     = splitFactor * resultHigh;\nfinal double rHH     = cRH - (cRH - resultHigh);\nfinal double rHL     = resultHigh - rHH;\nfinal double tmpLow  = rHL * d2pLow - (((tmpHigh - rHH * d2pHigh) - rHL * d2pHigh) - rHH * d2pLow);\nresultHigh = tmpHigh;\nresultLow  = resultLow * d2p + tmpLow;\nfinal double tmpHigh = d2pHigh * d2p;\nfinal double cD2pH   = splitFactor * d2pHigh;\nfinal double d2pHH   = cD2pH - (cD2pH - d2pHigh);\nfinal double d2pHL   = d2pHigh - d2pHH;\nfinal double tmpLow  = d2pHL * d2pLow - (((tmpHigh - d2pHH * d2pHigh) - d2pHL * d2pHigh) - d2pHH * d2pLow);\nfinal double cTmpH   = splitFactor * tmpHigh;\nd2pHigh = cTmpH - (cTmpH - tmpHigh);\nd2pLow  = d2pLow * d2p + tmpLow + (tmpHigh - d2pHigh);\nd2p     = d2pHigh + d2pLow;\ne = e >> 1;\n}\nreturn resultHigh + resultLow;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:atan(DDZ)D",
+            "method_body": "private static double atan(double xa, double xb, boolean leftPlane) {\nboolean negate = false;\nif (xa == 0.0) { // Matches +/- 0.0; return correct sign\nif (xa < 0) {\nif (xa > 1.633123935319537E16) { // Very large input\nif (xa < 1) {\nfinal double oneOverXa = 1 / xa;\nidx = (int) (-((-1.7168146928204136 * oneOverXa * oneOverXa + 8.0) * oneOverXa) + 13.07);\ndouble epsA = xa - TANGENT_TABLE_A[idx];\ndouble epsB = -(epsA - xa + TANGENT_TABLE_A[idx]);\nepsB += xb - TANGENT_TABLE_B[idx];\ndouble temp = epsA + epsB;\nepsB = -(temp - epsA - epsB);\nepsA = temp;\ntemp = xa * HEX_40000000;\ndouble ya = xa + temp - temp;\ndouble yb = xb + xa - ya;\nxa = ya;\nxb += yb;\nif (idx == 0) {\nfinal double denom = 1d / (1d + (xa + xb) * (TANGENT_TABLE_A[idx] + TANGENT_TABLE_B[idx]));\nya = epsA * denom;\nyb = epsB * denom;\n} else {\nepsA = ya;\nepsB = yb;\nfinal double epsA2 = epsA * epsA;\nyb = 0.07490822288864472;\nyb = yb * epsA2 + -0.09088450866185192;\nyb = yb * epsA2 + 0.11111095942313305;\nyb = yb * epsA2 + -0.1428571423679182;\nyb = yb * epsA2 + 0.19999999999923582;\nyb = yb * epsA2 + -0.33333333333333287;\nyb = yb * epsA2 * epsA;\nya = epsA;\ntemp = ya + yb;\nyb = -(temp - ya - yb);\nya = temp;\nyb += epsB / (1d + epsA * epsA);\ndouble za = EIGHTHS[idx] + ya;\ndouble zb = -(za - EIGHTHS[idx] - ya);\ntemp = za + yb;\nzb += -(temp - za - yb);\nza = temp;\ndouble result = za + zb;\ndouble resultb = -(result - za - zb);\nif (leftPlane) {\nif (negate ^ leftPlane) {\nreturn result;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:atan2([DI[DI[DI)V",
+            "method_body": "public void atan2(final double[] y, final int yOffset,\ndouble[] tmp1 = new double[getSize()];\nmultiply(x, xOffset, x, xOffset, tmp1, 0);      // x^2\ndouble[] tmp2 = new double[getSize()];\nmultiply(y, yOffset, y, yOffset, tmp2, 0);      // y^2\nadd(tmp1, 0, tmp2, 0, tmp2, 0);                 // x^2 + y^2\nrootN(tmp2, 0, 2, tmp1, 0);                     // r = sqrt(x^2 + y^2)\nif (x[xOffset] >= 0) {\nadd(tmp1, 0, x, xOffset, tmp2, 0);          // r + x\ndivide(y, yOffset, tmp2, 0, tmp1, 0);       // y /(r + x)\natan(tmp1, 0, tmp2, 0);                     // atan(y / (r + x))\nfor (int i = 0; i < tmp2.length; ++i) {\nresult[resultOffset + i] = 2 * tmp2[i]; // 2 * atan(y / (r + x))\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:atan(D)D",
+            "method_body": "public static double atan(double x) {\nreturn atan(x, 0.0, false);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:pow([DII[DI)V",
+            "method_body": "public void pow(final double[] operand, final int operandOffset, final int n,\nif (n == 0) {\ndouble[] function = new double[1 + order];\nif (n > 0) {\nfinal double inv = 1.0 / operand[operandOffset];\ndouble xk = FastMath.pow(inv, -n);\nfor (int i = 0; i <= order; ++i) {\nfunction[i] = xk;\nxk *= inv;\ndouble coefficient = n;\nfor (int i = 1; i <= order; ++i) {\nfunction[i] *= coefficient;\ncoefficient *= n - i;\ncompose(operand, operandOffset, function, result, resultOffset);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:rootN([DII[DI)V",
+            "method_body": "public void rootN(final double[] operand, final int operandOffset, final int n,\ndouble[] function = new double[1 + order];\nif (n == 2) {\nfunction[0] = FastMath.sqrt(operand[operandOffset]);\nxk          = 0.5 / function[0];\nfinal double nReciprocal = 1.0 / n;\nfinal double xReciprocal = 1.0 / operand[operandOffset];\nfor (int i = 1; i <= order; ++i) {\nfunction[i] = xk;\nxk *= xReciprocal * (nReciprocal - i);\ncompose(operand, operandOffset, function, result, resultOffset);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:getCompiler(II)Lorg/apache/commons/math3/analysis/differentiation/DSCompiler;",
+            "method_body": "public static DSCompiler getCompiler(int parameters, int order) {\nfinal DSCompiler[][] cache = compilers.get();\nif (cache != null && cache.length > parameters && cache[parameters].length > order) {\nif (cache[parameters][order] != null) {\nreturn cache[parameters][order];\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:compose([DI[D[DI)V",
+            "method_body": "public void compose(final double[] operand, final int operandOffset, final double[] f,\nfor (int i = 0; i < compIndirection.length; ++i) {\nfinal int[][] mappingI = compIndirection[i];\ndouble r = 0;\nfor (int j = 0; j < mappingI.length; ++j) {\nfinal int[] mappingIJ = mappingI[j];\ndouble product = mappingIJ[0] * f[mappingIJ[1]];\nfor (int k = 2; k < mappingIJ.length; ++k) {\nproduct *= operand[operandOffset + mappingIJ[k]];\nr += product;\nresult[resultOffset + i] = r;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:getValue()D",
+            "method_body": "public double getValue() {\nreturn data[0];\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:multiply([DI[DI[DI)V",
+            "method_body": "public void multiply(final double[] lhs, final int lhsOffset,\nfor (int i = 0; i < multIndirection.length; ++i) {\nfinal int[][] mappingI = multIndirection[i];\ndouble r = 0;\nfor (int j = 0; j < mappingI.length; ++j) {\nr += mappingI[j][0] *\nresult[resultOffset + i] = r;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:<init>(IIID)V",
+            "method_body": "public DerivativeStructure(final int parameters, final int order,\nthis(parameters, order, value);\nif (index >= parameters) {\nif (order > 0) {\ndata[DSCompiler.getCompiler(index, order).getSize()] = 1.0;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:divide([DI[DI[DI)V",
+            "method_body": "public void divide(final double[] lhs, final int lhsOffset,\nfinal double[] reciprocal = new double[getSize()];\npow(rhs, lhsOffset, -1, reciprocal, 0);\nmultiply(lhs, lhsOffset, reciprocal, 0, result, resultOffset);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:getSize()I",
+            "method_body": "public int getSize() {\nreturn sizes[parameters][order];\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:checkCompatibility(Lorg/apache/commons/math3/analysis/differentiation/DSCompiler;)V",
+            "method_body": "public void checkCompatibility(final DSCompiler compiler)\nif (parameters != compiler.parameters) {\nif (order != compiler.order) {\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:<init>(IID)V",
+            "method_body": "public DerivativeStructure(final int parameters, final int order, final double value) {\nthis(parameters, order);\nthis.data[0] = value;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DSCompiler:add([DI[DI[DI)V",
+            "method_body": "public void add(final double[] lhs, final int lhsOffset,\nfor (int i = 0; i < getSize(); ++i) {\nresult[resultOffset + i] = lhs[lhsOffset + i] + rhs[rhsOffset + i];\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:<init>(II)V",
+            "method_body": "public DerivativeStructure(final int parameters, final int order) {\nthis(DSCompiler.getCompiler(parameters, order));\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math3.analysis.differentiation.DerivativeStructure:<init>(Lorg/apache/commons/math3/analysis/differentiation/DSCompiler;)V",
+            "method_body": "private DerivativeStructure(final DSCompiler compiler) {\nthis.compiler = compiler;\nthis.data     = new double[compiler.getSize()];\n}",
+            "method_id": 20
+        }
+    ]
+}

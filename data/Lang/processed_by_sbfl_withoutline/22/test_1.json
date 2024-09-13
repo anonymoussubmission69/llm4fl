@@ -1,0 +1,34 @@
+{
+    "bug_id": 22,
+    "test_id": 1,
+    "test_name": "org.apache.commons.lang3.math.FractionTest.testReducedFactory_int_int",
+    "test_body": "public void testReducedFactory_int_int() {\nFraction f = null;\n253: // zero\nf = Fraction.getReducedFraction(0, 1);\nassertEquals(0, f.getNumerator());\nassertEquals(1, f.getDenominator());\n258: // normal\nf = Fraction.getReducedFraction(1, 1);\nassertEquals(1, f.getNumerator());\nassertEquals(1, f.getDenominator());\n263: f = Fraction.getReducedFraction(2, 1);\nassertEquals(2, f.getNumerator());\nassertEquals(1, f.getDenominator());\n267: // improper\nf = Fraction.getReducedFraction(22, 7);\nassertEquals(22, f.getNumerator());\nassertEquals(7, f.getDenominator());\n272: // negatives\nf = Fraction.getReducedFraction(-6, 10);\nassertEquals(-3, f.getNumerator());\nassertEquals(5, f.getDenominator());\n277: f = Fraction.getReducedFraction(6, -10);\nassertEquals(-3, f.getNumerator());\nassertEquals(5, f.getDenominator());\n281: f = Fraction.getReducedFraction(-6, -10);\nassertEquals(3, f.getNumerator());\nassertEquals(5, f.getDenominator());\n285: // zero denominator\ntry {\nf = Fraction.getReducedFraction(1, 0);\nfail(\"expecting ArithmeticException\");\n} catch (ArithmeticException ex) {}\n291: try {\nf = Fraction.getReducedFraction(2, 0);\nfail(\"expecting ArithmeticException\");\n} catch (ArithmeticException ex) {}\n296: try {\nf = Fraction.getReducedFraction(-3, 0);\nfail(\"expecting ArithmeticException\");\n} catch (ArithmeticException ex) {}\n301: // reduced        \nf = Fraction.getReducedFraction(0, 2);\nassertEquals(0, f.getNumerator());\nassertEquals(1, f.getDenominator());\n306: f = Fraction.getReducedFraction(2, 2);\nassertEquals(1, f.getNumerator());\nassertEquals(1, f.getDenominator());\n310: f = Fraction.getReducedFraction(2, 4);\nassertEquals(1, f.getNumerator());\nassertEquals(2, f.getDenominator());\n314: f = Fraction.getReducedFraction(15, 10);\nassertEquals(3, f.getNumerator());\nassertEquals(2, f.getDenominator());\n318: f = Fraction.getReducedFraction(121, 22);\nassertEquals(11, f.getNumerator());\nassertEquals(2, f.getDenominator());\n322: // Extreme values \n// OK, can reduce before negating\nf = Fraction.getReducedFraction(-2, Integer.MIN_VALUE);\nassertEquals(1, f.getNumerator());\nassertEquals(-(Integer.MIN_VALUE / 2), f.getDenominator());\n328: // Can't reduce, negation will throw\ntry { \nf = Fraction.getReducedFraction(-7, Integer.MIN_VALUE);  \nfail(\"Expecting ArithmeticException\");\n} catch (ArithmeticException ex) {}      \n334: // LANG-662\nf = Fraction.getReducedFraction(Integer.MIN_VALUE, 2);\nassertEquals(Integer.MIN_VALUE / 2, f.getNumerator());\nassertEquals(1, f.getDenominator());",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<-1073741824> but was:<-2147483648>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.Assert.assertEquals(Assert.java:234)\nat junit.framework.Assert.assertEquals(Assert.java:241)\nat junit.framework.TestCase.assertEquals(TestCase.java:409)\nat org.apache.commons.lang3.math.FractionTest.testReducedFactory_int_int(FractionTest.java:336)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.math.Fraction:greatestCommonDivisor(II)I",
+            "method_body": "private static int greatestCommonDivisor(int u, int v) {\nif (Math.abs(u) <= 1 || Math.abs(v) <= 1) {\nreturn 1;\nif (u>0) { u=-u; } // make u negative\nif (v>0) { v=-v; } // make v negative\nint k=0;\nwhile ((u&1)==0 && (v&1)==0 && k<31) { // while u and v are both even...\nu/=2; v/=2; k++; // cast out twos.\nif (k==31) {\nint t = ((u&1)==1) ? v : -(u/2)/*B3*/;\nwhile ((t&1)==0) { // while t is even..\nt/=2; // cast out twos\nif (t>0) {\nu = -t;\nv = t;\nt = (v - u)/2;\n} while (t!=0);\nreturn -u*(1<<k); // gcd is u*2^k\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.Fraction:getNumerator()I",
+            "method_body": "public int getNumerator() {\nreturn numerator;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.Fraction:getDenominator()I",
+            "method_body": "public int getDenominator() {\nreturn denominator;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.Fraction:<init>(II)V",
+            "method_body": "private static final long serialVersionUID = 65382027393090L;\nprivate transient int hashCode = 0;\nprivate transient String toString = null;\nprivate transient String toProperString = null;\nsuper();\nthis.numerator = numerator;\nthis.denominator = denominator;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.math.Fraction:getReducedFraction(II)Lorg/apache/commons/lang3/math/Fraction;",
+            "method_body": "public static Fraction getReducedFraction(int numerator, int denominator) {\nif (denominator == 0) {\nthrow new ArithmeticException(\"The denominator must not be zero\");\nif (numerator==0) {\nreturn ZERO; // normalize zero.\nif (denominator==Integer.MIN_VALUE && (numerator&1)==0) {\nnumerator/=2; denominator/=2;\nif (denominator < 0) {\nif (numerator==Integer.MIN_VALUE ||\nthrow new ArithmeticException(\"overflow: can't negate\");\nnumerator = -numerator;\ndenominator = -denominator;\nint gcd = greatestCommonDivisor(numerator, denominator);\nnumerator /= gcd;\ndenominator /= gcd;\nreturn new Fraction(numerator, denominator);\n}",
+            "method_id": 4
+        }
+    ]
+}

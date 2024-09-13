@@ -1,0 +1,224 @@
+{
+    "bug_id": 38,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest.testConstrainedRosenWithMoreInterpolationPoints",
+    "test_body": "public void testConstrainedRosenWithMoreInterpolationPoints() {\nfinal double[] startPoint = point(DIM, 0.1);\nfinal double[][] boundaries = boundaries(DIM, -1, 2);\nfinal RealPointValuePair expected = new RealPointValuePair(point(DIM, 1.0), 0.0);\n247: // This should have been 78 because in the code the hard limit is\n// said to be\n//   ((DIM + 1) * (DIM + 2)) / 2 - (2 * DIM + 1)\n// i.e. 78 in this case, but the test fails for 48, 59, 62, 63, 64,\n// 65, 66, ...\nfinal int maxAdditionalPoints = 47;\n254: for (int num = 1; num <= maxAdditionalPoints; num++) {\ndoTest(new Rosen(), startPoint, boundaries,\nGoalType.MINIMIZE,",
+    "stack_trace": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer$PathIsExploredException: If this exception is thrown, just remove it from the code prelim (at line 1752)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizer.prelim(BOBYQAOptimizer.java:1752)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizer.bobyqb(BOBYQAOptimizer.java:407)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizer.bobyqa(BOBYQAOptimizer.java:332)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizer.doOptimize(BOBYQAOptimizer.java:244)\nat org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer.optimize(BaseAbstractMultivariateOptimizer.java:125)\nat org.apache.commons.math.optimization.direct.BaseAbstractMultivariateSimpleBoundsOptimizer.optimize(BaseAbstractMultivariateSimpleBoundsOptimizer.java:138)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest.doTest(BOBYQAOptimizerTest.java:327)\nat org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest.testConstrainedRosenWithMoreInterpolationPoints(BOBYQAOptimizerTest.java:255)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:prelim([D[D)V",
+            "method_body": "private void prelim(double[] lowerBound,\nprintMethod(); // XXX\nfinal int n = currentBest.getDimension();\nfinal int npt = numberOfInterpolationPoints;\nfinal int ndim = bMatrix.getRowDimension();\nfinal double rhosq = initialTrustRegionRadius * initialTrustRegionRadius;\nfinal double recip = 1d / rhosq;\nfinal int np = n + 1;\nfor (int j = 0; j < n; j++) {\noriginShift.setEntry(j, currentBest.getEntry(j));\nfor (int k = 0; k < npt; k++) {\ninterpolationPoints.setEntry(k, j, ZERO);\nfor (int i = 0; i < ndim; i++) {\nbMatrix.setEntry(i, j, ZERO);\nfor (int i = 0, max = n * np / 2; i < max; i++) {\nmodelSecondDerivativesValues.setEntry(i, ZERO);\nfor (int k = 0; k < npt; k++) {\nmodelSecondDerivativesParameters.setEntry(k, ZERO);\nfor (int j = 0, max = npt - np; j < max; j++) {\nzMatrix.setEntry(k, j, ZERO);\nint ipt = 0;\nint jpt = 0;\ndouble fbeg = Double.NaN;\nfinal int nfm = getEvaluations();\nfinal int nfx = nfm - n;\nfinal int nfmm = nfm - 1;\nfinal int nfxm = nfx - 1;\ndouble stepa = 0;\ndouble stepb = 0;\nif (nfm <= 2 * n) {\nif (nfm >= 1 &&\nstepa = initialTrustRegionRadius;\nif (upperDifference.getEntry(nfmm) == ZERO) {\ninterpolationPoints.setEntry(nfm, nfmm, stepa);\n} else if (nfm > n) {\nstepa = interpolationPoints.getEntry(nfx, nfxm);\nstepb = -initialTrustRegionRadius;\nif (lowerDifference.getEntry(nfxm) == ZERO) {\nif (upperDifference.getEntry(nfxm) == ZERO) {\ninterpolationPoints.setEntry(nfm, nfxm, stepb);\nfinal int tmp1 = (nfm - np) / n;\njpt = nfm - tmp1 * n - n;\nipt = jpt + tmp1;\nif (ipt > n) {\nfinal int iptMinus1 = ipt;\nfinal int jptMinus1 = jpt;\ninterpolationPoints.setEntry(nfm, iptMinus1, interpolationPoints.getEntry(ipt, iptMinus1));\ninterpolationPoints.setEntry(nfm, jptMinus1, interpolationPoints.getEntry(jpt, jptMinus1));\nfor (int j = 0; j < n; j++) {\ncurrentBest.setEntry(j, Math.min(Math.max(lowerBound[j],\nif (interpolationPoints.getEntry(nfm, j) == lowerDifference.getEntry(j)) {\nif (interpolationPoints.getEntry(nfm, j) == upperDifference.getEntry(j)) {\nfinal double objectiveValue = computeObjectiveValue(currentBest.toArray());\nfinal double f = isMinimize ? objectiveValue : -objectiveValue;\nfinal int numEval = getEvaluations(); // nfm + 1\nfAtInterpolationPoints.setEntry(nfm, f);\nif (numEval == 1) {\nfbeg = f;\ntrustRegionCenterInterpolationPointIndex = 0;\n} else if (f < fAtInterpolationPoints.getEntry(trustRegionCenterInterpolationPointIndex)) {\nif (numEval <= 2 * n + 1) {\nif (numEval >= 2 &&\ngradientAtTrustRegionCenter.setEntry(nfmm, (f - fbeg) / stepa);\nif (npt < numEval + n) {\n} else if (numEval >= n + 2) {\nfinal int ih = nfx * (nfx + 1) / 2 - 1;\nfinal double tmp = (f - fbeg) / stepb;\nfinal double diff = stepb - stepa;\nmodelSecondDerivativesValues.setEntry(ih, TWO * (tmp - gradientAtTrustRegionCenter.getEntry(nfxm)) / diff);\ngradientAtTrustRegionCenter.setEntry(nfxm, (gradientAtTrustRegionCenter.getEntry(nfxm) * stepb - tmp * stepa) / diff);\nif (stepa * stepb < ZERO) {\nif (f < fAtInterpolationPoints.getEntry(nfm - n)) {\nfAtInterpolationPoints.setEntry(nfm, fAtInterpolationPoints.getEntry(nfm - n));\nfAtInterpolationPoints.setEntry(nfm - n, f);\nif (trustRegionCenterInterpolationPointIndex == nfm) {\ninterpolationPoints.setEntry(nfm - n, nfxm, stepb);\ninterpolationPoints.setEntry(nfm, nfxm, stepa);\nbMatrix.setEntry(0, nfxm, -(stepa + stepb) / (stepa * stepb));\nbMatrix.setEntry(nfm, nfxm, -HALF / interpolationPoints.getEntry(nfm - n, nfxm));\nbMatrix.setEntry(nfm - n, nfxm,\nzMatrix.setEntry(0, nfxm, Math.sqrt(TWO) / (stepa * stepb));\nzMatrix.setEntry(nfm, nfxm, Math.sqrt(HALF) / rhosq);\nzMatrix.setEntry(nfm - n, nfxm,\n}\nzMatrix.setEntry(0, nfxm, recip);\nzMatrix.setEntry(nfm, nfxm, recip);\nzMatrix.setEntry(ipt, nfxm, -recip);\nzMatrix.setEntry(jpt, nfxm, -recip);\nfinal int ih = ipt * (ipt - 1) / 2 + jpt - 1;\nfinal double tmp = interpolationPoints.getEntry(nfm, ipt - 1) * interpolationPoints.getEntry(nfm, jpt - 1);\nmodelSecondDerivativesValues.setEntry(ih, (fbeg - fAtInterpolationPoints.getEntry(ipt) - fAtInterpolationPoints.getEntry(jpt) + f) / tmp);\nthrow new PathIsExploredException(); // XXX\n} while (getEvaluations() < npt);\n} // prelim",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:caller(I)Ljava/lang/String;",
+            "method_body": "private static String caller(int n) {\nfinal Throwable t = new Throwable();\nfinal StackTraceElement[] elements = t.getStackTrace();\nfinal StackTraceElement e = elements[n];\nreturn e.getMethodName() + \" (at line \" + e.getLineNumber() + \")\";\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:bobyqb([D[D)D",
+            "method_body": "private double bobyqb(double[] lowerBound,\nprintMethod(); // XXX\nfinal int n = currentBest.getDimension();\nfinal int npt = numberOfInterpolationPoints;\nfinal int np = n + 1;\nfinal int nptm = npt - np;\nfinal int nh = n * np / 2;\nfinal ArrayRealVector work1 = new ArrayRealVector(n);\nfinal ArrayRealVector work2 = new ArrayRealVector(npt);\nfinal ArrayRealVector work3 = new ArrayRealVector(npt);\ndouble cauchy = Double.NaN;\ndouble alpha = Double.NaN;\ndouble dsq = Double.NaN;\ndouble crvmin = Double.NaN;\ntrustRegionCenterInterpolationPointIndex = 0;\nprelim(lowerBound, upperBound);\ndouble xoptsq = ZERO;\nfor (int i = 0; i < n; i++) {\n} // bobyqb",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:bobyqa([D[D)D",
+            "method_body": "private double bobyqa(double[] lowerBound,\nprintMethod(); // XXX\nfinal int n = currentBest.getDimension();\nfor (int j = 0; j < n; j++) {\nfinal double boundDiff = boundDifference[j];\nlowerDifference.setEntry(j, lowerBound[j] - currentBest.getEntry(j));\nupperDifference.setEntry(j, upperBound[j] - currentBest.getEntry(j));\nif (lowerDifference.getEntry(j) >= -initialTrustRegionRadius) {\n} else if (upperDifference.getEntry(j) <= initialTrustRegionRadius) {\nreturn bobyqb(lowerBound, upperBound);\n} // bobyqa",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:setup([D[D)V",
+            "method_body": "private void setup(double[] lowerBound,\nprintMethod(); // XXX\ndouble[] init = getStartPoint();\nfinal int dimension = init.length;\nif (dimension < MINIMUM_PROBLEM_DIMENSION) {\nfinal int[] nPointsInterval = { dimension + 2, (dimension + 2) * (dimension + 1) / 2 };\nif (numberOfInterpolationPoints < nPointsInterval[0] ||\nboundDifference = new double[dimension];\ndouble requiredMinDiff = 2 * initialTrustRegionRadius;\ndouble minDiff = Double.POSITIVE_INFINITY;\nfor (int i = 0; i < dimension; i++) {\nboundDifference[i] = upperBound[i] - lowerBound[i];\nminDiff = Math.min(minDiff, boundDifference[i]);\nif (minDiff < requiredMinDiff) {\ninitialTrustRegionRadius = minDiff / 3.0;\nbMatrix = new Array2DRowRealMatrix(dimension + numberOfInterpolationPoints,\nzMatrix = new Array2DRowRealMatrix(numberOfInterpolationPoints,\ninterpolationPoints = new Array2DRowRealMatrix(numberOfInterpolationPoints,\noriginShift = new ArrayRealVector(dimension);\nfAtInterpolationPoints = new ArrayRealVector(numberOfInterpolationPoints);\ntrustRegionCenterOffset = new ArrayRealVector(dimension);\ngradientAtTrustRegionCenter = new ArrayRealVector(dimension);\nlowerDifference = new ArrayRealVector(dimension);\nupperDifference = new ArrayRealVector(dimension);\nmodelSecondDerivativesParameters = new ArrayRealVector(numberOfInterpolationPoints);\nnewPoint = new ArrayRealVector(dimension);\nalternativeNewPoint = new ArrayRealVector(dimension);\ntrialStepPoint = new ArrayRealVector(dimension);\nlagrangeValuesAtNewPoint = new ArrayRealVector(dimension + numberOfInterpolationPoints);\nmodelSecondDerivativesValues = new ArrayRealVector(dimension * (dimension + 1) / 2);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:doOptimize()Lorg/apache/commons/math/optimization/RealPointValuePair;",
+            "method_body": "protected RealPointValuePair doOptimize() {\nfinal double[] lowerBound = getLowerBound();\nfinal double[] upperBound = getUpperBound();\nsetup(lowerBound, upperBound);\nisMinimize = (getGoalType() == GoalType.MINIMIZE);\ncurrentBest = new ArrayRealVector(getStartPoint());\nfinal double value = bobyqa(lowerBound, upperBound);\nreturn new RealPointValuePair(currentBest.getDataRef(),\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:<init>(IDD)V",
+            "method_body": "public BOBYQAOptimizer(int numberOfInterpolationPoints,\ndouble stoppingTrustRegionRadius) {\nthis.numberOfInterpolationPoints = numberOfInterpolationPoints;\nthis.initialTrustRegionRadius = initialTrustRegionRadius;\nthis.stoppingTrustRegionRadius = stoppingTrustRegionRadius;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.RealPointValuePair:<init>([DD)V",
+            "method_body": "public RealPointValuePair(final double[] point, final double value) {\nthis.point = (point == null) ? null : point.clone();\nthis.value = value;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer:<init>(I)V",
+            "method_body": "public BOBYQAOptimizer(int numberOfInterpolationPoints) {\nthis(numberOfInterpolationPoints,\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BOBYQAOptimizer$PathIsExploredException:<init>()V",
+            "method_body": "PathIsExploredException() {\nsuper(PATH_IS_EXPLORED + \" \" + BOBYQAOptimizer.caller(3));\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateSimpleBoundsOptimizer:getLowerBound()[D",
+            "method_body": "public double[] getLowerBound() {\nreturn lowerBound.clone();\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateSimpleBoundsOptimizer:getUpperBound()[D",
+            "method_body": "public double[] getUpperBound() {\nreturn upperBound.clone();\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:<init>()V",
+            "method_body": "protected BaseAbstractMultivariateOptimizer() {\nthis(new SimpleScalarValueChecker());\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateSimpleBoundsOptimizer:optimize(ILorg/apache/commons/math/analysis/MultivariateFunction;Lorg/apache/commons/math/optimization/GoalType;[D[D[D)Lorg/apache/commons/math/optimization/RealPointValuePair;",
+            "method_body": "public RealPointValuePair optimize(int maxEval, FUNC f, GoalType goalType,\nfinal int dim = startPoint.length;\nif (lower != null) {\nif (lower.length != dim) {\nfor (int i = 0; i < dim; i++) {\nfinal double v = startPoint[i];\nfinal double lo = lower[i];\nif (v < lo) {\nif (upper != null) {\nif (upper.length != dim) {\nfor (int i = 0; i < dim; i++) {\nfinal double v = startPoint[i];\nfinal double hi = upper[i];\nif (v > hi) {\nif (lower == null) {\nlowerBound = lower.clone();\nif (upper == null) {\nupperBound = upper.clone();\nreturn super.optimize(maxEval, f, goalType, startPoint);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:getEvaluations()I",
+            "method_body": "public int getEvaluations() {\nreturn evaluations.getCount();\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:setEntry(ID)V",
+            "method_body": "public void setEntry(int index, double value) {\ndata[index] = value;\n}\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:computeObjectiveValue([D)D",
+            "method_body": "protected double computeObjectiveValue(double[] point) {\nevaluations.incrementCount();\n}\nreturn function.value(point);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:getGoalType()Lorg/apache/commons/math/optimization/GoalType;",
+            "method_body": "public GoalType getGoalType() {\nreturn goal;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:optimize(ILorg/apache/commons/math/analysis/MultivariateFunction;Lorg/apache/commons/math/optimization/GoalType;[D)Lorg/apache/commons/math/optimization/RealPointValuePair;",
+            "method_body": "public RealPointValuePair optimize(int maxEval, FUNC f, GoalType goalType,\nif (f == null) {\nif (goalType == null) {\nif (startPoint == null) {\nevaluations.setMaximalCount(maxEval);\nevaluations.resetCount();\nfunction = f;\ngoal = goalType;\nstart = startPoint.clone();\nreturn doOptimize();\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:getStartPoint()[D",
+            "method_body": "public double[] getStartPoint() {\nreturn start.clone();\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.direct.BaseAbstractMultivariateOptimizer:<init>(Lorg/apache/commons/math/optimization/ConvergenceChecker;)V",
+            "method_body": "protected BaseAbstractMultivariateOptimizer(ConvergenceChecker<RealPointValuePair> checker) {\nthis.checker = checker;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.AbstractConvergenceChecker:<init>()V",
+            "method_body": "public AbstractConvergenceChecker() {\nthis.relativeThreshold = DEFAULT_RELATIVE_THRESHOLD;\nthis.absoluteThreshold = DEFAULT_ABSOLUTE_THRESHOLD;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:toArray()[D",
+            "method_body": "public double[] toArray(){\nreturn data.clone();\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:<init>(I)V",
+            "method_body": "public ArrayRealVector(int size) {\ndata = new double[size];\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:getCount()I",
+            "method_body": "public int getCount() {\nreturn count;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:getEntry(I)D",
+            "method_body": "public double getEntry(int index) {\nreturn data[index];\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:<init>([D)V",
+            "method_body": "public ArrayRealVector(double[] d) {\ndata = d.clone();\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.Array2DRowRealMatrix:getEntry(II)D",
+            "method_body": "public double getEntry(final int row, final int column) {\nMatrixUtils.checkMatrixIndex(this, row, column);\nreturn data[row][column];\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.Array2DRowRealMatrix:setEntry(IID)V",
+            "method_body": "public void setEntry(final int row, final int column, final double value) {\nMatrixUtils.checkMatrixIndex(this, row, column);\ndata[row][column] = value;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.ArrayRealVector:getDimension()I",
+            "method_body": "public int getDimension() {\nreturn data.length;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.Array2DRowRealMatrix:<init>(II)V",
+            "method_body": "public Array2DRowRealMatrix(final int rowDimension, final int columnDimension) {\nsuper(rowDimension, columnDimension);\ndata = new double[rowDimension][columnDimension];\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.MatrixUtils:checkMatrixIndex(Lorg/apache/commons/math/linear/AnyMatrix;II)V",
+            "method_body": "public static void checkMatrixIndex(final AnyMatrix m,\ncheckRowIndex(m, row);\ncheckColumnIndex(m, column);\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.Array2DRowRealMatrix:getRowDimension()I",
+            "method_body": "public int getRowDimension() {\nreturn (data == null) ? 0 : data.length;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.Array2DRowRealMatrix:getColumnDimension()I",
+            "method_body": "public int getColumnDimension() {\nreturn ((data == null) || (data[0] == null)) ? 0 : data[0].length;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.MatrixUtils:checkRowIndex(Lorg/apache/commons/math/linear/AnyMatrix;I)V",
+            "method_body": "public static void checkRowIndex(final AnyMatrix m, final int row) {\nif (row < 0 ||\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.MatrixUtils:checkColumnIndex(Lorg/apache/commons/math/linear/AnyMatrix;I)V",
+            "method_body": "public static void checkColumnIndex(final AnyMatrix m, final int column) {\nif (column < 0 || column >= m.getColumnDimension()) {\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.math.linear.AbstractRealMatrix:<init>(II)V",
+            "method_body": "protected AbstractRealMatrix(final int rowDimension, final int columnDimension) {\nif (rowDimension < 1) {\nif (columnDimension < 1) {\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:incrementCount()V",
+            "method_body": "public void incrementCount() {\nif (++count > maximalCount) {\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:resetCount()V",
+            "method_body": "public void resetCount() {\ncount = 0;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:setMaximalCount(I)V",
+            "method_body": "public void setMaximalCount(int max) {\nmaximalCount = max;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>()V",
+            "method_body": "public Incrementor() {\nthis(0);\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(I)V",
+            "method_body": "public Incrementor(int max) {\nthis(max,\nnew MaxCountExceededCallback() {\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(ILorg/apache/commons/math/util/Incrementor$MaxCountExceededCallback;)V",
+            "method_body": "public Incrementor(int max,\nMaxCountExceededCallback cb) {\nmaximalCount = max;\nmaxCountCallback = cb;\n}",
+            "method_id": 42
+        }
+    ]
+}

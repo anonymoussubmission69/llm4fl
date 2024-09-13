@@ -1,0 +1,58 @@
+{
+    "bug_id": 62,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang.EntitiesTest.testNumberOverflow",
+            "test_body": "public void testNumberOverflow() throws Exception {\ndoTestUnescapeEntity(\"&#12345678;\", \"&#12345678;\");\ndoTestUnescapeEntity(\"x&#12345678;y\", \"x&#12345678;y\");",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang.Entities:unescape(Ljava/lang/String;)Ljava/lang/String;",
+                    "method_body": "public String unescape(String str) {\nint firstAmp = str.indexOf('&');\nif (firstAmp < 0) {\nStringBuffer buf = new StringBuffer(str.length());\nbuf.append(str.substring(0, firstAmp));\nfor (int i = firstAmp; i < str.length(); ++i) {\nchar ch = str.charAt(i);\nif (ch == '&') {\nint semi = str.indexOf(';', i + 1);\nif (semi == -1) {\nint amph = str.indexOf('&', i + 1);\nif( amph != -1 && amph < semi ) {\nString entityName = str.substring(i + 1, semi);\nif (entityName.length() == 0) {\n} else if (entityName.charAt(0) == '#') {\nif (entityName.length() == 1) {\nchar charAt1 = entityName.charAt(1);\nif (charAt1 == 'x' || charAt1=='X') {\nentityValue = Integer.parseInt(entityName.substring(1));\n}\n}\nif (entityValue == -1) {\nbuf.append((char) (entityValue));\ni = semi;\n} else {\nreturn buf.toString();\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.IntHashMap:put(ILjava/lang/Object;)Ljava/lang/Object;",
+                    "method_body": "public Object put(int key, Object value) {\nEntry tab[] = table;\nint hash = key;\nint index = (hash & 0x7FFFFFFF) % tab.length;\nfor (Entry e = tab[index]; e != null; e = e.next) {\nif (count >= threshold) {\nEntry e = new Entry(hash, key, value, tab[index]);\ntab[index] = e;\ncount++;\nreturn null;\n}",
+                    "method_id": 1
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.Entities$PrimitiveEntityMap:add(Ljava/lang/String;I)V",
+                    "method_body": "void add(String name, int value);\nstatic class PrimitiveEntityMap implements EntityMap {\nprivate Map mapNameToValue = new HashMap();\nprivate IntHashMap mapValueToName = new IntHashMap();\nmapNameToValue.put(name, new Integer(value));\nmapValueToName.put(value, name);\n}\n}",
+                    "method_id": 2
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.IntHashMap:<init>(IF)V",
+                    "method_body": "public IntHashMap(int initialCapacity, float loadFactor) {\nsuper();\nif (initialCapacity < 0) {\nif (loadFactor <= 0) {\nif (initialCapacity == 0) {\nthis.loadFactor = loadFactor;\ntable = new Entry[initialCapacity];\nthreshold = (int) (initialCapacity * loadFactor);\n}",
+                    "method_id": 3
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.Entities:addEntity(Ljava/lang/String;I)V",
+                    "method_body": "public void addEntity(String name, int value) {\nmap.add(name, value);\n}",
+                    "method_id": 4
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.IntHashMap$Entry:<init>(IILjava/lang/Object;Lorg/apache/commons/lang/IntHashMap$Entry;)V",
+                    "method_body": "protected Entry(int hash, int key, Object value, Entry next) {\nthis.hash = hash;\nthis.key = key;\nthis.value = value;\nthis.next = next;\n}",
+                    "method_id": 5
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.Entities$LookupEntityMap:<init>()V",
+                    "method_body": "private String[] lookupTable;\nprivate int LOOKUP_TABLE_SIZE = 256;\n* {@inheritDoc}",
+                    "method_id": 6
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.Entities$PrimitiveEntityMap:<init>()V",
+                    "method_body": "void add(String name, int value);\nstatic class PrimitiveEntityMap implements EntityMap {\nprivate Map mapNameToValue = new HashMap();\nprivate IntHashMap mapValueToName = new IntHashMap();\nmapNameToValue.put(name, new Integer(value));\nmapValueToName.put(value, name);\n}\n}",
+                    "method_id": 7
+                },
+                {
+                    "method_signature": "org.apache.commons.lang.IntHashMap:<init>()V",
+                    "method_body": "public IntHashMap() {\nthis(20, 0.75f);\n}",
+                    "method_id": 8
+                }
+            ],
+            "stack_trace": "junit.framework.ComparisonFailure: expected:<[&#12345678;]> but was:<[\u614e]>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat org.apache.commons.lang.EntitiesTest.doTestUnescapeEntity(EntitiesTest.java:101)\nat org.apache.commons.lang.EntitiesTest.testNumberOverflow(EntitiesTest.java:201)",
+            "test_id": 0
+        }
+    ]
+}

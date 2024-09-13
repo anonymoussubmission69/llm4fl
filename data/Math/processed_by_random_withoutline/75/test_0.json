@@ -1,0 +1,79 @@
+{
+    "bug_id": 75,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.stat.FrequencyTest.testPcts",
+    "test_body": "public void testPcts() {\nf.addValue(oneL);\nf.addValue(twoL);\nf.addValue(oneI);\nf.addValue(twoI);\nf.addValue(threeL);\nf.addValue(threeL);\nf.addValue(3);\nf.addValue(threeI);\nassertEquals(\"one pct\",0.25,f.getPct(1),tolerance);\nassertEquals(\"two pct\",0.25,f.getPct(Long.valueOf(2)),tolerance);\nassertEquals(\"three pct\",0.5,f.getPct(threeL),tolerance);\n// MATH-329\nassertEquals(\"three (Object) pct\",0.5,f.getPct((Object) (Integer.valueOf(3))),tolerance);\nassertEquals(\"five pct\",0,f.getPct(5),tolerance);",
+    "stack_trace": "junit.framework.AssertionFailedError: three (Object) pct expected:<0.5> but was:<1.0>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:120)\nat junit.framework.TestCase.assertEquals(TestCase.java:279)\nat org.apache.commons.math.stat.FrequencyTest.testPcts(FrequencyTest.java:148)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getPct(J)D",
+            "method_body": "public double getPct(long v) {\nreturn getPct(Long.valueOf(v));\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:<init>()V",
+            "method_body": "public Frequency() {\nfreqTable = new TreeMap<Comparable<?>, Long>();\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getPct(I)D",
+            "method_body": "public double getPct(int v) {\nreturn getPct(Long.valueOf(v));\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getPct(Ljava/lang/Comparable;)D",
+            "method_body": "public double getPct(Comparable<?> v) {\nfinal long sumFreq = getSumFreq();\nif (sumFreq == 0) {\nreturn (double) getCount(v) / (double) sumFreq;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getSumFreq()J",
+            "method_body": "public long getSumFreq() {\nlong result = 0;\nIterator<Long> iterator = freqTable.values().iterator();\nwhile (iterator.hasNext())  {\nresult += iterator.next().longValue();\nreturn result;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:addValue(I)V",
+            "method_body": "public void addValue(int v) {\naddValue(Long.valueOf(v));\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:addValue(Ljava/lang/Comparable;)V",
+            "method_body": "public void addValue(Comparable<?> v){\nComparable<?> obj = v;\nif (v instanceof Integer) {\nLong count = freqTable.get(obj);\nif (count == null) {\nfreqTable.put(obj, Long.valueOf(1));\nfreqTable.put(obj, Long.valueOf(count.longValue() + 1));\n}\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getCumFreq(J)J",
+            "method_body": "public long getCumFreq(long v) {\nreturn getCumFreq(Long.valueOf(v));\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getPct(Ljava/lang/Object;)D",
+            "method_body": "public double getPct(Object v) {\nreturn getCumPct((Comparable<?>) v);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getCumPct(Ljava/lang/Comparable;)D",
+            "method_body": "public double getCumPct(Comparable<?> v) {\nfinal long sumFreq = getSumFreq();\nif (sumFreq == 0) {\nreturn (double) getCumFreq(v) / (double) sumFreq;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getCumFreq(Ljava/lang/Comparable;)J",
+            "method_body": "public long getCumFreq(Comparable<?> v) {\nif (getSumFreq() == 0) {\nif (v instanceof Integer) {\nreturn getCumFreq(((Integer) v).longValue());\nComparator<Comparable<?>> c = (Comparator<Comparable<?>>) freqTable.comparator();\nif (c == null) {\nc = new NaturalComparator();\nlong result = 0;\nLong value = freqTable.get(v);\nif (value != null) {\nresult = value.longValue();\n}\nif (c.compare(v, freqTable.firstKey()) < 0) {\nif (c.compare(v, freqTable.lastKey()) >= 0) {\nreturn getSumFreq();    // v is comparable, but greater than the last value\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:addValue(J)V",
+            "method_body": "public void addValue(long v) {\naddValue(Long.valueOf(v));\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency$NaturalComparator:compare(Ljava/lang/Comparable;Ljava/lang/Comparable;)I",
+            "method_body": "public int compare(Comparable<T> o1, Comparable<T> o2) {\nreturn o1.compareTo((T) o2);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.stat.Frequency:getCount(Ljava/lang/Comparable;)J",
+            "method_body": "public long getCount(Comparable<?> v) {\nif (v instanceof Integer) {\nlong result = 0;\nLong count =  freqTable.get(v);\nif (count != null) {\nresult = count.longValue();\n}\nreturn result;\n}",
+            "method_id": 13
+        }
+    ]
+}

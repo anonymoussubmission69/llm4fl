@@ -1,0 +1,84 @@
+{
+    "bug_id": 5,
+    "test_id": 1,
+    "test_name": "org.apache.commons.codec.binary.Base64OutputStreamTest.testCodec98NPE",
+    "test_body": "public void testCodec98NPE() throws Exception {\nbyte[] codec98 = StringUtils.getBytesUtf8(Base64TestData.CODEC_98_NPE);\nbyte[] codec98_1024 = new byte[1024];\nSystem.arraycopy(codec98, 0, codec98_1024, 0, codec98.length);\nByteArrayOutputStream data = new ByteArrayOutputStream(1024);\nBase64OutputStream stream = new Base64OutputStream(data, false);\nstream.write(codec98_1024, 0, 1024);\nstream.close();\n64: byte[] decodedBytes = data.toByteArray();\nString decoded = StringUtils.newStringUtf8(decodedBytes);\nassertEquals(\n\"codec-98 NPE Base64OutputStream\", Base64TestData.CODEC_98_NPE_DECODED, decoded\n);\n}\n",
+    "stack_trace": "java.lang.NullPointerException\nat org.apache.commons.codec.binary.Base64.decode(Base64.java:594)\nat org.apache.commons.codec.binary.Base64OutputStream.close(Base64OutputStream.java:192)\nat org.apache.commons.codec.binary.Base64OutputStreamTest.testCodec98NPE(Base64OutputStreamTest.java:62)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(Z)V",
+            "method_body": "public Base64(boolean urlSafe) {\nthis(MIME_CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:flush(Z)V",
+            "method_body": "private void flush(boolean propogate) throws IOException {\nint avail = base64.avail();\nif (avail > 0) {\nbyte[] buf = new byte[avail];\nint c = base64.readResults(buf, 0, avail);\nif (c > 0) {\nout.write(buf, 0, c);\nif (propogate) {\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (doEncode) {\nbase64.decode(singleByte, 0, -1);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:<init>(Ljava/io/OutputStream;Z)V",
+            "method_body": "public Base64OutputStream(OutputStream out, boolean doEncode) {\nsuper(out);\nthis.doEncode = doEncode;\nthis.base64 = new Base64(false);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:write([BII)V",
+            "method_body": "public void write(byte b[], int offset, int len) throws IOException {\nif (b == null) {\n} else if (offset < 0 || len < 0) {\n} else if (offset > b.length || offset + len > b.length) {\n} else if (len > 0) {\nif (doEncode) {\nbase64.decode(b, offset, len);\nflush(false);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUtf8(Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUtf8(String string) {\nreturn StringUtils.getBytesUnchecked(string, CharEncoding.UTF_8);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:decode([BII)V",
+            "method_body": "void decode(byte[] in, int inPos, int inAvail) {\nif (eof) {\nif (inAvail < 0) {\neof = true;\nfor (int i = 0; i < inAvail; i++) {\nif (buffer == null || buffer.length - pos < decodeSize) {\nresizeBuffer();\nbyte b = in[inPos++];\nif (b == PAD) {\nif (b >= 0 && b < DECODE_TABLE.length) {\nint result = DECODE_TABLE[b];\nif (result >= 0) {\nmodulus = (++modulus) % 4;\nx = (x << 6) + result;\nif (modulus == 0) {\nbuffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\nbuffer[pos++] = (byte) ((x >> 8) & MASK_8BITS);\nbuffer[pos++] = (byte) (x & MASK_8BITS);\nif (eof && modulus != 0) {\nx = x << 6;\nswitch (modulus) {\nbuffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:avail()I",
+            "method_body": "int avail() {\nreturn buffer != null ? pos - readPos : 0;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUnchecked(Ljava/lang/String;Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUnchecked(String string, String charsetName) {\nif (string == null) {\nreturn string.getBytes(charsetName);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[BZ)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {\nif (lineSeparator == null) {\nthis.lineLength = lineLength > 0 ? (lineLength / 4) * 4 : 0;\nthis.lineSeparator = new byte[lineSeparator.length];\nSystem.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);\nif (lineLength > 0) {\nthis.encodeSize = 4 + lineSeparator.length;\nthis.decodeSize = this.encodeSize - 1;\nif (containsBase64Byte(lineSeparator)) {\nthis.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:containsBase64Byte([B)Z",
+            "method_body": "private static boolean containsBase64Byte(byte[] arrayOctet) {\nfor (int i = 0; i < arrayOctet.length; i++) {\nif (isBase64(arrayOctet[i])) {\nreturn false;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isBase64(B)Z",
+            "method_body": "public static boolean isBase64(byte octet) {\nreturn octet == PAD || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<clinit>()V",
+            "method_body": "private static final byte[] STANDARD_ENCODE_TABLE = {\n};",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:resizeBuffer()V",
+            "method_body": "private void resizeBuffer() {\nif (buffer == null) {\nbuffer = new byte[DEFAULT_BUFFER_SIZE];\npos = 0;\nreadPos = 0;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:<init>(Ljava/io/OutputStream;ZI[B)V",
+            "method_body": "private final boolean doEncode;\nprivate final byte[] singleByte = new byte[1];\n}",
+            "method_id": 14
+        }
+    ]
+}

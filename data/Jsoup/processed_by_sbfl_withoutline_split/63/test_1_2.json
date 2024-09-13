@@ -1,0 +1,109 @@
+{
+    "bug_id": 63,
+    "test_id": 1,
+    "test_name": "org.jsoup.parser.HtmlParserTest.tracksErrorsWhenRequested",
+    "test_body": "@Test public void tracksErrorsWhenRequested() {\nString html = \"<p>One</p href='no'><!DOCTYPE html>&arrgh;<font /><br /><foo\";\nParser parser = Parser.htmlParser().setTrackErrors(500);\nDocument doc = Jsoup.parse(html, \"http://example.com\", parser);\n694: List<ParseError> errors = parser.getErrors();\nassertEquals(5, errors.size());\nassertEquals(\"20: Attributes incorrectly present on end tag\", errors.get(0).toString());\nassertEquals(\"35: Unexpected token [Doctype] when in state [InBody]\", errors.get(1).toString());\nassertEquals(\"36: Invalid character reference: invalid named referenece 'arrgh'\", errors.get(2).toString());\nassertEquals(\"50: Tag cannot be self closing; not a void tag\", errors.get(3).toString());\nassertEquals(\"61: Unexpectedly reached end of file (EOF) in input state [TagName]\", errors.get(4).toString());",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<50: [Tag cannot be self closing; not a void tag]> but was:<50: [Self closing flag not acknowledged]>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.parser.HtmlParserTest.tracksErrorsWhenRequested(HtmlParserTest.java:699)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:consumeCharacterReference(Ljava/lang/Character;Z)[I",
+            "method_body": "int[] consumeCharacterReference(Character additionalAllowedCharacter, boolean inAttribute) {\nif (reader.isEmpty())\nif (additionalAllowedCharacter != null && additionalAllowedCharacter == reader.current())\nif (reader.matchesAnySorted(notCharRefCharsSorted))\nfinal int[] codeRef = codepointHolder;\nreader.mark();\nif (reader.matchConsume(\"#\")) { // numbered\nString nameRef = reader.consumeLetterThenDigitSequence();\nboolean looksLegit = reader.matches(';');\nboolean found = (Entities.isBaseNamedEntity(nameRef) || (Entities.isNamedEntity(nameRef) && looksLegit));\nif (!found) {\nreader.rewindToMark();\nif (looksLegit) // named with semicolon\ncharacterReferenceError(String.format(\"invalid named referenece '%s'\", nameRef));\nreturn null;\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:createDoctypePending()V",
+            "method_body": "void createDoctypePending() {\ndoctypePending.reset();\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:emitDoctypePending()V",
+            "method_body": "void emitDoctypePending() {\nemit(doctypePending);\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:eofError(Lorg/jsoup/parser/TokeniserState;)V",
+            "method_body": "void eofError(TokeniserState state) {\nif (errors.canAddError())\nerrors.add(new ParseError(reader.pos(), \"Unexpectedly reached end of file (EOF) in input state [%s]\", state));\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tokeniser:characterReferenceError(Ljava/lang/String;)V",
+            "method_body": "private void characterReferenceError(String message) {\nif (errors.canAddError())\nerrors.add(new ParseError(reader.pos(), \"Invalid character reference: %s\", message));\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState:readCharRef(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/TokeniserState;)V",
+            "method_body": "private static void readCharRef(Tokeniser t, TokeniserState advance) {\nint[] c = t.consumeCharacterReference(null, false);\nif (c == null)\nt.emit('&');\nt.transition(advance);\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$2:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nreadCharRef(t, Data);\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$35:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nString name = r.consumeToAnySorted(attributeNameCharsSorted);\nt.tagPending.appendAttributeName(name);\nchar c = r.consume();\nswitch (c) {\nt.transition(BeforeAttributeValue);\nbreak;\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$37:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.transition(AttributeValue_singleQuoted);\nbreak;\n}",
+            "method_id": 208
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$39:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nString value = r.consumeToAny(attributeSingleValueCharsSorted);\nif (value.length() > 0)\nt.tagPending.appendAttributeValue(value);\nchar c = r.consume();\nswitch (c) {\nt.transition(AfterAttributeValue_quoted);\nbreak;\n}",
+            "method_id": 209
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$41:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.emitTagPending();\nt.transition(Data);\nbreak;\n}",
+            "method_id": 210
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$44:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nif (r.matchConsume(\"--\")) {\n} else if (r.matchConsumeIgnoreCase(\"DOCTYPE\")) {\nt.transition(Doctype);\n}",
+            "method_id": 211
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$51:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nchar c = r.consume();\nswitch (c) {\nt.transition(BeforeDoctypeName);\nbreak;\n}",
+            "method_id": 212
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$52:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nif (r.matchesLetter()) {\nt.createDoctypePending();\nt.transition(DoctypeName);\nreturn;\n}",
+            "method_id": 213
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokeniserState$53:read(Lorg/jsoup/parser/Tokeniser;Lorg/jsoup/parser/CharacterReader;)V",
+            "method_body": "void read(Tokeniser t, CharacterReader r) {\nif (r.matchesLetter()) {\nString name = r.consumeLetterSequence();\nt.doctypePending.name.append(name);\nreturn;\nchar c = r.consume();\nswitch (c) {\nt.emitDoctypePending();\nt.transition(Data);\nbreak;\n}",
+            "method_id": 214
+        },
+        {
+            "method_signature": "org.jsoup.parser.Token$Doctype:reset()Lorg/jsoup/parser/Token;",
+            "method_body": "Token reset() {\nreset(name);\npubSysKey = null;\nreset(publicIdentifier);\nreset(systemIdentifier);\nforceQuirks = false;\nreturn this;\n}",
+            "method_id": 215
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public Attribute(String key, String value) {\nValidate.notNull(key);\nValidate.notNull(value);\nthis.key = key.trim();\nValidate.notEmpty(key); // trimming could potentially make empty, so validate here\nthis.value = value;\n}",
+            "method_id": 216
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:<clinit>()V",
+            "method_body": "private static final String[] booleanAttributes = {\n};",
+            "method_id": 217
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attribute:getKey()Ljava/lang/String;",
+            "method_body": "public String getKey() {\nreturn key;\n}",
+            "method_id": 218
+        },
+        {
+            "method_signature": "org.jsoup.parser.ParseError:<init>(ILjava/lang/String;[Ljava/lang/Object;)V",
+            "method_body": "ParseError(int pos, String errorFormat, Object... args) {\nthis.errorMsg = String.format(errorFormat, args);\nthis.pos = pos;\n}",
+            "method_id": 219
+        }
+    ]
+}

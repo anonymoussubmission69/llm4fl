@@ -1,0 +1,119 @@
+{
+    "bug_id": 17,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.json.RawValueWithSurrogatesTest.testRawWithSurrogatesString",
+    "test_body": "public void testRawWithSurrogatesString() throws Exception {\n_testRawWithSurrogatesString(false);\n}\n",
+    "stack_trace": "com.fasterxml.jackson.core.JsonGenerationException: Split surrogate on writeRaw() input (last character)\nat com.fasterxml.jackson.core.JsonGenerator._reportError(JsonGenerator.java:1723)\nat com.fasterxml.jackson.core.json.UTF8JsonGenerator._outputRawMultiByteChar(UTF8JsonGenerator.java:1887)\nat com.fasterxml.jackson.core.json.UTF8JsonGenerator._writeSegmentedRaw(UTF8JsonGenerator.java:658)\nat com.fasterxml.jackson.core.json.UTF8JsonGenerator.writeRaw(UTF8JsonGenerator.java:573)\nat com.fasterxml.jackson.core.json.UTF8JsonGenerator.writeRaw(UTF8JsonGenerator.java:536)\nat com.fasterxml.jackson.core.base.GeneratorBase.writeRawValue(GeneratorBase.java:299)\nat com.fasterxml.jackson.core.json.RawValueWithSurrogatesTest._testRawWithSurrogatesString(RawValueWithSurrogatesTest.java:82)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:_writeSegmentedRaw([CII)V",
+            "method_body": "private final void _writeSegmentedRaw(char[] cbuf, int offset, int len) throws IOException\nfinal int end = _outputEnd;\nfinal byte[] bbuf = _outputBuffer;\nfinal int inputEnd = offset + len;\nwhile (offset < inputEnd) {\nint ch = (int) cbuf[offset];\nif (ch >= 0x80) {\nbreak inner_loop;\nif (_outputTail >= end) {\nbbuf[_outputTail++] = (byte) ch;\nif (++offset >= inputEnd) {\n}\nif ((_outputTail + 3) >= _outputEnd) {\nchar ch = cbuf[offset++];\nif (ch < 0x800) { // 2-byte?\noffset = _outputRawMultiByteChar(ch, cbuf, offset, inputEnd);\n}\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:_outputSurrogates(II)V",
+            "method_body": "protected final void _outputSurrogates(int surr1, int surr2) throws IOException\nint c = _decodeSurrogate(surr1, surr2);\nif ((_outputTail + 4) > _outputEnd) {\nfinal byte[] bbuf = _outputBuffer;\nbbuf[_outputTail++] = (byte) (0xf0 | (c >> 18));\nbbuf[_outputTail++] = (byte) (0x80 | ((c >> 12) & 0x3f));\nbbuf[_outputTail++] = (byte) (0x80 | ((c >> 6) & 0x3f));\nbbuf[_outputTail++] = (byte) (0x80 | (c & 0x3f));\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:_outputRawMultiByteChar(I[CII)I",
+            "method_body": "private final int _outputRawMultiByteChar(int ch, char[] cbuf, int inputOffset, int inputEnd)\nif (ch >= SURR1_FIRST) {\nif (ch <= SURR2_LAST) { // yes, outside of BMP\nif (inputOffset >= inputEnd || cbuf == null) { // nope... have to note down\n_reportError(\"Split surrogate on writeRaw() input (last character)\");\n_outputSurrogates(ch, cbuf[inputOffset]);\nreturn inputOffset+1;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:writeRaw([CII)V",
+            "method_body": "public final void writeRaw(char[] cbuf, int offset, int len) throws IOException\nint len3 = len+len+len;\nif ((_outputTail + len3) > _outputEnd) {\nif (_outputEnd < len3) { // wouldn't be enough...\n_writeSegmentedRaw(cbuf, offset, len);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:writeRaw(Ljava/lang/String;II)V",
+            "method_body": "public void writeRaw(String text, int offset, int len) throws IOException\nfinal char[] buf = _charBuffer;\nwhile (len > 0) {\nint len2 = Math.min(buf.length, len);\ntext.getChars(offset, offset+len2, buf, 0);\nwriteRaw(buf, 0, len2);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:_verifyValueWrite(Ljava/lang/String;)V",
+            "method_body": "protected final void _verifyValueWrite(String typeMsg) throws IOException\nint status = _writeContext.writeValue();\nif (status == JsonWriteContext.STATUS_EXPECT_NAME) {\nif (_cfgPrettyPrinter == null) {\nswitch (status) {\nreturn;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createUTF8Generator(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/io/IOContext;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "protected JsonGenerator _createUTF8Generator(OutputStream out, IOContext ctxt) throws IOException {\nUTF8JsonGenerator gen = new UTF8JsonGenerator(ctxt,\nif (_characterEscapes != null) {\nSerializableString rootSep = _rootValueSeparator;\nif (rootSep != DEFAULT_ROOT_VALUE_SEPARATOR) {\nreturn gen;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:createGenerator(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/JsonEncoding;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "public JsonGenerator createGenerator(OutputStream out, JsonEncoding enc)\nIOContext ctxt = _createContext(out, false);\nctxt.setEncoding(enc);\nif (enc == JsonEncoding.UTF8) {\nreturn _createUTF8Generator(_decorate(out, ctxt), ctxt);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:<init>(Lcom/fasterxml/jackson/core/io/IOContext;ILcom/fasterxml/jackson/core/ObjectCodec;Ljava/io/OutputStream;)V",
+            "method_body": "public UTF8JsonGenerator(IOContext ctxt, int features, ObjectCodec codec,\nsuper(ctxt, features, codec);\n_outputStream = out;\n_bufferRecyclable = true;\n_outputBuffer = ctxt.allocWriteEncodingBuffer();\n_outputEnd = _outputBuffer.length;\n_outputMaxContiguous = _outputEnd >> 3;\n_charBuffer = ctxt.allocConcatBuffer();\n_charBufferLength = _charBuffer.length;\nif (isEnabled(Feature.ESCAPE_NON_ASCII)) {\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_decorate(Ljava/io/OutputStream;Lcom/fasterxml/jackson/core/io/IOContext;)Ljava/io/OutputStream;",
+            "method_body": "protected final OutputStream _decorate(OutputStream out, IOContext ctxt) throws IOException {\nif (_outputDecorator != null) {\nreturn out;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:createGenerator(Ljava/io/OutputStream;)Lcom/fasterxml/jackson/core/JsonGenerator;",
+            "method_body": "public JsonGenerator createGenerator(OutputStream out) throws IOException {\nreturn createGenerator(out, JsonEncoding.UTF8);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_getBufferRecycler()Lcom/fasterxml/jackson/core/util/BufferRecycler;",
+            "method_body": "public BufferRecycler _getBufferRecycler()\nif (isEnabled(Feature.USE_THREAD_LOCAL_FOR_BUFFER_RECYCLING)) {\nSoftReference<BufferRecycler> ref = _recyclerRef.get();\nbr = (ref == null) ? null : ref.get();\nif (br == null) {\nbr = new BufferRecycler();\n_recyclerRef.set(new SoftReference<BufferRecycler>(br));\n} else {\nreturn br;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:_createContext(Ljava/lang/Object;Z)Lcom/fasterxml/jackson/core/io/IOContext;",
+            "method_body": "protected IOContext _createContext(Object srcRef, boolean resourceManaged) {\nreturn new IOContext(_getBufferRecycler(), srcRef, resourceManaged);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory:isEnabled(Lcom/fasterxml/jackson/core/JsonFactory$Feature;)Z",
+            "method_body": "public final boolean isEnabled(JsonFactory.Feature f) {\nreturn (_factoryFeatures & f.getMask()) != 0;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:<init>(Lcom/fasterxml/jackson/core/util/BufferRecycler;Ljava/lang/Object;Z)V",
+            "method_body": "public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource)\n{\n_bufferRecycler = br;\n_sourceRef = sourceRef;\n_managedResource = managedResource;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:setEncoding(Lcom/fasterxml/jackson/core/JsonEncoding;)V",
+            "method_body": "public void setEncoding(JsonEncoding enc) {\n_encoding = enc;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>()V",
+            "method_body": "public BufferRecycler() {\nthis(4, 4);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>(II)V",
+            "method_body": "protected BufferRecycler(int bbCount, int cbCount) {\n_byteBuffers = new byte[bbCount][];\n_charBuffers = new char[cbCount][];\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonFactory$Feature:getMask()I",
+            "method_body": "public int getMask() { return (1 << ordinal()); }\npublic int getMask() { return (1 << ordinal()); }",
+            "method_id": 18
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonParser$Feature:getMask()I",
+            "method_body": "public int getMask() { return _mask; }\npublic int getMask() { return _mask; }",
+            "method_id": 19
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.JsonGenerator$Feature:getMask()I",
+            "method_body": "public int getMask() { return _mask; }\npublic int getMask() { return _mask; }",
+            "method_id": 20
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.json.UTF8JsonGenerator:<clinit>()V",
+            "method_body": "private final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };\nprivate final static byte[] TRUE_BYTES = { 't', 'r', 'u', 'e' };",
+            "method_id": 21
+        }
+    ]
+}

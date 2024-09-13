@@ -1,0 +1,354 @@
+{
+    "bug_id": 39,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest.testTooLargeFirstStep",
+    "test_body": "public void testTooLargeFirstStep() {\n182: AdaptiveStepsizeIntegrator integ =\nnew DormandPrince853Integrator(0, Double.POSITIVE_INFINITY, Double.NaN, Double.NaN);\nfinal double start = 0.0;\nfinal double end   = 0.001;\nFirstOrderDifferentialEquations equations = new FirstOrderDifferentialEquations() {\n188: public int getDimension() {\nreturn 1;\n}\n192: public void computeDerivatives(double t, double[] y, double[] yDot) {\nAssert.assertTrue(t >= FastMath.nextAfter(start, Double.NEGATIVE_INFINITY));\nAssert.assertTrue(t <= FastMath.nextAfter(end,   Double.POSITIVE_INFINITY));\nyDot[0] = -100.0 * y[0];\n}\n198: };\n200: integ.setStepSizeControl(0, 1.0, 1.0e-6, 1.0e-8);\ninteg.integrate(equations, start, new double[] { 1.0 }, end, new double[1]);\n203: }\n",
+    "stack_trace": "junit.framework.AssertionFailedError\nat org.junit.Assert.fail(Assert.java:86)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.junit.Assert.assertTrue(Assert.java:52)\nat org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest$3.computeDerivatives(DormandPrince853IntegratorTest.java:194)\nat org.apache.commons.math.ode.ExpandableStatefulODE.computeDerivatives(ExpandableStatefulODE.java:115)\nat org.apache.commons.math.ode.AbstractIntegrator.computeDerivatives(AbstractIntegrator.java:265)\nat org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator.integrate(EmbeddedRungeKuttaIntegrator.java:262)\nat org.apache.commons.math.ode.AbstractIntegrator.integrate(AbstractIntegrator.java:228)\nat org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest.testTooLargeFirstStep(DormandPrince853IntegratorTest.java:201)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:nextAfter(DD)D",
+            "method_body": "public static double nextAfter(double d, double direction) {\nif (Double.isNaN(d) || Double.isNaN(direction)) {\n} else if (d == direction) {\n} else if (Double.isInfinite(d)) {\n} else if (d == 0) {\nreturn (direction < 0) ? -Double.MIN_VALUE : Double.MIN_VALUE;\nfinal long bits = Double.doubleToLongBits(d);\nfinal long sign = bits & 0x8000000000000000L;\nif ((direction < d) ^ (sign == 0L)) {\nreturn Double.longBitsToDouble(sign | ((bits & 0x7fffffffffffffffL) + 1));\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:<init>(Lorg/apache/commons/math/ode/nonstiff/DormandPrince853StepInterpolator;)V",
+            "method_body": "public DormandPrince853StepInterpolator(final DormandPrince853StepInterpolator interpolator) {\nsuper(interpolator);\nif (interpolator.currentState == null) {\nyDotKLast = null;\nv         = null;\nvectorsInitialized = false;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:doCopy()Lorg/apache/commons/math/ode/sampling/StepInterpolator;",
+            "method_body": "protected StepInterpolator doCopy() {\nreturn new DormandPrince853StepInterpolator(this);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:reinitialize(Lorg/apache/commons/math/ode/AbstractIntegrator;[D[[DZLorg/apache/commons/math/ode/EquationsMapper;[Lorg/apache/commons/math/ode/EquationsMapper;)V",
+            "method_body": "public void reinitialize(final AbstractIntegrator integrator,\nsuper.reinitialize(integrator, y, yDotK, forward, primaryMapper, secondaryMappers);\nfinal int dimension = currentState.length;\nyDotKLast = new double[3][];\nfor (int k = 0; k < yDotKLast.length; ++k) {\nyDotKLast[k] = new double[dimension];\nv = new double[7][];\nfor (int k = 0; k < v.length; ++k) {\nv[k]  = new double[dimension];\nvectorsInitialized = false;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:storeTime(D)V",
+            "method_body": "public void storeTime(final double t) {\nsuper.storeTime(t);\nvectorsInitialized = false;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:doFinalize()V",
+            "method_body": "protected void doFinalize() {\nif (currentState == null) {\nreturn;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853Integrator:<init>(DDDD)V",
+            "method_body": "public DormandPrince853Integrator(final double minStep, final double maxStep,\nsuper(METHOD_NAME, true, STATIC_C, STATIC_A, STATIC_B,\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853Integrator:getOrder()I",
+            "method_body": "public int getOrder() {\nreturn 8;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolator:<init>()V",
+            "method_body": "public DormandPrince853StepInterpolator() {\nsuper();\nyDotKLast = null;\nv         = null;\nvectorsInitialized = false;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:<init>(Ljava/lang/String;Z[D[[D[DLorg/apache/commons/math/ode/nonstiff/RungeKuttaStepInterpolator;DDDD)V",
+            "method_body": "protected EmbeddedRungeKuttaIntegrator(final String name, final boolean fsal,\nsuper(name, minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);\nthis.fsal      = fsal;\nthis.c         = c;\nthis.a         = a;\nthis.b         = b;\nthis.prototype = prototype;\nexp = -1.0 / getOrder();\nsetSafety(0.9);\nsetMinReduction(0.2);\nsetMaxGrowth(10.0);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:integrate(Lorg/apache/commons/math/ode/ExpandableStatefulODE;D)V",
+            "method_body": "public void integrate(final ExpandableStatefulODE equations, final double t)\nsanityChecks(equations, t);\nsetEquations(equations);\nfinal boolean forward = t > equations.getTime();\nfinal double[] y0  = equations.getCompleteState();\nfinal double[] y = y0.clone();\nfinal int stages = c.length + 1;\nfinal double[][] yDotK = new double[stages][y.length];\nfinal double[] yTmp    = y0.clone();\nfinal double[] yDotTmp = new double[y.length];\nfinal RungeKuttaStepInterpolator interpolator = (RungeKuttaStepInterpolator) prototype.copy();\ninterpolator.reinitialize(this, yTmp, yDotK, forward,\ninterpolator.storeTime(equations.getTime());\nstepStart         = equations.getTime();\ndouble  hNew      = 0;\nboolean firstTime = true;\ninitIntegration(equations.getTime(), y0, t);\nisLastStep = false;\ninterpolator.shift();\ndouble error = 10;\nwhile (error >= 1.0) {\nif (firstTime || !fsal) {\ncomputeDerivatives(stepStart, y, yDotK[0]);\nif (firstTime) {\nfinal double[] scale = new double[mainSetDimension];\nif (vecAbsoluteTolerance == null) {\nfor (int i = 0; i < scale.length; ++i) {\nscale[i] = scalAbsoluteTolerance + scalRelativeTolerance * FastMath.abs(y[i]);\nhNew = initializeStep(forward, getOrder(), scale,\nfirstTime = false;\nstepSize = hNew;\nfor (int k = 1; k < stages; ++k) {\nfor (int j = 0; j < y0.length; ++j) {\ndouble sum = a[k-1][0] * yDotK[0][j];\nfor (int l = 1; l < k; ++l) {\nsum += a[k-1][l] * yDotK[l][j];\nyTmp[j] = y[j] + stepSize * sum;\ncomputeDerivatives(stepStart + c[k-1] * stepSize, yTmp, yDotK[k]);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setSafety(D)V",
+            "method_body": "public void setSafety(final double safety) {\nthis.safety = safety;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setMinReduction(D)V",
+            "method_body": "public void setMinReduction(final double minReduction) {\nthis.minReduction = minReduction;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator:setMaxGrowth(D)V",
+            "method_body": "public void setMaxGrowth(final double maxGrowth) {\nthis.maxGrowth = maxGrowth;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:<init>(Ljava/lang/String;DDDD)V",
+            "method_body": "public AdaptiveStepsizeIntegrator(final String name,\nsuper(name);\nsetStepSizeControl(minStep, maxStep, scalAbsoluteTolerance, scalRelativeTolerance);\nresetInternalState();\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:setStepSizeControl(DDDD)V",
+            "method_body": "public void setStepSizeControl(final double minimalStep, final double maximalStep,\nminStep     = FastMath.abs(minimalStep);\nmaxStep     = FastMath.abs(maximalStep);\ninitialStep = -1;\nscalAbsoluteTolerance = absoluteTolerance;\nscalRelativeTolerance = relativeTolerance;\nvecAbsoluteTolerance  = null;\nvecRelativeTolerance  = null;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:getMinStep()D",
+            "method_body": "public double getMinStep() {\nreturn minStep;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:getMaxStep()D",
+            "method_body": "public double getMaxStep() {\nreturn maxStep;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.RungeKuttaStepInterpolator:<init>(Lorg/apache/commons/math/ode/nonstiff/RungeKuttaStepInterpolator;)V",
+            "method_body": "public RungeKuttaStepInterpolator(final RungeKuttaStepInterpolator interpolator) {\nsuper(interpolator);\nif (interpolator.currentState != null) {\npreviousState = null;\nyDotK = null;\nintegrator = null;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:initializeStep(ZI[DD[D[D[D[D)D",
+            "method_body": "public double initializeStep(final boolean forward, final int order, final double[] scale,\nif (initialStep > 0) {\ndouble yOnScale2 = 0;\ndouble yDotOnScale2 = 0;\nfor (int j = 0; j < scale.length; ++j) {\nratio         = y0[j] / scale[j];\nyOnScale2    += ratio * ratio;\nratio         = yDot0[j] / scale[j];\nyDotOnScale2 += ratio * ratio;\ndouble h = ((yOnScale2 < 1.0e-10) || (yDotOnScale2 < 1.0e-10)) ?\nif (! forward) {\nfor (int j = 0; j < y0.length; ++j) {\ny1[j] = y0[j] + h * yDot0[j];\ncomputeDerivatives(t0 + h, y1, yDot1);\ndouble yDDotOnScale = 0;\nfor (int j = 0; j < scale.length; ++j) {\nratio         = (yDot1[j] - yDot0[j]) / scale[j];\nyDDotOnScale += ratio * ratio;\nyDDotOnScale = FastMath.sqrt(yDDotOnScale) / h;\nfinal double maxInv2 = FastMath.max(FastMath.sqrt(yDotOnScale2), yDDotOnScale);\nfinal double h1 = (maxInv2 < 1.0e-15) ?\nh = FastMath.min(100.0 * FastMath.abs(h), h1);\nh = FastMath.max(h, 1.0e-12 * FastMath.abs(t0));  // avoids cancellation when computing t1 - t0\nif (h < getMinStep()) {\nif (h > getMaxStep()) {\nif (! forward) {\nreturn h;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:<init>(Lorg/apache/commons/math/ode/sampling/AbstractStepInterpolator;)V",
+            "method_body": "protected AbstractStepInterpolator(final AbstractStepInterpolator interpolator) {\nglobalPreviousTime = interpolator.globalPreviousTime;\nglobalCurrentTime  = interpolator.globalCurrentTime;\nsoftPreviousTime   = interpolator.softPreviousTime;\nsoftCurrentTime    = interpolator.softCurrentTime;\nh                  = interpolator.h;\ninterpolatedTime   = interpolator.interpolatedTime;\nif (interpolator.currentState == null) {\ncurrentState     = null;\nprimaryMapper    = null;\nsecondaryMappers = null;\nallocateInterpolatedArrays(-1);\nfinalized        = interpolator.finalized;\nforward          = interpolator.forward;\ndirtyState       = interpolator.dirtyState;\nprimaryMapper    = interpolator.primaryMapper;\nsecondaryMappers = (interpolator.secondaryMappers == null) ?\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:reinitialize([DZLorg/apache/commons/math/ode/EquationsMapper;[Lorg/apache/commons/math/ode/EquationsMapper;)V",
+            "method_body": "protected void reinitialize(final double[] y, final boolean isForward,\nglobalPreviousTime    = Double.NaN;\nglobalCurrentTime     = Double.NaN;\nsoftPreviousTime      = Double.NaN;\nsoftCurrentTime       = Double.NaN;\nh                     = Double.NaN;\ninterpolatedTime      = Double.NaN;\ncurrentState          = y;\nfinalized             = false;\nthis.forward          = isForward;\nthis.dirtyState       = true;\nthis.primaryMapper    = primary;\nthis.secondaryMappers = secondary.clone();\nallocateInterpolatedArrays(y.length);\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:copy()Lorg/apache/commons/math/ode/sampling/StepInterpolator;",
+            "method_body": "public StepInterpolator copy() {\nfinalizeStep();\nreturn doCopy();\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.RungeKuttaStepInterpolator:reinitialize(Lorg/apache/commons/math/ode/AbstractIntegrator;[D[[DZLorg/apache/commons/math/ode/EquationsMapper;[Lorg/apache/commons/math/ode/EquationsMapper;)V",
+            "method_body": "public void reinitialize(final AbstractIntegrator rkIntegrator,\nreinitialize(y, forward, primaryMapper, secondaryMappers);\nthis.previousState = null;\nthis.yDotK = yDotArray;\nthis.integrator = rkIntegrator;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.RungeKuttaStepInterpolator:shift()V",
+            "method_body": "public void shift() {\npreviousState = currentState.clone();\nsuper.shift();\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:sanityChecks(Lorg/apache/commons/math/ode/ExpandableStatefulODE;D)V",
+            "method_body": "protected void sanityChecks(final ExpandableStatefulODE equations, final double t)\nsuper.sanityChecks(equations, t);\nmainSetDimension = equations.getPrimaryMapper().getDimension();\nif ((vecAbsoluteTolerance != null) && (vecAbsoluteTolerance.length != mainSetDimension)) {\nif ((vecRelativeTolerance != null) && (vecRelativeTolerance.length != mainSetDimension)) {\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:finalizeStep()V",
+            "method_body": "public final void finalizeStep() {\nif (! finalized) {\ndoFinalize();\nfinalized = true;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.AdaptiveStepsizeIntegrator:resetInternalState()V",
+            "method_body": "protected void resetInternalState() {\nstepStart = Double.NaN;\nstepSize  = FastMath.sqrt(minStep * maxStep);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.nonstiff.RungeKuttaStepInterpolator:<init>()V",
+            "method_body": "protected RungeKuttaStepInterpolator() {\npreviousState = null;\nyDotK         = null;\nintegrator    = null;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:<init>()V",
+            "method_body": "protected AbstractStepInterpolator() {\nglobalPreviousTime = Double.NaN;\nglobalCurrentTime  = Double.NaN;\nsoftPreviousTime   = Double.NaN;\nsoftCurrentTime    = Double.NaN;\nh                  = Double.NaN;\ninterpolatedTime   = Double.NaN;\ncurrentState       = null;\nfinalized          = false;\nthis.forward       = true;\nthis.dirtyState    = true;\nprimaryMapper      = null;\nsecondaryMappers   = null;\nallocateInterpolatedArrays(-1);\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:initIntegration(D[DD)V",
+            "method_body": "protected void initIntegration(final double t0, final double[] y0, final double t) {\nevaluations.resetCount();\nfor (final EventState state : eventsStates) {\nfor (StepHandler handler : stepHandlers) {\nsetStateInitialized(false);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:setEquations(Lorg/apache/commons/math/ode/ExpandableStatefulODE;)V",
+            "method_body": "protected void setEquations(final ExpandableStatefulODE equations) {\nthis.expandable = equations;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:computeDerivatives(D[D[D)V",
+            "method_body": "public abstract void integrate(ExpandableStatefulODE equations, double t)\nevaluations.incrementCount();\nexpandable.computeDerivatives(t, y, yDot);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:setStateInitialized(Z)V",
+            "method_body": "protected void setStateInitialized(final boolean stateInitialized) {\nthis.statesInitialized = stateInitialized;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:getTotalDimension()I",
+            "method_body": "public int getTotalDimension() {\nif (components.isEmpty()) {\nreturn primaryMapper.getDimension();\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:computeDerivatives(D[D[D)V",
+            "method_body": "public void computeDerivatives(final double t, final double[] y, final double[] yDot) {\nprimaryMapper.extractEquationData(y, primaryState);\nprimary.computeDerivatives(t, primaryState, primaryStateDot);\nprimaryMapper.insertEquationData(primaryStateDot, yDot);\nfor (final SecondaryComponent component : components) {\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:getSecondaryMappers()[Lorg/apache/commons/math/ode/EquationsMapper;",
+            "method_body": "public EquationsMapper[] getSecondaryMappers() {\nfinal EquationsMapper[] mappers = new EquationsMapper[components.size()];\nfor (int i = 0; i < mappers.length; ++i) {\nreturn mappers;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:getCompleteState()[D",
+            "method_body": "public double[] getCompleteState() {\ndouble[] completeState = new double[getTotalDimension()];\nprimaryMapper.insertEquationData(primaryState, completeState);\nfor (final SecondaryComponent component : components) {\nreturn completeState;\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.EquationsMapper:insertEquationData([D[D)V",
+            "method_body": "public void insertEquationData(double[] equationData, double[] complete)\nif (equationData.length != dimension) {\nSystem.arraycopy(equationData, 0, complete, firstIndex, dimension);\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:getPrimaryMapper()Lorg/apache/commons/math/ode/EquationsMapper;",
+            "method_body": "public EquationsMapper getPrimaryMapper() {\nreturn primaryMapper;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:sanityChecks(Lorg/apache/commons/math/ode/ExpandableStatefulODE;D)V",
+            "method_body": "protected void sanityChecks(final ExpandableStatefulODE equations, final double t)\nfinal double threshold = 1000 * FastMath.ulp(FastMath.max(FastMath.abs(equations.getTime()),\nfinal double dt = FastMath.abs(equations.getTime() - t);\nif (dt <= threshold) {\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:<init>(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;)V",
+            "method_body": "public ExpandableStatefulODE(final FirstOrderDifferentialEquations primary) {\nfinal int n          = primary.getDimension();\nthis.primary         = primary;\nthis.primaryMapper   = new EquationsMapper(0, n);\nthis.time            = Double.NaN;\nthis.primaryState    = new double[n];\nthis.primaryStateDot = new double[n];\nthis.components      = new ArrayList<ExpandableStatefulODE.SecondaryComponent>();\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:setTime(D)V",
+            "method_body": "public void setTime(final double time) {\nthis.time = time;\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:getTime()D",
+            "method_body": "public double getTime() {\nreturn time;\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.ExpandableStatefulODE:setPrimaryState([D)V",
+            "method_body": "public void setPrimaryState(final double[] primaryState) throws DimensionMismatchException {\nif (primaryState.length != this.primaryState.length) {\nSystem.arraycopy(primaryState, 0, this.primaryState, 0, primaryState.length);\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.EquationsMapper:extractEquationData([D[D)V",
+            "method_body": "public void extractEquationData(double[] complete, double[] equationData)\nif (equationData.length != dimension) {\nSystem.arraycopy(complete, firstIndex, equationData, 0, dimension);\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:integrate(Lorg/apache/commons/math/ode/FirstOrderDifferentialEquations;D[DD[D)D",
+            "method_body": "public double integrate(final FirstOrderDifferentialEquations equations,\nif (y0.length != equations.getDimension()) {\nif (y.length != equations.getDimension()) {\nfinal ExpandableStatefulODE expandableODE = new ExpandableStatefulODE(equations);\nexpandableODE.setTime(t0);\nexpandableODE.setPrimaryState(y0);\nintegrate(expandableODE, t);\nSystem.arraycopy(expandableODE.getPrimaryState(), 0, y, 0, y.length);\nreturn expandableODE.getTime();\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:shift()V",
+            "method_body": "public void shift() {\nglobalPreviousTime = globalCurrentTime;\nsoftPreviousTime   = globalPreviousTime;\nsoftCurrentTime    = globalCurrentTime;\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:storeTime(D)V",
+            "method_body": "public void storeTime(final double t) {\nglobalCurrentTime = t;\nsoftCurrentTime   = globalCurrentTime;\nh                 = globalCurrentTime - globalPreviousTime;\nsetInterpolatedTime(t);\nfinalized  = false;\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:setInterpolatedTime(D)V",
+            "method_body": "public void setInterpolatedTime(final double time) {\ninterpolatedTime = time;\ndirtyState       = true;\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.EquationsMapper:getDimension()I",
+            "method_body": "public int getDimension() {\nreturn dimension;\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.EquationsMapper:<init>(II)V",
+            "method_body": "public EquationsMapper(final int firstIndex, final int dimension) {\nthis.firstIndex = firstIndex;\nthis.dimension  = dimension;\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:<init>(Ljava/lang/String;)V",
+            "method_body": "public AbstractIntegrator(final String name) {\nthis.name = name;\nstepHandlers = new ArrayList<StepHandler>();\nstepStart = Double.NaN;\nstepSize  = Double.NaN;\neventsStates = new ArrayList<EventState>();\nstatesInitialized = false;\nevaluations = new Incrementor();\nsetMaxEvaluations(-1);\nevaluations.resetCount();\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator:setMaxEvaluations(I)V",
+            "method_body": "public void setMaxEvaluations(int maxEvaluations) {\nevaluations.setMaximalCount((maxEvaluations < 0) ? Integer.MAX_VALUE : maxEvaluations);\n}",
+            "method_id": 53
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.sampling.AbstractStepInterpolator:allocateInterpolatedArrays(I)V",
+            "method_body": "private void allocateInterpolatedArrays(final int dimension) {\nif (dimension < 0) {\ninterpolatedState                = null;\ninterpolatedDerivatives          = null;\ninterpolatedPrimaryState         = null;\ninterpolatedPrimaryDerivatives   = null;\ninterpolatedSecondaryState       = null;\ninterpolatedSecondaryDerivatives = null;\ninterpolatedState                = new double[dimension];\ninterpolatedDerivatives          = new double[dimension];\ninterpolatedPrimaryState         = new double[primaryMapper.getDimension()];\ninterpolatedPrimaryDerivatives   = new double[primaryMapper.getDimension()];\nif (secondaryMappers == null) {\ninterpolatedSecondaryState       = new double[secondaryMappers.length][];\ninterpolatedSecondaryDerivatives = new double[secondaryMappers.length][];\nfor (int i = 0; i < secondaryMappers.length; ++i) {\n}",
+            "method_id": 54
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:ulp(D)D",
+            "method_body": "public static double ulp(double x) {\nif (Double.isInfinite(x)) {\nreturn abs(x - Double.longBitsToDouble(Double.doubleToLongBits(x) ^ 1));\n}",
+            "method_id": 55
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:min(DD)D",
+            "method_body": "public static double min(final double a, final double b) {\nif (a > b) {\nif (a < b) {\nreturn a;\n}",
+            "method_id": 56
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:max(DD)D",
+            "method_body": "public static double max(final double a, final double b) {\nif (a > b) {\nreturn a;\nif (a < b) {\nreturn b;\n}",
+            "method_id": 57
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:incrementCount()V",
+            "method_body": "public void incrementCount() {\nif (++count > maximalCount) {\n}",
+            "method_id": 58
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:resetCount()V",
+            "method_body": "public void resetCount() {\ncount = 0;\n}",
+            "method_id": 59
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:setMaximalCount(I)V",
+            "method_body": "public void setMaximalCount(int max) {\nmaximalCount = max;\n}",
+            "method_id": 60
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>()V",
+            "method_body": "public Incrementor() {\nthis(0);\n}",
+            "method_id": 61
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(I)V",
+            "method_body": "public Incrementor(int max) {\nthis(max,\nnew MaxCountExceededCallback() {\n}",
+            "method_id": 62
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(ILorg/apache/commons/math/util/Incrementor$MaxCountExceededCallback;)V",
+            "method_body": "public Incrementor(int max,\nMaxCountExceededCallback cb) {\nmaximalCount = max;\nmaxCountCallback = cb;\n}",
+            "method_id": 63
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:pow(DD)D",
+            "method_body": "public static double pow(double x, double y) {\nfinal double lns[] = new double[2];\nif (y == 0.0) {\nif (x != x) { // X is NaN\nif (x == 0) {\nif (x == Double.POSITIVE_INFINITY) {\nif (y == Double.POSITIVE_INFINITY) {\nif (x == Double.NEGATIVE_INFINITY) {\nif (y == Double.NEGATIVE_INFINITY) {\nif (x < 0) {\nif (y < 8e298 && y > -8e298) {\ndouble tmp1 = y * HEX_40000000;\nya = y + tmp1 - tmp1;\nyb = y - ya;\n} else {\nfinal double lores = log(x, lns);\nif (Double.isInfinite(lores)){ // don't allow this to be converted to NaN\ndouble lna = lns[0];\ndouble lnb = lns[1];\ndouble tmp1 = lna * HEX_40000000;\ndouble tmp2 = lna + tmp1 - tmp1;\nlnb += lna - tmp2;\nlna = tmp2;\nfinal double aa = lna * ya;\nfinal double ab = lna * yb + lnb * ya + lnb * yb;\nlna = aa+ab;\nlnb = -(lna - aa - ab);\ndouble z = 1.0 / 120.0;\nz = z * lnb + (1.0 / 24.0);\nz = z * lnb + (1.0 / 6.0);\nz = z * lnb + 0.5;\nz = z * lnb + 1.0;\nz = z * lnb;\nfinal double result = exp(lna, z, null);\nreturn result;\n}",
+            "method_id": 64
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:log(D[D)D",
+            "method_body": "private static double log(final double x, final double[] hiPrec) {\nif (x==0) { // Handle special case of +0/-0\nlong bits = Double.doubleToLongBits(x);\nif ((bits & 0x8000000000000000L) != 0 || x != x) {\nif (x == Double.POSITIVE_INFINITY) {\nint exp = (int)(bits >> 52)-1023;\nif ((bits & 0x7ff0000000000000L) == 0) {\nif (exp == -1 || exp == 0) {\ndouble lnm[] = lnMant.LN_MANT[(int)((bits & 0x000ffc0000000000L) >> 42)];\ndouble epsilon = (bits & 0x3ffffffffffL) / (TWO_POWER_52 + (bits & 0x000ffc0000000000L));\ndouble lnza = 0.0;\ndouble lnzb = 0.0;\nif (hiPrec != null) {\ndouble tmp = epsilon * HEX_40000000;\ndouble aa = epsilon + tmp - tmp;\ndouble ab = epsilon - aa;\ndouble xa = aa;\ndouble xb = ab;\ndouble numer = bits & 0x3ffffffffffL;\ndouble denom = TWO_POWER_52 + (bits & 0x000ffc0000000000L);\naa = numer - xa*denom - xb * denom;\nxb += aa / denom;\ndouble ya = LN_HI_PREC_COEF[LN_HI_PREC_COEF.length-1][0];\ndouble yb = LN_HI_PREC_COEF[LN_HI_PREC_COEF.length-1][1];\nfor (int i = LN_HI_PREC_COEF.length - 2; i >= 0; i--) {\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\naa = ya + LN_HI_PREC_COEF[i][0];\nab = yb + LN_HI_PREC_COEF[i][1];\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\nlnza = aa + ab;\nlnzb = -(lnza - aa - ab);\n} else {\ndouble a = LN_2_A*exp;\ndouble b = 0.0;\ndouble c = a+lnm[0];\ndouble d = -(c-a-lnm[0]);\na = c;\nb = b + d;\nc = a + lnza;\nd = -(c - a - lnza);\na = c;\nb = b + d;\nc = a + LN_2_B*exp;\nd = -(c - a - LN_2_B*exp);\na = c;\nb = b + d;\nc = a + lnm[1];\nd = -(c - a - lnm[1]);\na = c;\nb = b + d;\nc = a + lnzb;\nd = -(c - a - lnzb);\na = c;\nb = b + d;\nif (hiPrec != null) {\nhiPrec[0] = a;\nhiPrec[1] = b;\nreturn a + b;\n}",
+            "method_id": 65
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:exp(DD[D)D",
+            "method_body": "private static double exp(double x, double extra, double[] hiPrec) {\nif (x < 0.0) {\nintVal = (int) -x;\nif (intVal > 746) {\nif (intVal > 709) {\nif (intVal == 709) {\nintVal++;\nintPartA = ExpIntTable.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX-intVal];\nintPartB = ExpIntTable.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX-intVal];\nintVal = -intVal;\nfinal int intFrac = (int) ((x - intVal) * 1024.0);\nfinal double fracPartA = ExpFracTable.EXP_FRAC_TABLE_A[intFrac];\nfinal double fracPartB = ExpFracTable.EXP_FRAC_TABLE_B[intFrac];\nfinal double epsilon = x - (intVal + intFrac / 1024.0);\ndouble z = 0.04168701738764507;\nz = z * epsilon + 0.1666666505023083;\nz = z * epsilon + 0.5000000000042687;\nz = z * epsilon + 1.0;\nz = z * epsilon + -3.940510424527919E-20;\ndouble tempA = intPartA * fracPartA;\ndouble tempB = intPartA * fracPartB + intPartB * fracPartA + intPartB * fracPartB;\nfinal double tempC = tempB + tempA;\nif (extra != 0.0) {\nresult = tempC*extra*z + tempC*extra + tempC*z + tempB + tempA;\nif (hiPrec != null) {\nreturn result;\n}",
+            "method_id": 66
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 67
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 68
+        }
+    ]
+}

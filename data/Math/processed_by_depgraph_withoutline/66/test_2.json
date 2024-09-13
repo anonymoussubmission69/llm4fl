@@ -1,0 +1,154 @@
+{
+    "bug_id": 66,
+    "test_id": 2,
+    "test_name": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizerTest.testQuinticMin",
+    "test_body": "public void testQuinticMin() throws MathException {\n// The quintic function has zeros at 0, +-0.5 and +-1.\n// The function has extrema (first derivative is zero) at 0.27195613 and 0.82221643,\nUnivariateRealFunction f = new QuinticFunction();\nUnivariateRealOptimizer underlying = new BrentOptimizer();\nunderlying.setRelativeAccuracy(1e-15);\nJDKRandomGenerator g = new JDKRandomGenerator();\ng.setSeed(4312000053L);\nMultiStartUnivariateRealOptimizer minimizer =\nnew MultiStartUnivariateRealOptimizer(underlying, 5, g);\nminimizer.setAbsoluteAccuracy(10 * minimizer.getAbsoluteAccuracy());\nminimizer.setRelativeAccuracy(10 * minimizer.getRelativeAccuracy());\n69: try {\nminimizer.getOptima();\nfail(\"an exception should have been thrown\");\n} catch (IllegalStateException ise) {\n// expected\n} catch (Exception e) {\nfail(\"wrong exception caught\");\n}\ntry {\nminimizer.getOptimaValues();\nfail(\"an exception should have been thrown\");\n} catch (IllegalStateException ise) {\n// expected\n} catch (Exception e) {\nfail(\"wrong exception caught\");\n}\n86: double result = minimizer.optimize(f, GoalType.MINIMIZE, -0.3, -0.2);\nassertEquals(-0.2719561270319131, result, 1.0e-13);\nassertEquals(-0.2719561270319131, minimizer.getResult(), 1.0e-13);",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<-0.2719561270319131> but was:<-0.2719561299044896>\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.failNotEquals(Assert.java:743)\nat org.junit.Assert.assertEquals(Assert.java:494)\nat org.junit.Assert.assertEquals(Assert.java:592)\nat org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizerTest.testQuinticMin(MultiStartUnivariateRealOptimizerTest.java:87)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:getOptima()[D",
+            "method_body": "public double[] getOptima() throws IllegalStateException {\nif (optima == null) {\nthrow MathRuntimeException.createIllegalStateException(LocalizedFormats.NO_OPTIMUM_COMPUTED_YET);\nreturn optima.clone();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:getOptimaValues()[D",
+            "method_body": "public double[] getOptimaValues() throws IllegalStateException {\nif (optimaValues == null) {\nthrow MathRuntimeException.createIllegalStateException(LocalizedFormats.NO_OPTIMUM_COMPUTED_YET);\nreturn optimaValues.clone();\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:optimize(Lorg/apache/commons/math/analysis/UnivariateRealFunction;Lorg/apache/commons/math/optimization/GoalType;DD)D",
+            "method_body": "public double optimize(final UnivariateRealFunction f, final GoalType goalType,\noptima           = new double[starts];\noptimaValues     = new double[starts];\ntotalIterations  = 0;\ntotalEvaluations = 0;\nfor (int i = 0; i < starts; ++i) {\noptimizer.setMaximalIterationCount(maxIterations - totalIterations);\noptimizer.setMaxEvaluations(maxEvaluations - totalEvaluations);\nfinal double bound1 = (i == 0) ? min : min + generator.nextDouble() * (max - min);\nfinal double bound2 = (i == 0) ? max : min + generator.nextDouble() * (max - min);\noptima[i]       = optimizer.optimize(f, goalType,\noptimaValues[i] = optimizer.getFunctionValue();\n}\ntotalIterations  += optimizer.getIterationCount();\ntotalEvaluations += optimizer.getEvaluations();\nint lastNaN = optima.length;\nfor (int i = 0; i < lastNaN; ++i) {\nif (Double.isNaN(optima[i])) {\ndouble currX = optima[0];\ndouble currY = optimaValues[0];\nfor (int j = 1; j < lastNaN; ++j) {\nfinal double prevY = currY;\ncurrX = optima[j];\ncurrY = optimaValues[j];\nif ((goalType == GoalType.MAXIMIZE) ^ (currY < prevY)) {\nint i = j - 1;\ndouble mIX = optima[i];\ndouble mIY = optimaValues[i];\nwhile ((i >= 0) && ((goalType == GoalType.MAXIMIZE) ^ (currY < mIY))) {\noptima[i + 1]       = mIX;\noptimaValues[i + 1] = mIY;\nif (i-- != 0) {\nmIX = optima[i];\nmIY = optimaValues[i];\noptima[i + 1]       = currX;\noptimaValues[i + 1] = currY;\ncurrX = optima[j];\ncurrY = optimaValues[j];\nif (Double.isNaN(optima[0])) {\nreturn optima[0];\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:getAbsoluteAccuracy()D",
+            "method_body": "public double getAbsoluteAccuracy() {\nreturn optimizer.getAbsoluteAccuracy();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:getRelativeAccuracy()D",
+            "method_body": "public double getRelativeAccuracy() {\nreturn optimizer.getRelativeAccuracy();\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.BrentOptimizer:optimize(Lorg/apache/commons/math/analysis/UnivariateRealFunction;Lorg/apache/commons/math/optimization/GoalType;DDD)D",
+            "method_body": "public double optimize(final UnivariateRealFunction f, final GoalType goalType, final double min, final double max, final double startValue) throws MaxIterationsExceededException, FunctionEvaluationException {\nreturn localMin(getGoalType() == GoalType.MINIMIZE,\nf, goalType, min, startValue, max,\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.MathRuntimeException:createIllegalStateException(Lorg/apache/commons/math/util/Localizable;[Ljava/lang/Object;)Ljava/lang/IllegalStateException;",
+            "method_body": "public static IllegalStateException createIllegalStateException(final Localizable pattern,\nreturn new IllegalStateException() {\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:<init>(Lorg/apache/commons/math/optimization/UnivariateRealOptimizer;ILorg/apache/commons/math/random/RandomGenerator;)V",
+            "method_body": "public MultiStartUnivariateRealOptimizer(final UnivariateRealOptimizer optimizer,\nfinal RandomGenerator generator) {\nthis.optimizer        = optimizer;\nthis.totalIterations  = 0;\nthis.starts           = starts;\nthis.generator        = generator;\nthis.optima           = null;\nsetMaximalIterationCount(Integer.MAX_VALUE);\nsetMaxEvaluations(Integer.MAX_VALUE);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.BrentOptimizer:<init>()V",
+            "method_body": "public BrentOptimizer() {\nsetMaxEvaluations(Integer.MAX_VALUE);\nsetMaximalIterationCount(100);\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:setAbsoluteAccuracy(D)V",
+            "method_body": "public void setAbsoluteAccuracy(double accuracy) {\noptimizer.setAbsoluteAccuracy(accuracy);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:setRelativeAccuracy(D)V",
+            "method_body": "public void setRelativeAccuracy(double accuracy) {\noptimizer.setRelativeAccuracy(accuracy);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:getEvaluations()I",
+            "method_body": "public int getEvaluations() {\nreturn evaluations;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:getFunctionValue()D",
+            "method_body": "public double getFunctionValue() {\nif (functionValue == Double.NaN) {\nreturn functionValue;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:setMaximalIterationCount(I)V",
+            "method_body": "public void setMaximalIterationCount(int count) {\nthis.maxIterations = count;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.MultiStartUnivariateRealOptimizer:setMaxEvaluations(I)V",
+            "method_body": "public void setMaxEvaluations(int maxEvaluations) {\nthis.maxEvaluations = maxEvaluations;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:setResult(DDI)V",
+            "method_body": "protected final void setResult(final double x, final double fx,\nthis.result         = x;\nthis.functionValue  = fx;\nthis.iterationCount = iterationCount;\nthis.resultComputed = true;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:clearResult()V",
+            "method_body": "protected final void clearResult() {\nthis.resultComputed = false;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:setMaxEvaluations(I)V",
+            "method_body": "public void setMaxEvaluations(int maxEvaluations) {\nthis.maxEvaluations = maxEvaluations;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:computeObjectiveValue(Lorg/apache/commons/math/analysis/UnivariateRealFunction;D)D",
+            "method_body": "protected double computeObjectiveValue(final UnivariateRealFunction f,\nif (++evaluations > maxEvaluations) {\nreturn f.value(point);\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:getIterationCount()I",
+            "method_body": "public int getIterationCount() {\nreturn iterationCount;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:setRelativeAccuracy(D)V",
+            "method_body": "public void setRelativeAccuracy(double accuracy) {\nrelativeAccuracy = accuracy;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:getRelativeAccuracy()D",
+            "method_body": "public double getRelativeAccuracy() {\nreturn relativeAccuracy;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:getAbsoluteAccuracy()D",
+            "method_body": "public double getAbsoluteAccuracy() {\nreturn absoluteAccuracy;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:setMaximalIterationCount(I)V",
+            "method_body": "public void setMaximalIterationCount(int count) {\nmaximalIterationCount = count;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:setAbsoluteAccuracy(D)V",
+            "method_body": "public void setAbsoluteAccuracy(double accuracy) {\nabsoluteAccuracy = accuracy;\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.AbstractUnivariateRealOptimizer:<init>(ID)V",
+            "method_body": "protected AbstractUnivariateRealOptimizer(final int defaultMaximalIterationCount,\nsuper(defaultMaximalIterationCount, defaultAbsoluteAccuracy);\nresultComputed = false;\nsetMaxEvaluations(Integer.MAX_VALUE);\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.math.ConvergingAlgorithmImpl:<init>(ID)V",
+            "method_body": "protected ConvergingAlgorithmImpl(final int defaultMaximalIterationCount,\nfinal double defaultAbsoluteAccuracy) {\nthis.defaultAbsoluteAccuracy = defaultAbsoluteAccuracy;\nthis.defaultRelativeAccuracy = 1.0e-14;\nthis.absoluteAccuracy = defaultAbsoluteAccuracy;\nthis.relativeAccuracy = defaultRelativeAccuracy;\nthis.defaultMaximalIterationCount = defaultMaximalIterationCount;\nthis.maximalIterationCount = defaultMaximalIterationCount;\nthis.iterationCount = 0;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.univariate.BrentOptimizer:localMin(Lorg/apache/commons/math/analysis/UnivariateRealFunction;Lorg/apache/commons/math/optimization/GoalType;DDDDD)D",
+            "method_body": "private double localMin(boolean isMinim,\nif (t <= 0) {\ndouble a, b;\n} else {\na = hi;\nb = lo;\ndouble d = 0;\ndouble e = 0;\ndouble fx = computeObjectiveValue(f, x);\nif (goalType == GoalType.MAXIMIZE) {\nfx = -fx;\n}\n\nint count = 0;\ndouble m = 0.5 * (a + b);\nfinal double tol1 = eps * Math.abs(x) + t;\nfinal double tol2 = 2 * tol1;\n\n// Check stopping criterion.\ndouble q = 0;\ndouble r = 0;\ndouble u = 0;\n\nif (Math.abs(e) > tol1) { // Fit parabola.\nr = (x - w) * (fx - fv);\np = (x - v) * q - (x - w) * r;\nq = 2 * (q - r);\n\nif (q > 0) {\np = -p;\nq = -q;\n}\nr = e;\nif (p > q * (a - x)\n&& p < q * (b - x)\n// Parabolic interpolation step.\n// f must not be evaluated too close to a or b.\nif (u - a < tol2\nd = tol1;\nd = -tol1;\n}\n} else {\ne = a - x;\n}\n}\n// Golden section step.\ne = a - x;\n}\n}\n// Update by at least \"tol1\".\n} else {\nu = x - tol1;\n}\nu = x + d;\ndouble fu = computeObjectiveValue(f, u);\n}\n\n} else {\na = x;\n}\nfv = fw;\nfw = fx;\nx = u;\nfx = fu;\n} else {\nif (u < x) {\na = u;\nb = u;\n}\n|| w == x) {\nfv = fw;\nfw = fu;\n} else if (fu <= fv\n|| v == x\n|| v == w) {\nv = u;\n}\n} else { // termination\n}\n++count;\n}\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.math.MathRuntimeException$5:<init>(Lorg/apache/commons/math/util/Localizable;[Ljava/lang/Object;)V",
+            "method_body": "public static IllegalStateException createIllegalStateException(final Localizable pattern,\nreturn new IllegalStateException() {\n}",
+            "method_id": 28
+        }
+    ]
+}

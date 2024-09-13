@@ -1,0 +1,194 @@
+{
+    "bug_id": 13,
+    "test_id": 0,
+    "test_name": "org.apache.commons.cli2.bug.BugLoopingOptionLookAlikeTest.testLoopingOptionLookAlike2",
+    "test_body": "public void testLoopingOptionLookAlike2() {\nfinal ArgumentBuilder abuilder = new ArgumentBuilder();\nfinal GroupBuilder gbuilder = new GroupBuilder();\nfinal Argument inputfile_opt = abuilder.withName(\"input\").withMinimum(1).withMaximum(1).create();\nfinal Argument outputfile_opt = abuilder.withName(\"output\").withMinimum(1).withMaximum(1).create();\nfinal Argument targets = new SourceDestArgument(inputfile_opt, outputfile_opt);\nfinal Group options = gbuilder.withOption(targets).create();\nfinal Parser parser = new Parser();\nparser.setGroup(options);\ntry {\nparser.parse(new String[] { \"testfile.txt\", \"testfile.txt\", \"testfile.txt\", \"testfile.txt\" });\nfail(\"OptionException\");\n} catch (OptionException e) {\nassertEquals(\"Unexpected testfile.txt while processing \", e.getMessage());\n}",
+    "stack_trace": "junit.framework.ComparisonFailure: expected:<Unexpected [testfile.txt while processing ]> but was:<Unexpected [value \"testfile.txt\" found while processing  input]>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat org.apache.commons.cli2.bug.BugLoopingOptionLookAlikeTest.testLoopingOptionLookAlike2(BugLoopingOptionLookAlikeTest.java:76)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.cli2.option.SourceDestArgument:<init>(Lorg/apache/commons/cli2/Argument;Lorg/apache/commons/cli2/Argument;CCLjava/lang/String;Ljava/util/List;)V",
+            "method_body": "public SourceDestArgument(final Argument source,\nsuper(\"SourceDestArgument\", null, sum(source.getMinimum(), dest.getMinimum()),\nthis.source = source;\nthis.dest = dest;\nif (dest.getMinimum() != dest.getMaximum()) {\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:appendUsage(Ljava/lang/StringBuffer;Ljava/util/Set;Ljava/util/Comparator;)V",
+            "method_body": "public void appendUsage(final StringBuffer buffer,\nfinal boolean optional = helpSettings.contains(DisplaySetting.DISPLAY_OPTIONAL);\nfinal boolean numbered =\nfinal boolean bracketed = helpSettings.contains(DisplaySetting.DISPLAY_ARGUMENT_BRACKETED);\nfinal int max = (maximum == Integer.MAX_VALUE) ? 2 : maximum;\nint i = 0;\nwhile (i < max) {\nif (i > 0) {\nif ((i >= minimum) && (optional || (i > 0))) {\nif (bracketed) {\nbuffer.append(name);\n++i;\nif (numbered) {\nif (bracketed) {\nif (maximum == Integer.MAX_VALUE) {\nwhile (i > 0) {\n--i;\nif ((i >= minimum) && (optional || (i > 0))) {\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.OptionException:<init>(Lorg/apache/commons/cli2/Option;Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public OptionException(final Option option,\nfinal String value) {\nthis.option = option;\nif (messageKey != null) {\nfinal StringBuffer buffer = new StringBuffer();\nif (value != null) {\nbuffer.append(helper.getMessage(messageKey, value));\nbuffer.append(\" \");\noption.appendUsage(buffer, HELP_SETTINGS, null);\nmessage = buffer.toString();\n} else {\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.commandline.Parser:parse([Ljava/lang/String;)Lorg/apache/commons/cli2/CommandLine;",
+            "method_body": "public CommandLine parse(final String[] arguments)\nfinal List argumentList = new LinkedList();\nfor (int i = 0; i < arguments.length; i++) {\nfinal String argument = arguments[i];\nargumentList.add(new String(argument));\nfinal WriteableCommandLine commandLine = new WriteableCommandLineImpl(group, argumentList);\ngroup.defaults(commandLine);\nfinal ListIterator iterator = argumentList.listIterator();\nObject previous = null;\nwhile (group.canProcess(commandLine, iterator)) {\nfinal Object next = iterator.next();\niterator.previous();\nif (next == previous) {\nprevious = next;\ngroup.process(commandLine, iterator);\n}\nif (iterator.hasNext()) {\nif (!commandLine.hasOption(helpOption) && !commandLine.hasOption(helpTrigger)) {\ngroup.validate(commandLine);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.GroupImpl:<init>(Ljava/util/List;Ljava/lang/String;Ljava/lang/String;II)V",
+            "method_body": "public GroupImpl(final List options,\nsuper(0, false);\nthis.name = name;\nthis.description = description;\nthis.minimum = minimum;\nthis.maximum = maximum;\nthis.options = Collections.unmodifiableList(options);\nfinal List newAnonymous = new ArrayList();\nfinal SortedMap newOptionMap = new TreeMap(ReverseStringComparator.getInstance());\nfinal Set newPrefixes = new HashSet();\nfor (final Iterator i = options.iterator(); i.hasNext();) {\nfinal Option option = (Option) i.next();\nif (option instanceof Argument) {\ni.remove();\nnewAnonymous.add(option);\n}\nthis.anonymous = Collections.unmodifiableList(newAnonymous);\nthis.optionMap = Collections.unmodifiableSortedMap(newOptionMap);\nthis.prefixes = Collections.unmodifiableSet(newPrefixes);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:validate(Lorg/apache/commons/cli2/WriteableCommandLine;Lorg/apache/commons/cli2/Option;)V",
+            "method_body": "public void validate(final WriteableCommandLine commandLine,\nfinal List values = commandLine.getValues(option);\nif (values.size() < minimum) {\nif (values.size() > maximum) {\nthrow new OptionException(option, ResourceConstants.ARGUMENT_UNEXPECTED_VALUE,\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:processValues(Lorg/apache/commons/cli2/WriteableCommandLine;Ljava/util/ListIterator;Lorg/apache/commons/cli2/Option;)V",
+            "method_body": "public void processValues(final WriteableCommandLine commandLine,\nint argumentCount = 0;\nwhile (arguments.hasNext() && (argumentCount < maximum)) {\nfinal String allValuesQuoted = (String) arguments.next();\nfinal String allValues = stripBoundaryQuotes(allValuesQuoted);\nif (allValuesQuoted.equals(consumeRemaining)) {\nelse if (commandLine.looksLikeOption(allValuesQuoted)) {\nelse if (subsequentSplit) {\n++argumentCount;\ncommandLine.addValue(option, allValues);\n}\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:reset()Lorg/apache/commons/cli2/builder/ArgumentBuilder;",
+            "method_body": "public final ArgumentBuilder reset() {\nname = \"arg\";\ndescription = null;\nminimum = 0;\nmaximum = Integer.MAX_VALUE;\ninitialSeparator = ArgumentImpl.DEFAULT_INITIAL_SEPARATOR;\nsubsequentSeparator = ArgumentImpl.DEFAULT_SUBSEQUENT_SEPARATOR;\nvalidator = null;\nconsumeRemaining = \"--\";\ndefaultValues = null;\nid = 0;\nreturn this;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:<init>(Ljava/lang/String;Ljava/lang/String;IICCLorg/apache/commons/cli2/validation/Validator;Ljava/lang/String;Ljava/util/List;I)V",
+            "method_body": "public ArgumentImpl(final String name,\nsuper(id, false);\nthis.name = (name == null) ? \"arg\" : name;\nthis.description = description;\nthis.minimum = minimum;\nthis.maximum = maximum;\nthis.initialSeparator = initialSeparator;\nthis.subsequentSeparator = subsequentSeparator;\nthis.subsequentSplit = subsequentSeparator != NUL;\nthis.validator = validator;\nthis.consumeRemaining = consumeRemaining;\nthis.defaultValues = valueDefaults;\nif (minimum > maximum) {\nif ((valueDefaults != null) && (valueDefaults.size() > 0)) {\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.GroupBuilder:reset()Lorg/apache/commons/cli2/builder/GroupBuilder;",
+            "method_body": "public GroupBuilder reset() {\nname = null;\ndescription = null;\noptions = new ArrayList();\nminimum = 0;\nmaximum = Integer.MAX_VALUE;\nreturn this;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:validate(Lorg/apache/commons/cli2/WriteableCommandLine;)V",
+            "method_body": "public void validate(final WriteableCommandLine commandLine)\nvalidate(commandLine, this);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.SourceDestArgument:<init>(Lorg/apache/commons/cli2/Argument;Lorg/apache/commons/cli2/Argument;)V",
+            "method_body": "public SourceDestArgument(final Argument source,\nthis(source, dest, DEFAULT_INITIAL_SEPARATOR, DEFAULT_SUBSEQUENT_SEPARATOR,\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:defaults(Lorg/apache/commons/cli2/WriteableCommandLine;)V",
+            "method_body": "public void defaults(final WriteableCommandLine commandLine) {\nsuper.defaults(commandLine);\ndefaultValues(commandLine, this);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:withName(Ljava/lang/String;)Lorg/apache/commons/cli2/builder/ArgumentBuilder;",
+            "method_body": "public final ArgumentBuilder withName(final String newName) {\nif (newName == null) {\nif (\"\".equals(newName)) {\nthis.name = newName;\nreturn this;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:withMinimum(I)Lorg/apache/commons/cli2/builder/ArgumentBuilder;",
+            "method_body": "public final ArgumentBuilder withMinimum(final int newMinimum) {\nif (newMinimum < 0) {\nthis.minimum = newMinimum;\nreturn this;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:withMaximum(I)Lorg/apache/commons/cli2/builder/ArgumentBuilder;",
+            "method_body": "public final ArgumentBuilder withMaximum(final int newMaximum) {\nif (newMaximum < 0) {\nthis.maximum = newMaximum;\nreturn this;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:process(Lorg/apache/commons/cli2/WriteableCommandLine;Ljava/util/ListIterator;)V",
+            "method_body": "public void process(WriteableCommandLine commandLine,\nprocessValues(commandLine, args, this);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:defaultValues(Lorg/apache/commons/cli2/WriteableCommandLine;Lorg/apache/commons/cli2/Option;)V",
+            "method_body": "public void defaultValues(final WriteableCommandLine commandLine,\ncommandLine.setDefaultValues(option, defaultValues);\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.GroupBuilder:create()Lorg/apache/commons/cli2/Group;",
+            "method_body": "public Group create() {\nfinal GroupImpl group =\nreset();\nreturn group;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.GroupBuilder:withOption(Lorg/apache/commons/cli2/Option;)Lorg/apache/commons/cli2/builder/GroupBuilder;",
+            "method_body": "public GroupBuilder withOption(final Option option) {\nthis.options.add(option);\nreturn this;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:stripBoundaryQuotes(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String stripBoundaryQuotes(String token) {\nif (!token.startsWith(\"\\\"\") || !token.endsWith(\"\\\"\")) {\nreturn token;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:create()Lorg/apache/commons/cli2/Argument;",
+            "method_body": "public final Argument create() {\nfinal Argument argument =\nreset();\nreturn argument;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.resource.ResourceHelper:getMessage(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;",
+            "method_body": "public String getMessage(final String key,\nfinal String msgFormatStr = bundle.getString(key);\nfinal MessageFormat msgFormat = new MessageFormat(msgFormatStr);\nreturn msgFormat.format(values);\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.commandline.Parser:setGroup(Lorg/apache/commons/cli2/Group;)V",
+            "method_body": "public void setGroup(final Group group) {\nthis.group = group;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.GroupBuilder:<init>()V",
+            "method_body": "public GroupBuilder() {\nreset();\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.builder.ArgumentBuilder:<init>()V",
+            "method_body": "public ArgumentBuilder() {\nreset();\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getDescription()Ljava/lang/String;",
+            "method_body": "public String getDescription() {\nreturn description;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getPrefixes()Ljava/util/Set;",
+            "method_body": "public Set getPrefixes() {\nreturn Collections.EMPTY_SET;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getTriggers()Ljava/util/Set;",
+            "method_body": "public Set getTriggers() {\nreturn Collections.EMPTY_SET;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.commandline.WriteableCommandLineImpl:<init>(Lorg/apache/commons/cli2/Option;Ljava/util/List;)V",
+            "method_body": "private final Properties properties = new Properties();\nprivate final List options = new ArrayList();\nprivate final Map nameToOption = new HashMap();\nprivate final Map values = new HashMap();\nprivate final Map switches = new HashMap();\nprivate final Map defaultValues = new HashMap();\nprivate final Map defaultSwitches = new HashMap();\nfinal List arguments) {\nthis.prefixes = rootOption.getPrefixes();\nthis.normalised = arguments;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getPreferredName()Ljava/lang/String;",
+            "method_body": "public String getPreferredName() {\nreturn name;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:canProcess(Lorg/apache/commons/cli2/WriteableCommandLine;Ljava/lang/String;)Z",
+            "method_body": "public boolean canProcess(final WriteableCommandLine commandLine,\nreturn true;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.OptionException:getMessage()Ljava/lang/String;",
+            "method_body": "public String getMessage() {\nreturn message;\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getMinimum()I",
+            "method_body": "public int getMinimum() {\nreturn minimum;\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.resource.ResourceHelper:getMessage(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/String;",
+            "method_body": "public String getMessage(final String key,\nreturn getMessage(key, new Object[] { value });\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.commandline.Parser:<init>()V",
+            "method_body": "private HelpFormatter helpFormatter = new HelpFormatter();\nprivate Option helpOption = null;\nprivate String helpTrigger = null;\nprivate Group group = null;\nfinal List argumentList = new LinkedList();\nfor (int i = 0; i < arguments.length; i++) {\nfinal String argument = arguments[i];\nargumentList.add(new String(argument));\nfinal WriteableCommandLine commandLine = new WriteableCommandLineImpl(group, argumentList);\ngroup.defaults(commandLine);\nfinal ListIterator iterator = argumentList.listIterator();\nObject previous = null;\nwhile (group.canProcess(commandLine, iterator)) {\nfinal Object next = iterator.next();\niterator.previous();\nif (next == previous) {\nprevious = next;\ngroup.process(commandLine, iterator);\n}\nif (iterator.hasNext()) {\nif (!commandLine.hasOption(helpOption) && !commandLine.hasOption(helpTrigger)) {\ngroup.validate(commandLine);\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.cli2.option.ArgumentImpl:getMaximum()I",
+            "method_body": "public int getMaximum() {\nreturn maximum;\n}",
+            "method_id": 36
+        }
+    ]
+}

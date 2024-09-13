@@ -1,0 +1,174 @@
+{
+    "bug_id": 34,
+    "test_id": 0,
+    "test_name": "org.apache.commons.cli.CommandLineTest.testGetParsedOptionValue",
+    "test_body": "public void testGetParsedOptionValue() throws Exception {\nOptions options = new Options();\noptions.addOption(OptionBuilder.hasArg().withType(Number.class).create(\"i\"));\noptions.addOption(OptionBuilder.hasArg().create(\"f\"));\n70: CommandLineParser parser = new DefaultParser();\nCommandLine cmd = parser.parse(options, new String[] { \"-i\", \"123\", \"-f\", \"foo\" });\n73: assertEquals(123, ((Number) cmd.getParsedOptionValue(\"i\")).intValue());\nassertEquals(\"foo\", cmd.getParsedOptionValue(\"f\"));\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<foo> but was:<null>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:78)\nat junit.framework.Assert.assertEquals(Assert.java:86)\nat junit.framework.TestCase.assertEquals(TestCase.java:253)\nat org.apache.commons.cli.CommandLineTest.testGetParsedOptionValue(CommandLineTest.java:74)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.cli.TypeHandler:createValue(Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;",
+            "method_body": "public static Object createValue(String str, Class clazz) throws ParseException\nif (PatternOptionBuilder.STRING_VALUE == clazz)\nelse if (PatternOptionBuilder.OBJECT_VALUE == clazz)\nelse if (PatternOptionBuilder.NUMBER_VALUE == clazz)\nreturn createNumber(str);\nelse if (PatternOptionBuilder.DATE_VALUE == clazz)\nelse if (PatternOptionBuilder.CLASS_VALUE == clazz)\nelse if (PatternOptionBuilder.FILE_VALUE == clazz)\nelse if (PatternOptionBuilder.EXISTING_FILE_VALUE == clazz)\nelse if (PatternOptionBuilder.FILES_VALUE == clazz)\nelse if (PatternOptionBuilder.URL_VALUE == clazz)\nreturn null;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.cli.CommandLine:getParsedOptionValue(Ljava/lang/String;)Ljava/lang/Object;",
+            "method_body": "public Object getParsedOptionValue(String opt) throws ParseException\nString res = getOptionValue(opt);\nOption option = resolveOption(opt);\nif (option == null || res == null)\nreturn TypeHandler.createValue(res, option.getType());\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:create(Ljava/lang/String;)Lorg/apache/commons/cli/Option;",
+            "method_body": "public static Option create(String opt) throws IllegalArgumentException\nOption option = null;\noption = new Option(opt, description);\noption.setLongOpt(longopt);\noption.setRequired(required);\noption.setOptionalArg(optionalArg);\noption.setArgs(numberOfArgs);\noption.setType(type);\noption.setValueSeparator(valuesep);\noption.setArgName(argName);\nOptionBuilder.reset();\n}\nreturn option;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:reset()V",
+            "method_body": "private static void reset()\ndescription = null;\nargName = null;\nlongopt = null;\ntype = null;\nrequired = false;\nnumberOfArgs = Option.UNINITIALIZED;\noptionalArg = false;\nvaluesep = (char) 0;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Options:addOption(Lorg/apache/commons/cli/Option;)Lorg/apache/commons/cli/Options;",
+            "method_body": "public Options addOption(Option opt)\nString key = opt.getKey();\nif (opt.hasLongOpt())\nif (opt.isRequired())\nshortOpts.put(key, opt);\nreturn this;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.cli.CommandLine:getOptionValues(Ljava/lang/String;)[Ljava/lang/String;",
+            "method_body": "public String[] getOptionValues(String opt)\nList values = new ArrayList();\nfor (Iterator it = options.iterator(); it.hasNext();)\nOption option = (Option) it.next();\nif (opt.equals(option.getOpt()) || opt.equals(option.getLongOpt()))\nvalues.addAll(option.getValuesList());\n}\nreturn values.isEmpty() ? null : (String[]) values.toArray(new String[values.size()]);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.cli.CommandLine:resolveOption(Ljava/lang/String;)Lorg/apache/commons/cli/Option;",
+            "method_body": "private Option resolveOption(String opt)\nopt = Util.stripLeadingHyphens(opt);\nfor (Iterator it = options.iterator(); it.hasNext();)\nOption option = (Option) it.next();\nif (opt.equals(option.getOpt()))\nreturn option;\nif (opt.equals(option.getLongOpt()))\n}\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:<init>(Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)V",
+            "method_body": "public Option(String opt, String longOpt, boolean hasArg, String description)\n{\nOptionValidator.validateOption(opt);\nthis.opt = opt;\nthis.longOpt = longOpt;\nif (hasArg)\nthis.description = description;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.cli.CommandLine:getOptionValue(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String getOptionValue(String opt)\nString[] values = getOptionValues(opt);\nreturn (values == null) ? null : values[0];\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setValueSeparator(C)V",
+            "method_body": "public void setValueSeparator(char sep)\nthis.valuesep = sep;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getKey()Ljava/lang/String;",
+            "method_body": "String getKey()\nif (opt == null)\nreturn opt;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:withType(Ljava/lang/Class;)Lorg/apache/commons/cli/OptionBuilder;",
+            "method_body": "public static OptionBuilder withType(Class newType)\nOptionBuilder.type = newType;\nreturn instance;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:hasArg()Lorg/apache/commons/cli/OptionBuilder;",
+            "method_body": "public static OptionBuilder hasArg()\nOptionBuilder.numberOfArgs = 1;\nreturn instance;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public Option(String opt, String description) throws IllegalArgumentException\nthis(opt, null, false, description);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:<init>()V",
+            "method_body": "private OptionBuilder()\n{\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setType(Ljava/lang/Class;)V",
+            "method_body": "public void setType(Class type)\nthis.type = type;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setArgs(I)V",
+            "method_body": "public void setArgs(int num)\nthis.numberOfArgs = num;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setRequired(Z)V",
+            "method_body": "public void setRequired(boolean required)\nthis.required = required;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.cli.OptionBuilder:<clinit>()V",
+            "method_body": "private static String longopt;\nprivate static int numberOfArgs = Option.UNINITIALIZED;\nprivate static OptionBuilder instance = new OptionBuilder();\nreset();\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Util:stripLeadingHyphens(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "static String stripLeadingHyphens(String str)\nif (str == null)\nif (str.startsWith(\"--\"))\nelse if (str.startsWith(\"-\"))\nreturn str.substring(1, str.length());\nreturn str;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setLongOpt(Ljava/lang/String;)V",
+            "method_body": "public void setLongOpt(String longOpt)\nthis.longOpt = longOpt;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setArgName(Ljava/lang/String;)V",
+            "method_body": "public void setArgName(String argName)\nthis.argName = argName;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:setOptionalArg(Z)V",
+            "method_body": "public void setOptionalArg(boolean optionalArg)\nthis.optionalArg = optionalArg;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getOpt()Ljava/lang/String;",
+            "method_body": "public String getOpt()\nreturn opt;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.cli.TypeHandler:createNumber(Ljava/lang/String;)Ljava/lang/Number;",
+            "method_body": "public static Number createNumber(String str) throws ParseException\nif (str.indexOf('.') != -1)\nreturn Long.valueOf(str);\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getLongOpt()Ljava/lang/String;",
+            "method_body": "public String getLongOpt()\nreturn longOpt;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getValuesList()Ljava/util/List;",
+            "method_body": "public List getValuesList()\nreturn values;\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Options:<init>()V",
+            "method_body": "private static final long serialVersionUID = 1L;\nprivate Map shortOpts = new HashMap();\nprivate Map longOpts = new HashMap();\nprivate List requiredOpts = new ArrayList();\nprivate Map optionGroups = new HashMap();\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:getType()Ljava/lang/Object;",
+            "method_body": "public Object getType()\nreturn type;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:isRequired()Z",
+            "method_body": "public boolean isRequired()\nreturn required;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:hasArg()Z",
+            "method_body": "public boolean hasArg()\nreturn numberOfArgs > 0 || numberOfArgs == UNLIMITED_VALUES;\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.cli.Option:hasLongOpt()Z",
+            "method_body": "public boolean hasLongOpt()\nreturn longOpt != null;\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.cli.TypeHandler:createValue(Ljava/lang/String;Ljava/lang/Object;)Ljava/lang/Object;",
+            "method_body": "public static Object createValue(String str, Object obj) throws ParseException\nreturn createValue(str, (Class) obj);\n}",
+            "method_id": 32
+        }
+    ]
+}

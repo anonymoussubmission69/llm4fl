@@ -1,0 +1,104 @@
+{
+    "bug_id": 44,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.ode.events.EventStateTest.testIssue695",
+    "test_body": "public void testIssue695() {\n82: FirstOrderDifferentialEquations equation = new FirstOrderDifferentialEquations() {\n84: public int getDimension() {\nreturn 1;\n}\n88: public void computeDerivatives(double t, double[] y, double[] yDot) {\nyDot[0] = 1.0;\n}\n};\n93: DormandPrince853Integrator integrator = new DormandPrince853Integrator(0.001, 1000, 1.0e-14, 1.0e-14);\nintegrator.addEventHandler(new ResettingEvent(10.99), 0.1, 1.0e-9, 1000);\nintegrator.addEventHandler(new ResettingEvent(11.01), 0.1, 1.0e-9, 1000);\nintegrator.setInitialStepSize(3.0);\n98: double target = 30.0;\ndouble[] y = new double[1];\ndouble tEnd = integrator.integrate(equation, 0.0, y, target, y);\nAssert.assertEquals(target, tEnd, 1.0e-10);",
+    "stack_trace": "junit.framework.AssertionFailedError: going backard in time! (7.796578226186635 < 10.99)\nat org.junit.Assert.fail(Assert.java:88)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.apache.commons.math.ode.events.EventStateTest$ResettingEvent.g(EventStateTest.java:120)\nat org.apache.commons.math.ode.events.EventState.evaluateStep(EventState.java:214)\nat org.apache.commons.math.ode.AbstractIntegrator.acceptStep(AbstractIntegrator.java:302)\nat org.apache.commons.math.ode.nonstiff.EmbeddedRungeKuttaIntegrator.integrate(EmbeddedRungeKuttaIntegrator.java:296)\nat org.apache.commons.math.ode.AbstractIntegrator.integrate(AbstractIntegrator.java:213)\nat org.apache.commons.math.ode.events.EventStateTest.testIssue695(EventStateTest.java:100)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.util.Precision:equals(DDI)Z",
+            "method_body": "public static boolean equals(double x, double y, int maxUlps) {\nlong xInt = Double.doubleToLongBits(x);\nlong yInt = Double.doubleToLongBits(y);\nif (xInt < 0) {\nxInt = SGN_MASK - xInt;\nif (yInt < 0) {\nfinal boolean isEqual = FastMath.abs(xInt - yInt) <= maxUlps;\nreturn isEqual && !Double.isNaN(x) && !Double.isNaN(y);\n}",
+            "method_id": 100
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:abs(J)J",
+            "method_body": "public static long abs(final long x) {\nreturn (x < 0l) ? -x : x;\n}",
+            "method_id": 101
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:incrementCount()V",
+            "method_body": "public void incrementCount() {\nif (++count > maximalCount) {\n}",
+            "method_id": 102
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:resetCount()V",
+            "method_body": "public void resetCount() {\ncount = 0;\n}",
+            "method_id": 103
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:setMaximalCount(I)V",
+            "method_body": "public void setMaximalCount(int max) {\nmaximalCount = max;\n}",
+            "method_id": 104
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>()V",
+            "method_body": "public Incrementor() {\nthis(0);\n}",
+            "method_id": 105
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(I)V",
+            "method_body": "public Incrementor(int max) {\nthis(max,\nnew MaxCountExceededCallback() {\n}",
+            "method_id": 106
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.Incrementor:<init>(ILorg/apache/commons/math/util/Incrementor$MaxCountExceededCallback;)V",
+            "method_body": "public Incrementor(int max,\nMaxCountExceededCallback cb) {\nmaximalCount = max;\nmaxCountCallback = cb;\n}",
+            "method_id": 107
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:max(DD)D",
+            "method_body": "public static double max(final double a, final double b) {\nif (a > b) {\nreturn a;\nif (a < b) {\nreturn b;\n}",
+            "method_id": 108
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.MathUtils:checkNotNull(Ljava/lang/Object;)V",
+            "method_body": "public static void checkNotNull(Object o)\nif (o == null) {\n}",
+            "method_id": 109
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:pow(DD)D",
+            "method_body": "public static double pow(double x, double y) {\nfinal double lns[] = new double[2];\nif (y == 0.0) {\nif (x != x) { // X is NaN\nif (x == 0) {\nif (x == Double.POSITIVE_INFINITY) {\nif (y == Double.POSITIVE_INFINITY) {\nif (x == Double.NEGATIVE_INFINITY) {\nif (y == Double.NEGATIVE_INFINITY) {\nif (x < 0) {\nif (y < 8e298 && y > -8e298) {\ndouble tmp1 = y * HEX_40000000;\nya = y + tmp1 - tmp1;\nyb = y - ya;\n} else {\nfinal double lores = log(x, lns);\nif (Double.isInfinite(lores)){ // don't allow this to be converted to NaN\ndouble lna = lns[0];\ndouble lnb = lns[1];\ndouble tmp1 = lna * HEX_40000000;\ndouble tmp2 = lna + tmp1 - tmp1;\nlnb += lna - tmp2;\nlna = tmp2;\nfinal double aa = lna * ya;\nfinal double ab = lna * yb + lnb * ya + lnb * yb;\nlna = aa+ab;\nlnb = -(lna - aa - ab);\ndouble z = 1.0 / 120.0;\nz = z * lnb + (1.0 / 24.0);\nz = z * lnb + (1.0 / 6.0);\nz = z * lnb + 0.5;\nz = z * lnb + 1.0;\nz = z * lnb;\nfinal double result = exp(lna, z, null);\nreturn result;\n}",
+            "method_id": 110
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:ceil(D)D",
+            "method_body": "public static double ceil(double x) {\nif (x != x) { // NaN\ny = floor(x);\nif (y == x) {\nreturn y;\ny += 1.0;\nif (y == 0) {\nreturn y;\n}",
+            "method_id": 111
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:log(D[D)D",
+            "method_body": "private static double log(final double x, final double[] hiPrec) {\nif (x==0) { // Handle special case of +0/-0\nlong bits = Double.doubleToLongBits(x);\nif ((bits & 0x8000000000000000L) != 0 || x != x) {\nif (x == Double.POSITIVE_INFINITY) {\nint exp = (int)(bits >> 52)-1023;\nif ((bits & 0x7ff0000000000000L) == 0) {\nif (exp == -1 || exp == 0) {\ndouble lnm[] = lnMant.LN_MANT[(int)((bits & 0x000ffc0000000000L) >> 42)];\ndouble epsilon = (bits & 0x3ffffffffffL) / (TWO_POWER_52 + (bits & 0x000ffc0000000000L));\ndouble lnza = 0.0;\ndouble lnzb = 0.0;\nif (hiPrec != null) {\ndouble tmp = epsilon * HEX_40000000;\ndouble aa = epsilon + tmp - tmp;\ndouble ab = epsilon - aa;\ndouble xa = aa;\ndouble xb = ab;\ndouble numer = bits & 0x3ffffffffffL;\ndouble denom = TWO_POWER_52 + (bits & 0x000ffc0000000000L);\naa = numer - xa*denom - xb * denom;\nxb += aa / denom;\ndouble ya = LN_HI_PREC_COEF[LN_HI_PREC_COEF.length-1][0];\ndouble yb = LN_HI_PREC_COEF[LN_HI_PREC_COEF.length-1][1];\nfor (int i = LN_HI_PREC_COEF.length - 2; i >= 0; i--) {\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\naa = ya + LN_HI_PREC_COEF[i][0];\nab = yb + LN_HI_PREC_COEF[i][1];\ntmp = aa * HEX_40000000;\nya = aa + tmp - tmp;\nyb = aa - ya + ab;\naa = ya * xa;\nab = ya * xb + yb * xa + yb * xb;\nlnza = aa + ab;\nlnzb = -(lnza - aa - ab);\n} else {\ndouble a = LN_2_A*exp;\ndouble b = 0.0;\ndouble c = a+lnm[0];\ndouble d = -(c-a-lnm[0]);\na = c;\nb = b + d;\nc = a + lnza;\nd = -(c - a - lnza);\na = c;\nb = b + d;\nc = a + LN_2_B*exp;\nd = -(c - a - LN_2_B*exp);\na = c;\nb = b + d;\nc = a + lnm[1];\nd = -(c - a - lnm[1]);\na = c;\nb = b + d;\nc = a + lnzb;\nd = -(c - a - lnzb);\na = c;\nb = b + d;\nif (hiPrec != null) {\nhiPrec[0] = a;\nhiPrec[1] = b;\nreturn a + b;\n}",
+            "method_id": 112
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:exp(DD[D)D",
+            "method_body": "private static double exp(double x, double extra, double[] hiPrec) {\nif (x < 0.0) {\nintVal = (int) x;\nif (intVal > 709) {\nintPartA = ExpIntTable.EXP_INT_TABLE_A[EXP_INT_TABLE_MAX_INDEX+intVal];\nintPartB = ExpIntTable.EXP_INT_TABLE_B[EXP_INT_TABLE_MAX_INDEX+intVal];\nfinal int intFrac = (int) ((x - intVal) * 1024.0);\nfinal double fracPartA = ExpFracTable.EXP_FRAC_TABLE_A[intFrac];\nfinal double fracPartB = ExpFracTable.EXP_FRAC_TABLE_B[intFrac];\nfinal double epsilon = x - (intVal + intFrac / 1024.0);\ndouble z = 0.04168701738764507;\nz = z * epsilon + 0.1666666505023083;\nz = z * epsilon + 0.5000000000042687;\nz = z * epsilon + 1.0;\nz = z * epsilon + -3.940510424527919E-20;\ndouble tempA = intPartA * fracPartA;\ndouble tempB = intPartA * fracPartB + intPartB * fracPartA + intPartB * fracPartB;\nfinal double tempC = tempB + tempA;\nif (extra != 0.0) {\nresult = tempC*extra*z + tempC*extra + tempC*z + tempB + tempA;\nif (hiPrec != null) {\nreturn result;\n}",
+            "method_id": 113
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 114
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:floor(D)D",
+            "method_body": "public static double floor(double x) {\nif (x != x) { // NaN\nif (x >= TWO_POWER_52 || x <= -TWO_POWER_52) {\ny = (long) x;\nif (x < 0 && y != x) {\nif (y == 0) {\nreturn y;\n}",
+            "method_id": 115
+        },
+        {
+            "method_signature": "org.apache.commons.math.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 116
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.events.EventState$1:<init>(Lorg/apache/commons/math/ode/events/EventState;Lorg/apache/commons/math/ode/sampling/StepInterpolator;)V",
+            "method_body": "public boolean evaluateStep(final StepInterpolator interpolator)\nforward = interpolator.isForward();\nfinal double t1 = interpolator.getCurrentTime();\nfinal double dt = t1 - t0;\nif (FastMath.abs(dt) < convergence) {\nfinal int    n = FastMath.max(1, (int) FastMath.ceil(FastMath.abs(dt) / maxCheckInterval));\nfinal double h = dt / n;\nfinal UnivariateRealFunction f = new UnivariateRealFunction() {\ninterpolator.setInterpolatedTime(t);\nreturn handler.g(t, interpolator.getInterpolatedState());\ndouble ta = t0;\ndouble ga = g0;\nfor (int i = 0; i < n; ++i) {\nfinal double tb = t0 + (i + 1) * h;\ninterpolator.setInterpolatedTime(tb);\nfinal double gb = handler.g(tb, interpolator.getInterpolatedState());\nif (g0Positive ^ (gb >= 0)) {\nincreasing = gb >= ga;\nif (solver instanceof BracketedUnivariateRealSolver<?>) {\nBracketedUnivariateRealSolver<UnivariateRealFunction> bracketing =\nroot = forward ?\n} else {\nif ((!Double.isNaN(previousEventTime)) &&\n} else if (Double.isNaN(previousEventTime) ||\npendingEventTime = root;\npendingEvent = true;\nreturn true;\nta = tb;\nga = gb;\npendingEvent     = false;\npendingEventTime = Double.NaN;\nreturn false;\n}",
+            "method_id": 117
+        },
+        {
+            "method_signature": "org.apache.commons.math.ode.AbstractIntegrator$1:compare(Ljava/lang/Object;Ljava/lang/Object;)I",
+            "method_body": "protected double acceptStep(final AbstractStepInterpolator interpolator,\ndouble previousT = interpolator.getGlobalPreviousTime();\nfinal double currentT = interpolator.getGlobalCurrentTime();\nresetOccurred = false;\nif (! statesInitialized) {\nfor (EventState state : eventsStates) {\nstate.reinitializeBegin(interpolator);\nstatesInitialized = true;\nfinal int orderingSign = interpolator.isForward() ? +1 : -1;\nSortedSet<EventState> occuringEvents = new TreeSet<EventState>(new Comparator<EventState>() {\nreturn orderingSign * Double.compare(es0.getEventTime(), es1.getEventTime());\nfor (final EventState state : eventsStates) {\nif (state.evaluateStep(interpolator)) {\noccuringEvents.add(state);\nwhile (!occuringEvents.isEmpty()) {\nfinal Iterator<EventState> iterator = occuringEvents.iterator();\nfinal EventState currentEvent = iterator.next();\niterator.remove();\nfinal double eventT = currentEvent.getEventTime();\ninterpolator.setSoftPreviousTime(previousT);\ninterpolator.setSoftCurrentTime(eventT);\ninterpolator.setInterpolatedTime(eventT);\nfinal double[] eventY = interpolator.getInterpolatedState();\ncurrentEvent.stepAccepted(eventT, eventY);\nisLastStep = currentEvent.stop();\nfor (final StepHandler handler : stepHandlers) {\nif (isLastStep) {\nif (currentEvent.reset(eventT, eventY)) {\nSystem.arraycopy(eventY, 0, y, 0, y.length);\ncomputeDerivatives(eventT, y, yDot);\nresetOccurred = true;\nreturn eventT;\ninterpolator.setInterpolatedTime(currentT);\nfinal double[] currentY = interpolator.getInterpolatedState();\nfor (final EventState state : eventsStates) {\nstate.stepAccepted(currentT, currentY);\nisLastStep = isLastStep || state.stop();\nisLastStep = isLastStep || Precision.equals(currentT, tEnd, 1);\nfor (StepHandler handler : stepHandlers) {\nreturn currentT;\n}",
+            "method_id": 118
+        }
+    ]
+}

@@ -1,0 +1,54 @@
+{
+    "bug_id": 92,
+    "test_id": 1,
+    "test_name": "org.jsoup.parser.XmlTreeBuilderTest.dropsDuplicateAttributes",
+    "test_body": "@Test public void dropsDuplicateAttributes() {\n// case sensitive, so should drop Four and Five\nString html = \"<p One=One ONE=Two one=Three One=Four ONE=Five two=Six two=Seven Two=Eight>Text</p>\";\nParser parser = Parser.xmlParser().setTrackErrors(10);\nDocument doc = parser.parseInput(html, \"\");\n255: assertEquals(\"<p One=\\\"One\\\" ONE=\\\"Two\\\" one=\\\"Three\\\" two=\\\"Six\\\" Two=\\\"Eight\\\">Text</p>\", doc.selectFirst(\"p\").outerHtml());\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<<p One=\"[One\" ONE=\"Two\" one=\"Three\" two=\"Six]\" Two=\"Eight\">Text</...> but was:<<p One=\"[Four\" ONE=\"Five\" one=\"Three\" two=\"Seven]\" Two=\"Eight\">Text</...>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.parser.XmlTreeBuilderTest.dropsDuplicateAttributes(XmlTreeBuilderTest.java:255)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.nodes.Document$OutputSettings:syntax(Lorg/jsoup/nodes/Document$OutputSettings$Syntax;)Lorg/jsoup/nodes/Document$OutputSettings;",
+            "method_body": "public OutputSettings syntax(Syntax syntax) {\nthis.syntax = syntax;\nreturn this;\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:process(Lorg/jsoup/parser/Token;)Z",
+            "method_body": "protected boolean process(Token token) {\nswitch (token.type) {\ninsert(token.asStartTag());\nbreak;\npopStackToClose(token.asEndTag());\nbreak;\ninsert(token.asCharacter());\nbreak;\nbreak;\nValidate.fail(\"Unexpected token type: \" + token.type);\nreturn true;\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:defaultSettings()Lorg/jsoup/parser/ParseSettings;",
+            "method_body": "ParseSettings defaultSettings() {\nreturn ParseSettings.preserveCase;\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:initialiseParse(Ljava/io/Reader;Ljava/lang/String;Lorg/jsoup/parser/Parser;)V",
+            "method_body": "protected void initialiseParse(Reader input, String baseUri, Parser parser) {\nsuper.initialiseParse(input, baseUri, parser);\nstack.add(doc); // place the document onto the stack. differs from HtmlTreeBuilder (not on stack)\ndoc.outputSettings().syntax(Document.OutputSettings.Syntax.xml);\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insertNode(Lorg/jsoup/nodes/Node;)V",
+            "method_body": "private void insertNode(Node node) {\ncurrentElement().appendChild(node);\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insert(Lorg/jsoup/parser/Token$StartTag;)Lorg/jsoup/nodes/Element;",
+            "method_body": "Element insert(Token.StartTag startTag) {\nTag tag = Tag.valueOf(startTag.name(), settings);\nElement el = new Element(tag, baseUri, settings.normalizeAttributes(startTag.attributes));\ninsertNode(el);\nif (startTag.isSelfClosing()) {\nstack.add(el);\nreturn el;\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:insert(Lorg/jsoup/parser/Token$Character;)V",
+            "method_body": "void insert(Token.Character token) {\nfinal String data = token.getData();\ninsertNode(token.isCData() ? new CDataNode(data) : new TextNode(data));\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder:popStackToClose(Lorg/jsoup/parser/Token$EndTag;)V",
+            "method_body": "private void popStackToClose(Token.EndTag endTag) {\nString elName = settings.normalizeTag(endTag.tagName);\nElement firstFound = null;\nfor (int pos = stack.size() -1; pos >= 0; pos--) {\nElement next = stack.get(pos);\nif (next.nodeName().equals(elName)) {\nfirstFound = next;\nbreak;\nif (firstFound == null)\nfor (int pos = stack.size() -1; pos >= 0; pos--) {\nElement next = stack.get(pos);\nstack.remove(pos);\nif (next == firstFound)\nbreak;\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.jsoup.parser.XmlTreeBuilder$1:<clinit>()V",
+            "method_body": "protected boolean process(Token token) {\nswitch (token.type) {\ninsert(token.asStartTag());\nbreak;\npopStackToClose(token.asEndTag());\nbreak;\ninsert(token.asCharacter());\nbreak;\nbreak;\nValidate.fail(\"Unexpected token type: \" + token.type);\nreturn true;\n}",
+            "method_id": 208
+        }
+    ]
+}

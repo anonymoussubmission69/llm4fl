@@ -1,0 +1,69 @@
+{
+    "bug_id": 46,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest.testGettersSetters",
+    "test_body": "200: public void testGettersSetters() {\n201: // X5455 is concerned with time, so let's\n202: // get a timestamp to play with (Jan 1st, 2000).\n203: final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(\"UTC\"));\n204: cal.set(Calendar.YEAR, 2000);\n205: cal.set(Calendar.MONTH, Calendar.JANUARY);\n206: cal.set(Calendar.DATE, 1);\n207: cal.set(Calendar.HOUR_OF_DAY, 0);\n208: cal.set(Calendar.MINUTE, 0);\n209: cal.set(Calendar.SECOND, 0);\n210: cal.set(Calendar.MILLISECOND, 0);\n211: final long timeMillis = cal.getTimeInMillis();\n212: final ZipLong time = new ZipLong(timeMillis / 1000);\n213: 214: // set too big\n215: try {\n216: // Java time is 1000 x larger (milliseconds).\n217: xf.setModifyJavaTime(new Date(1000L * (MAX_TIME_SECONDS.getValue() + 1L)));\n218: fail(\"Time too big for 32 bits!\");\n219: } catch (final IllegalArgumentException iae) {\n220: // All is good.\n221: }\n222: 223: // get/set modify time\n224: xf.setModifyTime(time);\n225: assertEquals(time, xf.getModifyTime());\n226: Date xfModifyJavaTime = xf.getModifyJavaTime();\n227: assertEquals(timeMillis, xfModifyJavaTime.getTime());\n228: xf.setModifyJavaTime(new Date(timeMillis));\n229: assertEquals(time, xf.getModifyTime());\n230: assertEquals(timeMillis, xf.getModifyJavaTime().getTime());\n231: // Make sure milliseconds get zeroed out:\n232: xf.setModifyJavaTime(new Date(timeMillis + 123));\n233: assertEquals(time, xf.getModifyTime());\n234: assertEquals(timeMillis, xf.getModifyJavaTime().getTime());\n235: // Null\n236: xf.setModifyTime(null);\n237: assertNull(xf.getModifyJavaTime());\n238: xf.setModifyJavaTime(null);\n239: assertNull(xf.getModifyTime());\n240: 241: // get/set access time\n242: xf.setAccessTime(time);\n243: assertEquals(time, xf.getAccessTime());\n244: assertEquals(timeMillis, xf.getAccessJavaTime().getTime());\n245: xf.setAccessJavaTime(new Date(timeMillis));\n246: assertEquals(time, xf.getAccessTime());\n247: assertEquals(timeMillis, xf.getAccessJavaTime().getTime());\n248: // Make sure milliseconds get zeroed out:\n249: xf.setAccessJavaTime(new Date(timeMillis + 123));\n250: assertEquals(time, xf.getAccessTime());\n251: assertEquals(timeMillis, xf.getAccessJavaTime().getTime());\n252: // Null\n253: xf.setAccessTime(null);\n254: assertNull(xf.getAccessJavaTime());\n255: xf.setAccessJavaTime(null);\n256: assertNull(xf.getAccessTime());\n257: 258: // get/set create time\n259: xf.setCreateTime(time);\n260: assertEquals(time, xf.getCreateTime());\n261: assertEquals(timeMillis, xf.getCreateJavaTime().getTime());\n262: xf.setCreateJavaTime(new Date(timeMillis));\n263: assertEquals(time, xf.getCreateTime());\n264: assertEquals(timeMillis, xf.getCreateJavaTime().getTime());\n265: // Make sure milliseconds get zeroed out:\n266: xf.setCreateJavaTime(new Date(timeMillis + 123));\n267: assertEquals(time, xf.getCreateTime());\n268: assertEquals(timeMillis, xf.getCreateJavaTime().getTime());\n269: // Null\n270: xf.setCreateTime(null);\n271: assertNull(xf.getCreateJavaTime());\n272: xf.setCreateJavaTime(null);\n273: assertNull(xf.getCreateTime());\n274: 275: 276: // initialize for flags\n277: xf.setModifyTime(time);\n278: xf.setAccessTime(time);\n279: xf.setCreateTime(time);\n280: 281: // get/set flags: 000\n282: xf.setFlags((byte) 0);\n283: assertEquals(0, xf.getFlags());\n284: assertFalse(xf.isBit0_modifyTimePresent());\n285: assertFalse(xf.isBit1_accessTimePresent());\n286: assertFalse(xf.isBit2_createTimePresent());\n287: // Local length=1, Central length=1 (flags only!)\n288: assertEquals(1, xf.getLocalFileDataLength().getValue());\n289: assertEquals(1, xf.getCentralDirectoryLength().getValue());\n290: 291: // get/set flags: 001\n292: xf.setFlags((byte) 1);\n293: assertEquals(1, xf.getFlags());\n294: assertTrue(xf.isBit0_modifyTimePresent());\n295: assertFalse(xf.isBit1_accessTimePresent());\n296: assertFalse(xf.isBit2_createTimePresent());\n297: // Local length=5, Central length=5 (flags + mod)\n298: assertEquals(5, xf.getLocalFileDataLength().getValue());\n299: assertEquals(5, xf.getCentralDirectoryLength().getValue());\n300: 301: // get/set flags: 010\n302: xf.setFlags((byte) 2);\n303: assertEquals(2, xf.getFlags());\n304: assertFalse(xf.isBit0_modifyTimePresent());\n305: assertTrue(xf.isBit1_accessTimePresent());\n306: assertFalse(xf.isBit2_createTimePresent());\n307: // Local length=5, Central length=1\n308: assertEquals(5, xf.getLocalFileDataLength().getValue());\n309: assertEquals(1, xf.getCentralDirectoryLength().getValue());\n310: 311: // get/set flags: 100\n312: xf.setFlags((byte) 4);\n313: assertEquals(4, xf.getFlags());\n314: assertFalse(xf.isBit0_modifyTimePresent());\n315: assertFalse(xf.isBit1_accessTimePresent());\n316: assertTrue(xf.isBit2_createTimePresent());\n317: // Local length=5, Central length=1\n318: assertEquals(5, xf.getLocalFileDataLength().getValue());\n319: assertEquals(1, xf.getCentralDirectoryLength().getValue());\n320: 321: // get/set flags: 111\n322: xf.setFlags((byte) 7);\n323: assertEquals(7, xf.getFlags());\n324: assertTrue(xf.isBit0_modifyTimePresent());\n325: assertTrue(xf.isBit1_accessTimePresent());\n326: assertTrue(xf.isBit2_createTimePresent());\n327: // Local length=13, Central length=5\n328: assertEquals(13, xf.getLocalFileDataLength().getValue());\n329: assertEquals(5, xf.getCentralDirectoryLength().getValue());\n330: 331: // get/set flags: 11111111\n332: xf.setFlags((byte) -1);\n333: assertEquals(-1, xf.getFlags());\n334: assertTrue(xf.isBit0_modifyTimePresent());\n335: assertTrue(xf.isBit1_accessTimePresent());\n336: assertTrue(xf.isBit2_createTimePresent());\n337: // Local length=13, Central length=5\n338: assertEquals(13, xf.getLocalFileDataLength().getValue());\n339: assertEquals(5, xf.getCentralDirectoryLength().getValue());\n340: }\n",
+    "stack_trace": "",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>(J)V",
+            "method_body": "public ZipLong(final long value) {\nthis.value = value;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<init>(I)V",
+            "method_body": "public ZipLong(int value) {\nthis.value = value;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:<clinit>()V",
+            "method_body": "private static final long serialVersionUID = 1L;\npublic static final ZipLong CFH_SIG = new ZipLong(0X02014B50L);\npublic static final ZipLong LFH_SIG = new ZipLong(0X04034B50L);\npublic static final ZipLong DD_SIG = new ZipLong(0X08074B50L);\nstatic final ZipLong ZIP64_MAGIC = new ZipLong(ZipConstants.ZIP64_MAGIC);\npublic static final ZipLong SINGLE_SEGMENT_SPLIT_MARKER =\npublic static final ZipLong AED_SIG = new ZipLong(0X08064B50L);\npublic ZipLong(final long value) {\nthis.value = value;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipLong:getValue()J",
+            "method_body": "public long getValue() {\nreturn value;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipShort:<init>(I)V",
+            "method_body": "public ZipShort (final int value) {\nthis.value = value;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.ZipShort:<clinit>()V",
+            "method_body": "public static final ZipShort ZERO = new ZipShort(0);\npublic ZipShort (final int value) {\nthis.value = value;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:<init>()V",
+            "method_body": "public X5455_ExtendedTimestamp() {}\npublic X5455_ExtendedTimestamp() {}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:<clinit>()V",
+            "method_body": "private static final ZipShort HEADER_ID = new ZipShort(0x5455);\npublic X5455_ExtendedTimestamp() {}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:setModifyTime(Lorg/apache/commons/compress/archivers/zip/ZipLong;)V",
+            "method_body": "public void setModifyTime(final ZipLong l) {\nbit0_modifyTimePresent = l != null;\nflags = (byte) (l != null ? (flags | MODIFY_TIME_BIT)\nthis.modifyTime = l;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:setModifyJavaTime(Ljava/util/Date;)V",
+            "method_body": "public void setModifyJavaTime(final Date d) { setModifyTime(dateToZipLong(d)); }\npublic void setModifyJavaTime(final Date d) { setModifyTime(dateToZipLong(d)); }",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:dateToZipLong(Ljava/util/Date;)Lorg/apache/commons/compress/archivers/zip/ZipLong;",
+            "method_body": "private static ZipLong dateToZipLong(final Date d) {\nif (d == null) { return null; }\nreturn unixTimeToZipLong(d.getTime() / 1000);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestamp:unixTimeToZipLong(J)Lorg/apache/commons/compress/archivers/zip/ZipLong;",
+            "method_body": "private static ZipLong unixTimeToZipLong(long l) {\nfinal long TWO_TO_32 = 0x100000000L;\nif (l >= TWO_TO_32) {\nreturn new ZipLong(l);\n}",
+            "method_id": 11
+        }
+    ]
+}

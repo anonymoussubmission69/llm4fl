@@ -1,0 +1,79 @@
+{
+    "bug_id": 3,
+    "test_id": 1,
+    "test_name": "org.jsoup.parser.ParserTest.handlesNestedImplicitTable",
+    "test_body": "@Test public void handlesNestedImplicitTable() {\nDocument doc = Jsoup.parse(\"<table><td>1</td></tr> <td>2</td></tr> <td> <table><td>3</td> <td>4</td></table> <tr><td>5</table>\");\nassertEquals(\"<table><tr><td>1</td></tr> <tr><td>2</td></tr> <tr><td> <table><tr><td>3</td> <td>4</td></tr></table> </td></tr><tr><td>5</td></tr></table>\", TextUtil.stripNewlines(doc.body().html()));\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<...> <tr><td> <table><t[r><td>3</td> <td>4</td></tr></table> </td></tr><tr><td>5]</td></tr></table>> but was:<...> <tr><td> <table><t[d>3</td> <td>4</td></table> <tr><td>5</td></tr>]</td></tr></table>>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.jsoup.parser.ParserTest.handlesNestedImplicitTable(ParserTest.java:174)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.nodes.Node:<init>(Ljava/lang/String;Lorg/jsoup/nodes/Attributes;)V",
+            "method_body": "protected Node(String baseUri, Attributes attributes) {\nValidate.notNull(baseUri);\nValidate.notNull(attributes);\nchildNodes = new ArrayList<Node>();\nthis.baseUri = baseUri.trim();\nthis.attributes = attributes;\n}",
+            "method_id": 100
+        },
+        {
+            "method_signature": "org.jsoup.nodes.Attributes:<init>()V",
+            "method_body": "private LinkedHashMap<String, Attribute> attributes = new LinkedHashMap<String, Attribute>();\nValidate.notEmpty(key);\nAttribute attr = attributes.get(key.toLowerCase());\nreturn attr != null ? attr.getValue() : \"\";\n}",
+            "method_id": 101
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:canContain(Lorg/jsoup/parser/Tag;)Z",
+            "method_body": "boolean canContain(Tag child) {\nValidate.notNull(child);\nif (child.isBlock && !this.canContainBlock)\nif (!child.isBlock && !this.canContainInline) // not block == inline\nif (this.optionalClosing && this.equals(child))\nif (this.empty || this.isData())\nif (this.tagName.equals(\"head\")) {\nif (this.tagName.equals(\"dt\") && child.tagName.equals(\"dd\"))\nif (this.tagName.equals(\"dd\") && child.tagName.equals(\"dt\"))\nreturn true;\n}",
+            "method_id": 102
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:<init>(Ljava/lang/String;)V",
+            "method_body": "private String tagName;\nprivate boolean isBlock = true; // block or inline\nprivate boolean canContainBlock = true; // Can this tag hold block level tags?\nprivate boolean canContainInline = true; // only pcdata if not\nprivate boolean optionalClosing = false; // If tag is open, and another seen, close previous tag\nprivate boolean empty = false; // can hold nothing; e.g. img\nprivate boolean preserveWhitespace = false; // for pre, textarea, script etc\nprivate Tag(String tagName) {\nthis.tagName = tagName.toLowerCase();\n}",
+            "method_id": 103
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:valueOf(Ljava/lang/String;)Lorg/jsoup/parser/Tag;",
+            "method_body": "public static Tag valueOf(String tagName) {\nValidate.notNull(tagName);\ntagName = tagName.trim().toLowerCase();\nValidate.notEmpty(tagName);\nsynchronized (tags) {\nTag tag = tags.get(tagName);\nif (tag == null) {\ntag = new Tag(tagName);\ntag.setAncestor(defaultAncestor.tagName);\ntag.isBlock = false;\ntag.canContainBlock = true;\nreturn tag;\n}",
+            "method_id": 104
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:createBlock(Ljava/lang/String;)Lorg/jsoup/parser/Tag;",
+            "method_body": "private static Tag createBlock(String tagName) {\nreturn register(new Tag(tagName));\n}",
+            "method_id": 105
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:createInline(Ljava/lang/String;)Lorg/jsoup/parser/Tag;",
+            "method_body": "private static Tag createInline(String tagName) {\nTag inline = new Tag(tagName);\ninline.isBlock = false;\ninline.canContainBlock = false;\nreturn register(inline);\n}",
+            "method_id": 106
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:register(Lorg/jsoup/parser/Tag;)Lorg/jsoup/parser/Tag;",
+            "method_body": "private static Tag register(Tag tag) {\ntag.setAncestor(defaultAncestor.tagName);\nsynchronized (tags) {\ntags.put(tag.tagName, tag);\n}\nreturn tag;\n}",
+            "method_id": 107
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setContainInlineOnly()Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setContainInlineOnly() {\ncanContainBlock = false;\ncanContainInline = true;\nreturn this;\n}",
+            "method_id": 108
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setContainDataOnly()Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setContainDataOnly() {\ncanContainBlock = false;\ncanContainInline = false;\npreserveWhitespace = true;\nreturn this;\n}",
+            "method_id": 109
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setEmpty()Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setEmpty() {\ncanContainBlock = false;\ncanContainInline = false;\nempty = true;\nreturn this;\n}",
+            "method_id": 110
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setOptionalClosing()Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setOptionalClosing() {\noptionalClosing = true;\nreturn this;\n}",
+            "method_id": 111
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setPreserveWhitespace()Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setPreserveWhitespace() {\npreserveWhitespace = true;\nreturn this;\n}",
+            "method_id": 112
+        },
+        {
+            "method_signature": "org.jsoup.parser.Tag:setAncestor([Ljava/lang/String;)Lorg/jsoup/parser/Tag;",
+            "method_body": "private Tag setAncestor(String... tagNames) {\nif (tagNames == null) {\nancestors = new ArrayList<Tag>(tagNames.length);\nfor (String name : tagNames) {\nancestors.add(Tag.valueOf(name));\nreturn this;\n}",
+            "method_id": 113
+        }
+    ]
+}

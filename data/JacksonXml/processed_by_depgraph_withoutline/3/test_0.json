@@ -1,0 +1,79 @@
+{
+    "bug_id": 3,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.dataformat.xml.stream.XmlParserNextXxxTest.testXmlAttributesWithNextTextValue",
+    "test_body": "30: public void testXmlAttributesWithNextTextValue() throws Exception\n31: {\n32: final String XML = \"<data max=\\\"7\\\" offset=\\\"9\\\"/>\";\n33: 34: FromXmlParser xp = (FromXmlParser) _xmlFactory.createParser(new StringReader(XML));\n35: 36: // First: verify handling without forcing array handling:\n37: assertToken(JsonToken.START_OBJECT, xp.nextToken()); // <data>\n38: assertToken(JsonToken.FIELD_NAME, xp.nextToken()); // <max>\n39: assertEquals(\"max\", xp.getCurrentName());\n40: 41: assertEquals(\"7\", xp.nextTextValue());\n42: 43: assertToken(JsonToken.FIELD_NAME, xp.nextToken()); // <offset>\n44: assertEquals(\"offset\", xp.getCurrentName());\n45: 46: assertEquals(\"offset\", xp.getText());\n47: 48: assertEquals(\"9\", xp.nextTextValue());\n49: 50: assertEquals(\"9\", xp.getText());\n51: 52: assertToken(JsonToken.END_OBJECT, xp.nextToken()); // </data>\n53: xp.close();\n54: }\n",
+    "stack_trace": "junit.framework.ComparisonFailure: expected:<7> but was:<null>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat com.fasterxml.jackson.dataformat.xml.stream.XmlParserNextXxxTest.testXmlAttributesWithNextTextValue(XmlParserNextXxxTest.java:41)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlReadContext:<init>(Lcom/fasterxml/jackson/dataformat/xml/deser/XmlReadContext;III)V",
+            "method_body": "public XmlReadContext(XmlReadContext parent, int type, int lineNr, int colNr)\nsuper();\n_type = type;\n_parent = parent;\n_lineNr = lineNr;\n_columnNr = colNr;\n_index = -1;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser:nextTextValue()Ljava/lang/String;",
+            "method_body": "public String nextTextValue() throws IOException\n_binaryValue = null;\nif (_nextToken != null) {\nint token = _xmlTokens.next();\nwhile (token == XmlTokenStream.XML_START_ELEMENT) {\nswitch (token) {\n_currText = _xmlTokens.getText();\n_currToken = JsonToken.VALUE_STRING;\nbreak;\nreturn null;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream:_next()I",
+            "method_body": "private final int _next() throws XMLStreamException\nswitch (_currentState) {\nif (_nextAttributeIndex < _attributeCount) {\n_localName = _xmlReader.getAttributeLocalName(_nextAttributeIndex);\n_namespaceURI = _xmlReader.getAttributeNamespace(_nextAttributeIndex);\n_textValue = _xmlReader.getAttributeValue(_nextAttributeIndex);\nreturn (_currentState = XML_ATTRIBUTE_NAME);\nreturn (_currentState = XML_ATTRIBUTE_VALUE);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlReadContext:createChildObjectContext(II)Lcom/fasterxml/jackson/dataformat/xml/deser/XmlReadContext;",
+            "method_body": "public final XmlReadContext createChildObjectContext(int lineNr, int colNr)\nXmlReadContext ctxt = _child;\nif (ctxt == null) {\n_child = ctxt = new XmlReadContext(this, TYPE_OBJECT, lineNr, colNr);\nreturn ctxt;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlReadContext:setCurrentName(Ljava/lang/String;)V",
+            "method_body": "public void setCurrentName(String name) {\n_currentName = name;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream:next()I",
+            "method_body": "public int next() throws IOException\nif (_repeatElement != 0) {\nreturn _next();\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser:nextToken()Lcom/fasterxml/jackson/core/JsonToken;",
+            "method_body": "public JsonToken nextToken() throws IOException\n_binaryValue = null;\nif (_nextToken != null) {\nJsonToken t = _nextToken;\n_currToken = t;\n_nextToken = null;\nswitch (t) {\n_parsingContext = _parsingContext.createChildObjectContext(-1, -1);\nbreak;\nreturn t;\nint token = _xmlTokens.next();\nwhile (token == XmlTokenStream.XML_START_ELEMENT) {\nswitch (token) {\nif (_mayBeLeaf) {\n_parsingContext.setCurrentName(_xmlTokens.getLocalName());\nreturn (_currToken = JsonToken.FIELD_NAME);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlReadContext:getCurrentName()Ljava/lang/String;",
+            "method_body": "public final String getCurrentName() { return _currentName; }\npublic final String getCurrentName() { return _currentName; }",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser:<init>(Lcom/fasterxml/jackson/core/io/IOContext;IILcom/fasterxml/jackson/core/ObjectCodec;Ljavax/xml/stream/XMLStreamReader;)V",
+            "method_body": "public FromXmlParser(IOContext ctxt, int genericParserFeatures, int xmlFeatures,\nsuper(genericParserFeatures);\n_formatFeatures = xmlFeatures;\n_ioContext = ctxt;\n_objectCodec = codec;\n_parsingContext = XmlReadContext.createRootContext(-1, -1);\n_nextToken = JsonToken.START_OBJECT;\n_xmlTokens = new XmlTokenStream(xmlReader, ctxt.getSourceReference());\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream:getText()Ljava/lang/String;",
+            "method_body": "public String getText() { return _textValue; }\npublic String getText() { return _textValue; }",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream:getLocalName()Ljava/lang/String;",
+            "method_body": "public String getLocalName() { return _localName; }\npublic String getLocalName() { return _localName; }",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:_createParser(Ljava/io/Reader;Lcom/fasterxml/jackson/core/io/IOContext;)Lcom/fasterxml/jackson/dataformat/xml/deser/FromXmlParser;",
+            "method_body": "protected FromXmlParser _createParser(Reader r, IOContext ctxt) throws IOException\nsr = _xmlInputFactory.createXMLStreamReader(r);\nsr = _initializeXmlReader(sr);\n}\nFromXmlParser xp = new FromXmlParser(ctxt, _generatorFeatures, _xmlGeneratorFeatures,\nif (_cfgNameForTextElement != null) {\nreturn xp;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser:getCurrentName()Ljava/lang/String;",
+            "method_body": "public String getCurrentName() throws IOException\nif (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {\nname = _parsingContext.getCurrentName();\nif (name == null) {\nreturn name;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.dataformat.xml.XmlFactory:_initializeXmlReader(Ljavax/xml/stream/XMLStreamReader;)Ljavax/xml/stream/XMLStreamReader;",
+            "method_body": "protected final XMLStreamReader _initializeXmlReader(XMLStreamReader sr) throws IOException, XMLStreamException\nwhile (sr.next() != XMLStreamConstants.START_ELEMENT) {\nreturn sr;\n}",
+            "method_id": 13
+        }
+    ]
+}

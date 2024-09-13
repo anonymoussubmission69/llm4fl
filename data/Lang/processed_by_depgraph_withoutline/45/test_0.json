@@ -1,0 +1,24 @@
+{
+    "bug_id": 45,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang.WordUtilsTest.testAbbreviate",
+    "test_body": "366: public void testAbbreviate() {\n367: // check null and empty are returned respectively\n368: assertNull(WordUtils.abbreviate(null, 1,-1,\"\"));\n369: assertEquals(StringUtils.EMPTY, WordUtils.abbreviate(\"\", 1,-1,\"\"));\n370: 371: // test upper limit\n372: assertEquals(\"01234\", WordUtils.abbreviate(\"0123456789\", 0,5,\"\"));\n373: assertEquals(\"01234\", WordUtils.abbreviate(\"0123456789\", 5, 2,\"\"));\n374: assertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 2, 5,\"\"));\n375: assertEquals(\"012 3\", WordUtils.abbreviate(\"012 3456789\", 5, 2,\"\"));\n376: assertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 0,-1,\"\"));\n377: 378: // test upper limit + append string\n379: assertEquals(\"01234-\", WordUtils.abbreviate(\"0123456789\", 0,5,\"-\"));\n380: assertEquals(\"01234-\", WordUtils.abbreviate(\"0123456789\", 5, 2,\"-\"));\n381: assertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 2, 5, null));\n382: assertEquals(\"012 3\", WordUtils.abbreviate(\"012 3456789\", 5, 2,\"\"));\n383: assertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 0,-1,\"\"));\n384: 385: // test lower value\n386: assertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 0,5, null));\n387: assertEquals(\"01234\", WordUtils.abbreviate(\"01234 56789\", 5, 10, null));\n388: assertEquals(\"01 23 45 67\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, -1, null));\n389: assertEquals(\"01 23 45 6\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, 10, null));\n390: assertEquals(\"0123456789\", WordUtils.abbreviate(\"0123456789\", 15, 20, null));\n391: 392: // test lower value + append\n393: assertEquals(\"012\", WordUtils.abbreviate(\"012 3456789\", 0,5, null));\n394: assertEquals(\"01234-\", WordUtils.abbreviate(\"01234 56789\", 5, 10, \"-\"));\n395: assertEquals(\"01 23 45 67abc\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, -1, \"abc\"));\n396: assertEquals(\"01 23 45 6\", WordUtils.abbreviate(\"01 23 45 67 89\", 9, 10, \"\"));\n397: 398: // others\n399: assertEquals(\"\", WordUtils.abbreviate(\"0123456790\", 0,0,\"\"));\n400: assertEquals(\"\", WordUtils.abbreviate(\" 0123456790\", 0,-1,\"\"));\n401: }\n",
+    "stack_trace": "java.lang.StringIndexOutOfBoundsException: String index out of range: 15\nat java.lang.String.substring(String.java:1963)\nat org.apache.commons.lang.WordUtils.abbreviate(WordUtils.java:629)\nat org.apache.commons.lang.WordUtilsTest.testAbbreviate(WordUtilsTest.java:390)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang.WordUtils:abbreviate(Ljava/lang/String;IILjava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String abbreviate(String str, int lower, int upper, String appendToEnd) {\nif (str == null) {\nreturn null;\nif (str.length() == 0) {\nreturn StringUtils.EMPTY;\nif (upper == -1 || upper > str.length()) {\nupper = str.length();\nif (upper < lower) {\nupper = lower;\nStringBuffer result = new StringBuffer();\nint index = StringUtils.indexOf(str, \" \", lower);\nif (index == -1) {\nresult.append(str.substring(0, upper));\nif (upper != str.length()) {\nresult.append(StringUtils.defaultString(appendToEnd));\n} else if (index > upper) {\nresult.append(str.substring(0, upper));\nresult.append(StringUtils.defaultString(appendToEnd));\nresult.append(str.substring(0, index));\nresult.append(StringUtils.defaultString(appendToEnd));\nreturn result.toString();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringUtils:indexOf(Ljava/lang/String;Ljava/lang/String;I)I",
+            "method_body": "public static int indexOf(String str, String searchStr, int startPos) {\nif (str == null || searchStr == null) {\nif (searchStr.length() == 0 && startPos >= str.length()) {\nreturn str.indexOf(searchStr, startPos);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang.StringUtils:defaultString(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public static String defaultString(String str) {\nreturn str == null ? EMPTY : str;\n}",
+            "method_id": 2
+        }
+    ]
+}

@@ -1,0 +1,89 @@
+{
+    "bug_id": 6,
+    "test_id": 0,
+    "test_name": "org.apache.commons.codec.binary.Base64InputStreamTest.testCodec101",
+    "test_body": "public void testCodec101() throws Exception {\nbyte[] codec101 = StringUtils.getBytesUtf8(Base64TestData.CODEC_101_MULTIPLE_OF_3);\nByteArrayInputStream bais = new ByteArrayInputStream(codec101);\nBase64InputStream in = new Base64InputStream(bais);\nbyte[] result = new byte[8192];\nint c = in.read(result);\nassertTrue(\"Codec101: First read successful [c=\" + c + \"]\", c > 0);\n63: c = in.read(result);\nassertTrue(\"Codec101: Second read should report end-of-stream [c=\" + c + \"]\", c < 0);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError: Codec101: First read successful [c=0]\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.assertTrue(Assert.java:22)\nat junit.framework.TestCase.assertTrue(TestCase.java:192)\nat org.apache.commons.codec.binary.Base64InputStreamTest.testCodec101(Base64InputStreamTest.java:61)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64InputStream:read([BII)I",
+            "method_body": "public int read(byte b[], int offset, int len) throws IOException {\nif (b == null) {\n} else if (offset < 0 || len < 0) {\n} else if (offset > b.length || offset + len > b.length) {\n} else if (len == 0) {\nif (!base64.hasData()) {\nbyte[] buf = new byte[doEncode ? 4096 : 8192];\nint c = in.read(buf);\nif (c > 0 && b.length == len) {\nbase64.setInitialBuffer(b, offset, len);\nif (doEncode) {\nbase64.decode(buf, 0, c);\nreturn base64.readResults(b, offset, len);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64InputStream:<init>(Ljava/io/InputStream;Z)V",
+            "method_body": "public Base64InputStream(InputStream in, boolean doEncode) {\nsuper(in);\nthis.doEncode = doEncode;\nthis.base64 = new Base64(false);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:decode([BII)V",
+            "method_body": "void decode(byte[] in, int inPos, int inAvail) {\nif (eof) {\nif (inAvail < 0) {\nfor (int i = 0; i < inAvail; i++) {\nif (buffer == null || buffer.length - pos < decodeSize) {\nbyte b = in[inPos++];\nif (b == PAD) {\nif (b >= 0 && b < DECODE_TABLE.length) {\nint result = DECODE_TABLE[b];\nif (result >= 0) {\nmodulus = (++modulus) % 4;\nx = (x << 6) + result;\nif (modulus == 0) {\nif (eof && modulus != 0) {\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64InputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public Base64InputStream(InputStream in) {\nthis(in, false);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:readResults([BII)I",
+            "method_body": "int readResults(byte[] b, int bPos, int bAvail) {\nif (buffer != null) {\nint len = Math.min(avail(), bAvail);\nif (buffer != b) {\nbuffer = null;\nreturn len;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[BZ)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {\nif (lineSeparator == null) {\nthis.lineLength = lineLength > 0 ? (lineLength / 4) * 4 : 0;\nthis.lineSeparator = new byte[lineSeparator.length];\nSystem.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);\nif (lineLength > 0) {\nthis.encodeSize = 4 + lineSeparator.length;\nthis.decodeSize = this.encodeSize - 1;\nif (containsBase64Byte(lineSeparator)) {\nthis.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:hasData()Z",
+            "method_body": "boolean hasData() {\nreturn this.buffer != null;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(Z)V",
+            "method_body": "public Base64(boolean urlSafe) {\nthis(MIME_CHUNK_SIZE, CHUNK_SEPARATOR, urlSafe);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:setInitialBuffer([BII)V",
+            "method_body": "void setInitialBuffer(byte[] out, int outPos, int outAvail) {\nif (out != null && out.length == outAvail) {\nbuffer = out;\npos = outPos;\nreadPos = outPos;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<clinit>()V",
+            "method_body": "private static final byte[] STANDARD_ENCODE_TABLE = {\n};",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64InputStream:<init>(Ljava/io/InputStream;ZI[B)V",
+            "method_body": "private final boolean doEncode;\nprivate final byte[] singleByte = new byte[1];\nthis(in, false);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:containsBase64Byte([B)Z",
+            "method_body": "private static boolean containsBase64Byte(byte[] arrayOctet) {\nfor (int i = 0; i < arrayOctet.length; i++) {\nif (isBase64(arrayOctet[i])) {\nreturn false;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUnchecked(Ljava/lang/String;Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUnchecked(String string, String charsetName) {\nif (string == null) {\nreturn string.getBytes(charsetName);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.StringUtils:getBytesUtf8(Ljava/lang/String;)[B",
+            "method_body": "public static byte[] getBytesUtf8(String string) {\nreturn StringUtils.getBytesUnchecked(string, CharEncoding.UTF_8);\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:avail()I",
+            "method_body": "int avail() {\nreturn buffer != null ? pos - readPos : 0;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isBase64(B)Z",
+            "method_body": "public static boolean isBase64(byte octet) {\nreturn octet == PAD || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);\n}",
+            "method_id": 15
+        }
+    ]
+}

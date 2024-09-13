@@ -1,0 +1,259 @@
+{
+    "bug_id": 32,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSetTest.testIssue780",
+    "test_body": "public void testIssue780() {\nfloat[] coords = {\n1.000000f, -1.000000f, -1.000000f, \n1.000000f, -1.000000f, 1.000000f, \n-1.000000f, -1.000000f, 1.000000f, \n-1.000000f, -1.000000f, -1.000000f, \n1.000000f, 1.000000f, -1f, \n0.999999f, 1.000000f, 1.000000f,   // 1.000000f, 1.000000f, 1.000000f, \n-1.000000f, 1.000000f, 1.000000f, \n-1.000000f, 1.000000f, -1.000000f};\nint[] indices = {\n0, 1, 2, 0, 2, 3, \n4, 7, 6, 4, 6, 5, \n0, 4, 5, 0, 5, 1, \n1, 5, 6, 1, 6, 2, \n2, 6, 7, 2, 7, 3, \n4, 0, 3, 4, 3, 7};\nArrayList<SubHyperplane<Euclidean3D>> subHyperplaneList = new ArrayList<SubHyperplane<Euclidean3D>>();\nfor (int idx = 0; idx < indices.length; idx += 3) {\nint idxA = indices[idx] * 3;\nint idxB = indices[idx + 1] * 3;\nint idxC = indices[idx + 2] * 3;\nVector3D v_1 = new Vector3D(coords[idxA], coords[idxA + 1], coords[idxA + 2]);\nVector3D v_2 = new Vector3D(coords[idxB], coords[idxB + 1], coords[idxB + 2]);\nVector3D v_3 = new Vector3D(coords[idxC], coords[idxC + 1], coords[idxC + 2]);\nVector3D[] vertices = {v_1, v_2, v_3};\nPlane polyPlane = new Plane(v_1, v_2, v_3);\nArrayList<SubHyperplane<Euclidean2D>> lines = new ArrayList<SubHyperplane<Euclidean2D>>();\n266: Vector2D[] projPts = new Vector2D[vertices.length];\nfor (int ptIdx = 0; ptIdx < projPts.length; ptIdx++) {\nprojPts[ptIdx] = polyPlane.toSubSpace(vertices[ptIdx]);\n}\n271: SubLine lineInPlane = null;\nfor (int ptIdx = 0; ptIdx < projPts.length; ptIdx++) {\nlineInPlane = new SubLine(projPts[ptIdx], projPts[(ptIdx + 1) % projPts.length]);\nlines.add(lineInPlane);\n}\nRegion<Euclidean2D> polyRegion = new PolygonsSet(lines);\nSubPlane polygon = new SubPlane(polyPlane, polyRegion);\nsubHyperplaneList.add(polygon);\n}\nPolyhedronsSet polyhedronsSet = new PolyhedronsSet(subHyperplaneList);\nAssert.assertEquals( 8.0, polyhedronsSet.getSize(), 3.0e-6);\nAssert.assertEquals(24.0, polyhedronsSet.getBoundarySize(), 5.0e-6);",
+    "stack_trace": "java.lang.ClassCastException: org.apache.commons.math3.geometry.partitioning.BoundaryAttribute cannot be cast to java.lang.Boolean\nat org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet.computeGeometricalProperties(PolygonsSet.java:136)\nat org.apache.commons.math3.geometry.partitioning.AbstractRegion.getSize(AbstractRegion.java:381)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor.addContribution(PolyhedronsSet.java:171)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor.visitInternalNode(PolyhedronsSet.java:153)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:263)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:262)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:262)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:264)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet.computeGeometricalProperties(PolyhedronsSet.java:118)\nat org.apache.commons.math3.geometry.partitioning.AbstractRegion.getSize(AbstractRegion.java:381)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSetTest.testIssue780(PolyhedronsSetTest.java:281)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet:<init>(Ljava/util/Collection;)V",
+            "method_body": "public PolyhedronsSet(final Collection<SubHyperplane<Euclidean3D>> boundary) {\nsuper(boundary);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:getOffset(Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;)D",
+            "method_body": "public double getOffset(final Plane plane) {\nreturn originOffset + (sameOrientationAs(plane) ? -plane.originOffset : plane.originOffset);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:sameOrientationAs(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;)Z",
+            "method_body": "public boolean sameOrientationAs(final Hyperplane<Euclidean3D> other) {\nreturn (((Plane) other).w).dotProduct(w) > 0.0;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:<init>()V",
+            "method_body": "public PolygonsSet() {\nsuper();\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:<init>(Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;)V",
+            "method_body": "public Plane(final Plane plane) {\noriginOffset = plane.originOffset;\norigin = plane.origin;\nu      = plane.u;\nv      = plane.v;\nw      = plane.w;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:copySelf()Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;",
+            "method_body": "public Plane copySelf() {\nreturn new Plane(this);\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:toSubSpace(Lorg/apache/commons/math3/geometry/Vector;)Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;",
+            "method_body": "public Vector2D toSubSpace(final Vector<Euclidean3D> point) {\nreturn new Vector2D(point.dotProduct(u), point.dotProduct(v));\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:toSpace(Lorg/apache/commons/math3/geometry/Vector;)Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D toSpace(final Vector<Euclidean2D> point) {\nfinal Vector2D p2D = (Vector2D) point;\nreturn new Vector3D(p2D.getX(), u, p2D.getY(), v, -originOffset, w);\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:wholeHyperplane()Lorg/apache/commons/math3/geometry/euclidean/threed/SubPlane;",
+            "method_body": "public SubPlane wholeHyperplane() {\nreturn new SubPlane(this, new PolygonsSet());\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet:computeGeometricalProperties()V",
+            "method_body": "protected void computeGeometricalProperties() {\ngetTree(true).visit(new FacetsContributionVisitor());\nif (getSize() < 0) {\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.SubPlane:<init>(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;Lorg/apache/commons/math3/geometry/partitioning/Region;)V",
+            "method_body": "public SubPlane(final Hyperplane<Euclidean3D> hyperplane,\nsuper(hyperplane, remainingRegion);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.SubPlane:buildNew(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;Lorg/apache/commons/math3/geometry/partitioning/Region;)Lorg/apache/commons/math3/geometry/partitioning/AbstractSubHyperplane;",
+            "method_body": "protected AbstractSubHyperplane<Euclidean3D, Euclidean2D> buildNew(final Hyperplane<Euclidean3D> hyperplane,\nreturn new SubPlane(hyperplane, remainingRegion);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.SubPlane:side(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;)Lorg/apache/commons/math3/geometry/partitioning/Side;",
+            "method_body": "public Side side(Hyperplane<Euclidean3D> hyperplane) {\nfinal Plane otherPlane = (Plane) hyperplane;\nfinal Plane thisPlane  = (Plane) getHyperplane();\nfinal Line  inter      = otherPlane.intersection(thisPlane);\nif (inter == null) {\nfinal double global = otherPlane.getOffset(thisPlane);\nreturn (global < -1.0e-10) ? Side.MINUS : ((global > 1.0e-10) ? Side.PLUS : Side.HYPER);\nVector2D p = thisPlane.toSubSpace(inter.toSpace(Vector1D.ZERO));\nVector2D q = thisPlane.toSubSpace(inter.toSpace(Vector1D.ONE));\nVector3D crossP = Vector3D.crossProduct(inter.getDirection(), thisPlane.getNormal());\nif (crossP.dotProduct(otherPlane.getNormal()) < 0) {\nfinal Vector2D tmp = p;\np           = q;\nq           = tmp;\nfinal org.apache.commons.math3.geometry.euclidean.twod.Line line2D =\nreturn getRemainingRegion().side(line2D);\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.SubPlane:split(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;)Lorg/apache/commons/math3/geometry/partitioning/SubHyperplane$SplitSubHyperplane;",
+            "method_body": "public SplitSubHyperplane<Euclidean3D> split(Hyperplane<Euclidean3D> hyperplane) {\nfinal Plane otherPlane = (Plane) hyperplane;\nfinal Plane thisPlane  = (Plane) getHyperplane();\nfinal Line  inter      = otherPlane.intersection(thisPlane);\nif (inter == null) {\nfinal double global = otherPlane.getOffset(thisPlane);\nreturn (global < -1.0e-10) ?\nVector2D p = thisPlane.toSubSpace(inter.toSpace(Vector1D.ZERO));\nVector2D q = thisPlane.toSubSpace(inter.toSpace(Vector1D.ONE));\nVector3D crossP = Vector3D.crossProduct(inter.getDirection(), thisPlane.getNormal());\nif (crossP.dotProduct(otherPlane.getNormal()) < 0) {\nfinal Vector2D tmp = p;\np           = q;\nq           = tmp;\nfinal SubHyperplane<Euclidean2D> l2DMinus =\nfinal SubHyperplane<Euclidean2D> l2DPlus =\nfinal BSPTree<Euclidean2D> splitTree = getRemainingRegion().getTree(false).split(l2DMinus);\nfinal BSPTree<Euclidean2D> plusTree  = getRemainingRegion().isEmpty(splitTree.getPlus()) ?\nfinal BSPTree<Euclidean2D> minusTree = getRemainingRegion().isEmpty(splitTree.getMinus()) ?\nreturn new SplitSubHyperplane<Euclidean3D>(new SubPlane(thisPlane.copySelf(), new PolygonsSet(plusTree)),\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor:<init>(Lorg/apache/commons/math3/geometry/euclidean/threed/PolyhedronsSet;)V",
+            "method_body": "public FacetsContributionVisitor() {\nsetSize(0);\nsetBarycenter(new Vector3D(0, 0, 0));\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor:visitOrder(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)Lorg/apache/commons/math3/geometry/partitioning/BSPTreeVisitor$Order;",
+            "method_body": "public Order visitOrder(final BSPTree<Euclidean3D> node) {\nreturn Order.MINUS_SUB_PLUS;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor:visitInternalNode(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)V",
+            "method_body": "public void visitInternalNode(final BSPTree<Euclidean3D> node) {\nfinal BoundaryAttribute<Euclidean3D> attribute =\nif (attribute.getPlusOutside() != null) {\naddContribution(attribute.getPlusOutside(), false);\nif (attribute.getPlusInside() != null) {\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor:addContribution(Lorg/apache/commons/math3/geometry/partitioning/SubHyperplane;Z)V",
+            "method_body": "private void addContribution(final SubHyperplane<Euclidean3D> facet, final boolean reversed) {\nfinal Region<Euclidean2D> polygon = ((SubPlane) facet).getRemainingRegion();\nfinal double area    = polygon.getSize();\nif (Double.isInfinite(area)) {\nfinal Plane    plane  = (Plane) facet.getHyperplane();\nfinal Vector3D facetB = plane.toSpace(polygon.getBarycenter());\ndouble   scaled = area * facetB.dotProduct(plane.getNormal());\nif (reversed) {\nsetSize(getSize() + scaled);\nsetBarycenter(new Vector3D(1.0, (Vector3D) getBarycenter(), scaled, facetB));\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.Line:sameOrientationAs(Lorg/apache/commons/math3/geometry/partitioning/Hyperplane;)Z",
+            "method_body": "public boolean sameOrientationAs(final Hyperplane<Euclidean2D> other) {\nfinal Line otherL = (Line) other;\nreturn (sin * otherL.sin + cos * otherL.cos) >= 0.0;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.SubLine:<init>(Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;)V",
+            "method_body": "public SubLine(final Vector2D start, final Vector2D end) {\nsuper(new Line(start, end), buildIntervalSet(start, end));\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:computeGeometricalProperties()V",
+            "method_body": "protected void computeGeometricalProperties() {\nfinal Vector2D[][] v = getVertices();\nif (v.length == 0) {\nfinal BSPTree<Euclidean2D> tree = getTree(false);\nif ((Boolean) tree.getAttribute()) {\n} else if (v[0][0] == null) {\ndouble sum  = 0;\ndouble sumX = 0;\ndouble sumY = 0;\nfor (Vector2D[] loop : v) {\ndouble x1 = loop[loop.length - 1].getX();\ndouble y1 = loop[loop.length - 1].getY();\nfor (final Vector2D point : loop) {\nfinal double x0 = x1;\nfinal double y0 = y1;\nx1 = point.getX();\ny1 = point.getY();\nfinal double factor = x0 * y1 - y0 * x1;\nsum  += factor;\nsumX += factor * (x0 + x1);\nsumY += factor * (y0 + y1);\nif (sum < 0) {\nsetSize(sum / 2);\nsetBarycenter(new Vector2D(sumX / (3 * sum), sumY / (3 * sum)));\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:<init>(DLorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;DLorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;DLorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Vector3D(double a1, Vector3D u1, double a2, Vector3D u2,\ndouble a3, Vector3D u3) {\nthis.x = MathArrays.linearCombination(a1, u1.x, a2, u2.x, a3, u3.x);\nthis.y = MathArrays.linearCombination(a1, u1.y, a2, u2.y, a3, u3.y);\nthis.z = MathArrays.linearCombination(a1, u1.z, a2, u2.z, a3, u3.z);\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:<init>(Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Plane(final Vector3D normal) {\nsetNormal(normal);\noriginOffset = 0;\nsetFrame();\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:intersection(Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;)Lorg/apache/commons/math3/geometry/euclidean/threed/Line;",
+            "method_body": "public Line intersection(final Plane other) {\nfinal Vector3D direction = Vector3D.crossProduct(w, other.w);\nif (direction.getNorm() < 1.0e-10) {\nreturn null;\nfinal Vector3D point = intersection(this, other, new Plane(direction));\nreturn new Line(point, point.add(direction));\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.SubLine:buildIntervalSet(Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;)Lorg/apache/commons/math3/geometry/euclidean/oned/IntervalsSet;",
+            "method_body": "private static IntervalsSet buildIntervalSet(final Vector2D start, final Vector2D end) {\nfinal Line line = new Line(start, end);\nreturn new IntervalsSet(line.toSubSpace(start).getX(),\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:<init>(Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Plane(final Vector3D p1, final Vector3D p2, final Vector3D p3) {\nthis(p1, p2.subtract(p1).crossProduct(p3.subtract(p1)));\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:intersection(Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;Lorg/apache/commons/math3/geometry/euclidean/threed/Plane;)Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public static Vector3D intersection(final Plane plane1, final Plane plane2, final Plane plane3) {\nfinal double a1 = plane1.w.getX();\nfinal double b1 = plane1.w.getY();\nfinal double c1 = plane1.w.getZ();\nfinal double d1 = plane1.originOffset;\nfinal double a2 = plane2.w.getX();\nfinal double b2 = plane2.w.getY();\nfinal double c2 = plane2.w.getZ();\nfinal double d2 = plane2.originOffset;\nfinal double a3 = plane3.w.getX();\nfinal double b3 = plane3.w.getY();\nfinal double c3 = plane3.w.getZ();\nfinal double d3 = plane3.originOffset;\nfinal double a23         = b2 * c3 - b3 * c2;\nfinal double b23         = c2 * a3 - c3 * a2;\nfinal double c23         = a2 * b3 - a3 * b2;\nfinal double determinant = a1 * a23 + b1 * b23 + c1 * c23;\nif (FastMath.abs(determinant) < 1.0e-10) {\nfinal double r = 1.0 / determinant;\nreturn new Vector3D(\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion:getBarycenter()Lorg/apache/commons/math3/geometry/Vector;",
+            "method_body": "public Vector<S> getBarycenter() {\nif (barycenter == null) {\nreturn barycenter;\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Line:getDirection()Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D getDirection() {\nreturn direction;\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:getNormal()Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D getNormal() {\nreturn w;\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Line:pointAt(D)Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D pointAt(final double abscissa) {\nreturn new Vector3D(1.0, zero, abscissa, direction);\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Line:toSpace(Lorg/apache/commons/math3/geometry/Vector;)Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D toSpace(final Vector<Euclidean1D> point) {\nreturn pointAt(((Vector1D) point).getX());\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:buildNew(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)Lorg/apache/commons/math3/geometry/euclidean/twod/PolygonsSet;",
+            "method_body": "public PolygonsSet buildNew(final BSPTree<Euclidean2D> tree) {\nreturn new PolygonsSet(tree);\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion:<init>(Ljava/util/Collection;)V",
+            "method_body": "protected AbstractRegion(final Collection<SubHyperplane<S>> boundary) {\nif (boundary.size() == 0) {\nfinal TreeSet<SubHyperplane<S>> ordered = new TreeSet<SubHyperplane<S>>(new Comparator<SubHyperplane<S>>() {\nfinal double size1 = o1.getSize();\nfinal double size2 = o2.getSize();\nreturn (size2 < size1) ? -1 : ((o1 == o2) ? 0 : +1);\nordered.addAll(boundary);\ntree = new BSPTree<S>();\ninsertCuts(tree, ordered);\ntree.visit(new BSPTreeVisitor<S>() {\nreturn Order.PLUS_SUB_MINUS;\n}\nnode.setAttribute((node == node.getParent().getPlus()) ?\n}\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion:insertCuts(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;Ljava/util/Collection;)V",
+            "method_body": "public abstract AbstractRegion<S, T> buildNew(BSPTree<S> newTree);\nfinal Iterator<SubHyperplane<S>> iterator = boundary.iterator();\nHyperplane<S> inserted = null;\nwhile ((inserted == null) && iterator.hasNext()) {\ninserted = iterator.next().getHyperplane();\nif (!node.insertCut(inserted.copySelf())) {\nif (!iterator.hasNext()) {\nreturn;\nfinal ArrayList<SubHyperplane<S>> plusList  = new ArrayList<SubHyperplane<S>>();\nfinal ArrayList<SubHyperplane<S>> minusList = new ArrayList<SubHyperplane<S>>();\nwhile (iterator.hasNext()) {\nfinal SubHyperplane<S> other = iterator.next();\nswitch (other.side(inserted)) {\nplusList.add(other);\nbreak;\nminusList.add(other);\nbreak;\nfinal SubHyperplane.SplitSubHyperplane<S> split = other.split(inserted);\nplusList.add(split.getPlus());\nminusList.add(split.getMinus());\nbreak;\n}\ninsertCuts(node.getPlus(),  plusList);\ninsertCuts(node.getMinus(), minusList);\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.BSPTree:getParent()Lorg/apache/commons/math3/geometry/partitioning/BSPTree;",
+            "method_body": "public BSPTree<S> getParent() {\nreturn parent;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:<init>(Ljava/util/Collection;)V",
+            "method_body": "public PolygonsSet(final Collection<SubHyperplane<Euclidean2D>> boundary) {\nsuper(boundary);\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion$1:compare(Lorg/apache/commons/math3/geometry/partitioning/SubHyperplane;Lorg/apache/commons/math3/geometry/partitioning/SubHyperplane;)I",
+            "method_body": "public int compare(final SubHyperplane<S> o1, final SubHyperplane<S> o2) {\nfinal double size1 = o1.getSize();\nfinal double size2 = o2.getSize();\nreturn (size2 < size1) ? -1 : ((o1 == o2) ? 0 : +1);\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion$2:visitOrder(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)Lorg/apache/commons/math3/geometry/partitioning/BSPTreeVisitor$Order;",
+            "method_body": "public Order visitOrder(final BSPTree<S> node) {\nreturn Order.PLUS_SUB_MINUS;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion$2:visitLeafNode(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)V",
+            "method_body": "public void visitLeafNode(final BSPTree<S> node) {\nnode.setAttribute((node == node.getParent().getPlus()) ?\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:add(Lorg/apache/commons/math3/geometry/Vector;)Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;",
+            "method_body": "public Vector3D add(final Vector<Euclidean3D> v) {\nfinal Vector3D v3 = (Vector3D) v;\nreturn new Vector3D(x + v3.x, y + v3.y, z + v3.z);\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:<init>(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)V",
+            "method_body": "public PolygonsSet(final BSPTree<Euclidean2D> tree) {\nsuper(tree);\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:<init>(Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "public Plane(final Vector3D p, final Vector3D normal) {\nsetNormal(normal);\noriginOffset = -p.dotProduct(w);\nsetFrame();\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:setNormal(Lorg/apache/commons/math3/geometry/euclidean/threed/Vector3D;)V",
+            "method_body": "private void setNormal(final Vector3D normal) {\nfinal double norm = normal.getNorm();\nif (norm < 1.0e-10) {\nw = new Vector3D(1.0 / norm, normal);\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Plane:setFrame()V",
+            "method_body": "private void setFrame() {\norigin = new Vector3D(-originOffset, w);\nu = w.orthogonal();\nv = Vector3D.crossProduct(w, u);\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.utilities.AVLTree$Node:getLargest()Lorg/apache/commons/math3/geometry/partitioning/utilities/AVLTree$Node;",
+            "method_body": "Node getLargest() {\nNode node = this;\nwhile (node.right != null) {\nreturn node;\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:getVertices()[[Lorg/apache/commons/math3/geometry/euclidean/twod/Vector2D;",
+            "method_body": "public Vector2D[][] getVertices() {\nif (vertices == null) {\nif (getTree(false).getCut() == null) {\nfinal SegmentsBuilder visitor = new SegmentsBuilder();\ngetTree(true).visit(visitor);\nfinal AVLTree<ComparableSegment> sorted = visitor.getSorted();\nfinal ArrayList<List<ComparableSegment>> loops = new ArrayList<List<ComparableSegment>>();\nwhile (!sorted.isEmpty()) {\nfinal AVLTree<ComparableSegment>.Node node = sorted.getSmallest();\nfinal List<ComparableSegment> loop = followLoop(node, sorted);\nif (loop != null) {\nloops.add(loop);\n}\nvertices = new Vector2D[loops.size()][];\nint i = 0;\nfor (final List<ComparableSegment> loop : loops) {\nif (loop.size() < 2) {\n} else if (loop.get(0).getStart() == null) {\nfinal Vector2D[] array = new Vector2D[loop.size()];\nint j = 0;\nfor (Segment segment : loop) {\narray[j++] = segment.getStart();\nvertices[i++] = array;\nreturn vertices.clone();\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet:followLoop(Lorg/apache/commons/math3/geometry/partitioning/utilities/AVLTree$Node;Lorg/apache/commons/math3/geometry/partitioning/utilities/AVLTree;)Ljava/util/List;",
+            "method_body": "private List<ComparableSegment> followLoop(final AVLTree<ComparableSegment>.Node node,\nfinal ArrayList<ComparableSegment> loop = new ArrayList<ComparableSegment>();\nComparableSegment segment = node.getElement();\nloop.add(segment);\nfinal Vector2D globalStart = segment.getStart();\nVector2D end = segment.getEnd();\nnode.delete();\nfinal boolean open = segment.getStart() == null;\nwhile ((end != null) && (open || (globalStart.distance(end) > 1.0e-10))) {\nAVLTree<ComparableSegment>.Node selectedNode = null;\nComparableSegment       selectedSegment  = null;\ndouble                  selectedDistance = Double.POSITIVE_INFINITY;\nfinal ComparableSegment lowerLeft        = new ComparableSegment(end, -1.0e-10, -1.0e-10);\nfinal ComparableSegment upperRight       = new ComparableSegment(end, +1.0e-10, +1.0e-10);\nfor (AVLTree<ComparableSegment>.Node n = sorted.getNotSmaller(lowerLeft);\n(n != null) && (n.getElement().compareTo(upperRight) <= 0);\nn = n.getNext()) {\nsegment = n.getElement();\nfinal double distance = end.distance(segment.getStart());\nif (distance < selectedDistance) {\nselectedNode     = n;\nselectedSegment  = segment;\nselectedDistance = distance;\nif (selectedDistance > 1.0e-10) {\nreturn null;\nend = selectedSegment.getEnd();\nloop.add(selectedSegment);\nselectedNode.delete();\n}\nif ((loop.size() == 2) && !open) {\nif ((end == null) && !open) {\nreturn loop;\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet$SegmentsBuilder:<init>()V",
+            "method_body": "public SegmentsBuilder() {\nsorted = new AVLTree<ComparableSegment>();\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet$SegmentsBuilder:visitOrder(Lorg/apache/commons/math3/geometry/partitioning/BSPTree;)Lorg/apache/commons/math3/geometry/partitioning/BSPTreeVisitor$Order;",
+            "method_body": "public Order visitOrder(final BSPTree<Euclidean2D> node) {\nreturn Order.MINUS_SUB_PLUS;\n}",
+            "method_id": 49
+        }
+    ]
+}

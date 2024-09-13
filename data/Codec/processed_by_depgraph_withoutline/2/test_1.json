@@ -1,0 +1,74 @@
+{
+    "bug_id": 2,
+    "test_id": 1,
+    "test_name": "org.apache.commons.codec.binary.Base64OutputStreamTest.testBase64EmptyOutputStream",
+    "test_body": "public void testBase64EmptyOutputStream() throws Exception {\nbyte[] emptyEncoded = new byte[0];\nbyte[] emptyDecoded = new byte[0];\ntestByteByByte(emptyEncoded, emptyDecoded, 76, CRLF);\ntestByChunk(emptyEncoded, emptyDecoded, 76, CRLF);",
+    "stack_trace": "junit.framework.AssertionFailedError: Streaming base64 encode\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.assertTrue(Assert.java:22)\nat junit.framework.TestCase.assertTrue(TestCase.java:192)\nat org.apache.commons.codec.binary.Base64OutputStreamTest.testByteByByte(Base64OutputStreamTest.java:142)\nat org.apache.commons.codec.binary.Base64OutputStreamTest.testBase64EmptyOutputStream(Base64OutputStreamTest.java:53)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:flush(Z)V",
+            "method_body": "private void flush(boolean propogate) throws IOException {\nint avail = base64.avail();\nif (avail > 0) {\nbyte[] buf = new byte[avail];\nint c = base64.readResults(buf, 0, avail);\nif (c > 0) {\nout.write(buf, 0, c);\nif (propogate) {\nout.flush();\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:<init>(Ljava/io/OutputStream;ZI[B)V",
+            "method_body": "public Base64OutputStream(OutputStream out, boolean doEncode, int lineLength, byte[] lineSeparator) {\nsuper(out);\nthis.doEncode = doEncode;\nthis.base64 = new Base64(lineLength, lineSeparator);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:close()V",
+            "method_body": "public void close() throws IOException {\nif (doEncode) {\nbase64.encode(singleByte, 0, -1);\nflush();\nout.close();\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64OutputStream:flush()V",
+            "method_body": "public void flush() throws IOException {\nflush(true);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:encode([BII)V",
+            "method_body": "void encode(byte[] in, int inPos, int inAvail) {\nif (eof) {\nif (inAvail < 0) {\neof = true;\nif (buf == null || buf.length - pos < encodeSize) {\nresizeBuf();\nswitch (modulus) {\nif (lineLength > 0) {\nSystem.arraycopy(lineSeparator, 0, buf, pos, lineSeparator.length);\npos += lineSeparator.length;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:resizeBuf()V",
+            "method_body": "private void resizeBuf() {\nif (buf == null) {\nbuf = new byte[8192];\npos = 0;\nreadPos = 0;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[B)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator) {\nthis(lineLength, lineSeparator, false);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:readResults([BII)I",
+            "method_body": "int readResults(byte[] b, int bPos, int bAvail) {\nif (buf != null) {\nint len = Math.min(avail(), bAvail);\nif (buf != b) {\nSystem.arraycopy(buf, readPos, b, bPos, len);\nreadPos += len;\nif (readPos >= pos) {\nbuf = null;\nreturn len;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<init>(I[BZ)V",
+            "method_body": "public Base64(int lineLength, byte[] lineSeparator, boolean urlSafe) {\nthis.lineLength = lineLength;\nthis.lineSeparator = new byte[lineSeparator.length];\nSystem.arraycopy(lineSeparator, 0, this.lineSeparator, 0, lineSeparator.length);\nif (lineLength > 0) {\nthis.encodeSize = 4 + lineSeparator.length;\nthis.decodeSize = this.encodeSize - 1;\nif (containsBase64Byte(lineSeparator)) {\nthis.encodeTable = urlSafe ? URL_SAFE_ENCODE_TABLE : STANDARD_ENCODE_TABLE;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:<clinit>()V",
+            "method_body": "static final int CHUNK_SIZE = 76;\nstatic final byte[] CHUNK_SEPARATOR = {'\\r','\\n'};",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:containsBase64Byte([B)Z",
+            "method_body": "private static boolean containsBase64Byte(byte[] arrayOctet) {\nfor (int i = 0; i < arrayOctet.length; i++) {\nif (isBase64(arrayOctet[i])) {\nreturn false;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:avail()I",
+            "method_body": "int avail() {\nreturn buf != null ? pos - readPos : 0;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.codec.binary.Base64:isBase64(B)Z",
+            "method_body": "public static boolean isBase64(byte octet) {\nreturn octet == PAD || (octet >= 0 && octet < DECODE_TABLE.length && DECODE_TABLE[octet] != -1);\n}",
+            "method_id": 12
+        }
+    ]
+}

@@ -1,0 +1,134 @@
+{
+    "bug_id": 33,
+    "test_id": 0,
+    "test_name": "org.apache.commons.compress.compressors.DetectCompressorTestCase.testDetection",
+    "test_body": "91: public void testDetection() throws Exception {\n92: CompressorInputStream bzip2 = getStreamFor(\"bla.txt.bz2\"); \n93: assertNotNull(bzip2);\n94: assertTrue(bzip2 instanceof BZip2CompressorInputStream);\n95: 96: CompressorInputStream gzip = getStreamFor(\"bla.tgz\");\n97: assertNotNull(gzip);\n98: assertTrue(gzip instanceof GzipCompressorInputStream);\n99: 100: CompressorInputStream pack200 = getStreamFor(\"bla.pack\");\n101: assertNotNull(pack200);\n102: assertTrue(pack200 instanceof Pack200CompressorInputStream);\n103: 104: CompressorInputStream xz = getStreamFor(\"bla.tar.xz\");\n105: assertNotNull(xz);\n106: assertTrue(xz instanceof XZCompressorInputStream);\n107: 108: CompressorInputStream zlib = getStreamFor(\"bla.tar.deflatez\");\n109: assertNotNull(zlib);",
+    "stack_trace": "org.apache.commons.compress.compressors.CompressorException: No Compressor found for the stream signature.\nat org.apache.commons.compress.compressors.CompressorStreamFactory.createCompressorInputStream(CompressorStreamFactory.java:255)\nat org.apache.commons.compress.compressors.DetectCompressorTestCase.getStreamFor(DetectCompressorTestCase.java:165)\nat org.apache.commons.compress.compressors.DetectCompressorTestCase.testDetection(DetectCompressorTestCase.java:108)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.compress.compressors.CompressorStreamFactory:createCompressorInputStream(Ljava/io/InputStream;)Lorg/apache/commons/compress/compressors/CompressorInputStream;",
+            "method_body": "public CompressorInputStream createCompressorInputStream(final InputStream in)\nif (in == null) {\nif (!in.markSupported()) {\nfinal byte[] signature = new byte[12];\nin.mark(signature.length);\nint signatureLength = IOUtils.readFully(in, signature);\nin.reset();\nif (BZip2CompressorInputStream.matches(signature, signatureLength)) {\nreturn new BZip2CompressorInputStream(in, decompressConcatenated);\nif (GzipCompressorInputStream.matches(signature, signatureLength)) {\nreturn new GzipCompressorInputStream(in, decompressConcatenated);\nif (Pack200CompressorInputStream.matches(signature, signatureLength)) {\nreturn new Pack200CompressorInputStream(in);\nif (FramedSnappyCompressorInputStream.matches(signature, signatureLength)) {\nif (ZCompressorInputStream.matches(signature, signatureLength)) {\nif (XZUtils.matches(signature, signatureLength) &&\nreturn new XZCompressorInputStream(in, decompressConcatenated);\nif (LZMAUtils.matches(signature, signatureLength) &&\n}\nthrow new CompressorException(\"No Compressor found for the stream signature.\");\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 2) {\nif (signature[0] != 31) {\nreturn false;\nif (signature[1] != -117) {\nreturn true;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.CompressorException:<init>(Ljava/lang/String;)V",
+            "method_body": "public CompressorException(String message) {\nsuper(message);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < SZ_SIGNATURE.length) {\nbyte[] shortenedSig = signature;\nif (signature.length > SZ_SIGNATURE.length) {\nshortenedSig = new byte[SZ_SIGNATURE.length];\nSystem.arraycopy(signature, 0, shortenedSig, 0, SZ_SIGNATURE.length);\nreturn Arrays.equals(shortenedSig, SZ_SIGNATURE);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.CompressorStreamFactory:<init>(Z)V",
+            "method_body": "public CompressorStreamFactory(boolean decompressUntilEOF) {\nthis.decompressUntilEOF = Boolean.valueOf(decompressUntilEOF);\nthis.decompressConcatenated = decompressUntilEOF;\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream:<init>(Ljava/io/InputStream;Z)V",
+            "method_body": "private static final int FHCRC = 0x02;\nprivate final byte[] buf = new byte[8192];\nprivate int bufUsed = 0;\nprivate Inflater inf = new Inflater(true);\nprivate final CRC32 crc = new CRC32();\nprivate boolean endReached = false;\nprivate final byte[] oneByte = new byte[1];\nprivate final GzipParameters parameters = new GzipParameters();\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.CompressorStreamFactory:setDecompressConcatenated(Z)V",
+            "method_body": "public void setDecompressConcatenated(boolean decompressConcatenated) {\nif (this.decompressUntilEOF != null) {\nthis.decompressConcatenated = decompressConcatenated;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < 3) {\nif (signature[0] != 'B') {\nreturn false;\nif (signature[1] != 'Z') {\nif (signature[2] != 'h') {\nreturn true;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream:<init>(Ljava/io/InputStream;Ljava/io/File;Lorg/apache/commons/compress/compressors/pack200/Pack200Strategy;Ljava/util/Map;)V",
+            "method_body": "private Pack200CompressorInputStream(final InputStream in, final File f,\nthrows IOException {\noriginalInput = in;\nstreamBridge = mode.newStreamBridge();\nJarOutputStream jarOut = new JarOutputStream(streamBridge);\nPack200.Unpacker u = Pack200.newUnpacker();\nif (props != null) {\nif (f == null) {\nu.unpack(new FilterInputStream(in) {\n}\njarOut.close();\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream:<init>(Ljava/io/InputStream;)V",
+            "method_body": "public Pack200CompressorInputStream(final InputStream in)\nthis(in, Pack200Strategy.IN_MEMORY);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.xz.XZUtils:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < HEADER_MAGIC.length) {\nfor (int i = 0; i < HEADER_MAGIC.length; ++i) {\nif (signature[i] != HEADER_MAGIC[i]) {\nreturn false;\nreturn true;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.lzma.LZMAUtils:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < HEADER_MAGIC.length) {\nfor (int i = 0; i < HEADER_MAGIC.length; ++i) {\nif (signature[i] != HEADER_MAGIC[i]) {\nreturn false;\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < SIG_LENGTH) {\nfor (int i = 0; i < SIG_LENGTH; i++) {\nif (signature[i] != CAFE_DOOD[i]) {\nreturn false;\nreturn true;\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.xz.XZUtils:isXZCompressionAvailable()Z",
+            "method_body": "public static boolean isXZCompressionAvailable() {\nfinal CachedAvailability cachedResult = cachedXZAvailability;\nif (cachedResult != CachedAvailability.DONT_CACHE) {\nreturn cachedResult == CachedAvailability.CACHED_AVAILABLE;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.xz.XZCompressorInputStream:<init>(Ljava/io/InputStream;Z)V",
+            "method_body": "public XZCompressorInputStream(InputStream inputStream,\nthrows IOException {\nif (decompressConcatenated) {\nin = new SingleXZInputStream(inputStream);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream:<init>(Ljava/io/InputStream;Z)V",
+            "method_body": "public BZip2CompressorInputStream(final InputStream in, final boolean decompressConcatenated) throws IOException {\nthis.in = in;\nthis.decompressConcatenated = decompressConcatenated;\ninit(true);\ninitBlock();\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream:<init>(Ljava/io/InputStream;Lorg/apache/commons/compress/compressors/pack200/Pack200Strategy;)V",
+            "method_body": "public Pack200CompressorInputStream(final InputStream in,\nthis(in, null, mode, null);\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.lzma.LZMAUtils:internalIsLZMACompressionAvailable()Z",
+            "method_body": "private static boolean internalIsLZMACompressionAvailable() {\nLZMACompressorInputStream.matches(null, 0);\nreturn true;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.lzma.LZMACompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (signature == null || length < 3) {\nreturn false;\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.xz.XZUtils:internalIsXZCompressionAvailable()Z",
+            "method_body": "private static boolean internalIsXZCompressionAvailable() {\nXZCompressorInputStream.matches(null, 0);\nreturn true;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.xz.XZCompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nif (length < XZ.HEADER_MAGIC.length) {\nreturn false;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.CompressorStreamFactory:<init>()V",
+            "method_body": "public CompressorStreamFactory() {\nthis.decompressUntilEOF = null;\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.compress.compressors.z.ZCompressorInputStream:matches([BI)Z",
+            "method_body": "public static boolean matches(byte[] signature, int length) {\nreturn length > 3 && signature[0] == MAGIC_1 && signature[1] == (byte) MAGIC_2;\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[BII)I",
+            "method_body": "public static int readFully(InputStream input, byte[] b, int offset, int len)\nif (len < 0 || offset < 0 || len + offset > b.length) {\nint count = 0, x = 0;\nwhile (count != len) {\nx = input.read(b, offset + count, len - count);\nif (x == -1) {\ncount += x;\nreturn count;\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.compress.utils.IOUtils:readFully(Ljava/io/InputStream;[B)I",
+            "method_body": "public static int readFully(InputStream input, byte[] b) throws IOException {\nreturn readFully(input, b, 0, b.length);\n}",
+            "method_id": 24
+        }
+    ]
+}

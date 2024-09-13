@@ -1,0 +1,144 @@
+{
+    "bug_id": 32,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSetTest.testIssue780",
+    "test_body": "public void testIssue780() {\nfloat[] coords = {\n1.000000f, -1.000000f, -1.000000f, \n1.000000f, -1.000000f, 1.000000f, \n-1.000000f, -1.000000f, 1.000000f, \n-1.000000f, -1.000000f, -1.000000f, \n1.000000f, 1.000000f, -1f, \n0.999999f, 1.000000f, 1.000000f,   // 1.000000f, 1.000000f, 1.000000f, \n-1.000000f, 1.000000f, 1.000000f, \n-1.000000f, 1.000000f, -1.000000f};\nint[] indices = {\n0, 1, 2, 0, 2, 3, \n4, 7, 6, 4, 6, 5, \n0, 4, 5, 0, 5, 1, \n1, 5, 6, 1, 6, 2, \n2, 6, 7, 2, 7, 3, \n4, 0, 3, 4, 3, 7};\nArrayList<SubHyperplane<Euclidean3D>> subHyperplaneList = new ArrayList<SubHyperplane<Euclidean3D>>();\nfor (int idx = 0; idx < indices.length; idx += 3) {\nint idxA = indices[idx] * 3;\nint idxB = indices[idx + 1] * 3;\nint idxC = indices[idx + 2] * 3;\nVector3D v_1 = new Vector3D(coords[idxA], coords[idxA + 1], coords[idxA + 2]);\nVector3D v_2 = new Vector3D(coords[idxB], coords[idxB + 1], coords[idxB + 2]);\nVector3D v_3 = new Vector3D(coords[idxC], coords[idxC + 1], coords[idxC + 2]);\nVector3D[] vertices = {v_1, v_2, v_3};\nPlane polyPlane = new Plane(v_1, v_2, v_3);\nArrayList<SubHyperplane<Euclidean2D>> lines = new ArrayList<SubHyperplane<Euclidean2D>>();\n266: Vector2D[] projPts = new Vector2D[vertices.length];\nfor (int ptIdx = 0; ptIdx < projPts.length; ptIdx++) {\nprojPts[ptIdx] = polyPlane.toSubSpace(vertices[ptIdx]);\n}\n271: SubLine lineInPlane = null;\nfor (int ptIdx = 0; ptIdx < projPts.length; ptIdx++) {\nlineInPlane = new SubLine(projPts[ptIdx], projPts[(ptIdx + 1) % projPts.length]);\nlines.add(lineInPlane);\n}\nRegion<Euclidean2D> polyRegion = new PolygonsSet(lines);\nSubPlane polygon = new SubPlane(polyPlane, polyRegion);\nsubHyperplaneList.add(polygon);\n}\nPolyhedronsSet polyhedronsSet = new PolyhedronsSet(subHyperplaneList);\nAssert.assertEquals( 8.0, polyhedronsSet.getSize(), 3.0e-6);\nAssert.assertEquals(24.0, polyhedronsSet.getBoundarySize(), 5.0e-6);",
+    "stack_trace": "java.lang.ClassCastException: org.apache.commons.math3.geometry.partitioning.BoundaryAttribute cannot be cast to java.lang.Boolean\nat org.apache.commons.math3.geometry.euclidean.twod.PolygonsSet.computeGeometricalProperties(PolygonsSet.java:136)\nat org.apache.commons.math3.geometry.partitioning.AbstractRegion.getSize(AbstractRegion.java:381)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor.addContribution(PolyhedronsSet.java:171)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet$FacetsContributionVisitor.visitInternalNode(PolyhedronsSet.java:153)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:263)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:262)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:262)\nat org.apache.commons.math3.geometry.partitioning.BSPTree.visit(BSPTree.java:264)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSet.computeGeometricalProperties(PolyhedronsSet.java:118)\nat org.apache.commons.math3.geometry.partitioning.AbstractRegion.getSize(AbstractRegion.java:381)\nat org.apache.commons.math3.geometry.euclidean.threed.PolyhedronsSetTest.testIssue780(PolyhedronsSetTest.java:281)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.BSPTree:<init>(Ljava/lang/Object;)V",
+            "method_body": "public BSPTree(final Object attribute) {\ncut    = null;\nplus   = null;\nminus  = null;\nparent = null;\nthis.attribute = attribute;\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.BSPTree:getCut()Lorg/apache/commons/math3/geometry/partitioning/SubHyperplane;",
+            "method_body": "public SubHyperplane<S> getCut() {\nreturn cut;\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.BSPTree:getAttribute()Ljava/lang/Object;",
+            "method_body": "public Object getAttribute() {\nreturn attribute;\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.oned.Vector1D:<init>(D)V",
+            "method_body": "public Vector1D(double x) {\nthis.x = x;\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.oned.Vector1D:getX()D",
+            "method_body": "public double getX() {\nreturn x;\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:getX()D",
+            "method_body": "public double getX() {\nreturn x;\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:getY()D",
+            "method_body": "public double getY() {\nreturn y;\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:getZ()D",
+            "method_body": "public double getZ() {\nreturn z;\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:hypot(DD)D",
+            "method_body": "public static double hypot(final double x, final double y) {\nif (Double.isInfinite(x) || Double.isInfinite(y)) {\n} else if (Double.isNaN(x) || Double.isNaN(y)) {\nfinal int expX = getExponent(x);\nfinal int expY = getExponent(y);\nif (expX > expY + 27) {\nreturn abs(x);\n} else if (expY > expX + 27) {\nreturn abs(y);\nfinal int middleExp = (expX + expY) / 2;\nfinal double scaledX = scalb(x, -middleExp);\nfinal double scaledY = scalb(y, -middleExp);\nfinal double scaledH = sqrt(scaledX * scaledX + scaledY * scaledY);\nreturn scalb(scaledH, middleExp);\n}",
+            "method_id": 208
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:doubleHighPart(D)D",
+            "method_body": "private static double doubleHighPart(double d) {\nif (d > -Precision.SAFE_MIN && d < Precision.SAFE_MIN){\nlong xl = Double.doubleToLongBits(d);\nxl = xl & MASK_30BITS; // Drop low order bits\nreturn Double.longBitsToDouble(xl);\n}",
+            "method_id": 209
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:getExponent(D)I",
+            "method_body": "public static int getExponent(final double d) {\nreturn (int) ((Double.doubleToLongBits(d) >>> 52) & 0x7ff) - 1023;\n}",
+            "method_id": 210
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:atan2(DD)D",
+            "method_body": "public static double atan2(double y, double x) {\nif (x != x || y != y) {\nif (y == 0) {\nfinal double result = x * y;\nfinal double invx = 1d / x;\nfinal double invy = 1d / y;\nif (invx == 0) { // X is infinite\nif (x < 0 || invx < 0) {\nif (y < 0 || invy < 0) {\nreturn -Math.PI;\nreturn result;\nif (y == Double.POSITIVE_INFINITY) {\nif (y == Double.NEGATIVE_INFINITY) {\nif (x == Double.POSITIVE_INFINITY) {\nif (x == Double.NEGATIVE_INFINITY)\nif (x == 0) {\nif (y > 0 || 1 / y > 0) {\nreturn Math.PI * F_1_2;\nif (y < 0 || 1 / y < 0) {\nreturn -Math.PI * F_1_2;\nfinal double r = y / x;\nif (Double.isInfinite(r)) { // bypass calculations that can create NaN\ndouble ra = doubleHighPart(r);\ndouble rb = r - ra;\nfinal double xa = doubleHighPart(x);\nfinal double xb = x - xa;\nrb += (y - ra * xa - ra * xb - rb * xa - rb * xb) / x;\nfinal double temp = ra + rb;\nrb = -(temp - ra - rb);\nra = temp;\nif (ra == 0) { // Fix up the sign so atan works correctly\nfinal double result = atan(ra, rb, x < 0);\nreturn result;\n}",
+            "method_id": 211
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:atan(DDZ)D",
+            "method_body": "private static double atan(double xa, double xb, boolean leftPlane) {\nboolean negate = false;\nif (xa == 0.0) { // Matches +/- 0.0; return correct sign\nif (xa < 0) {\nxa = -xa;\nxb = -xb;\nnegate = true;\nif (xa > 1.633123935319537E16) { // Very large input\nif (xa < 1) {\nidx = (int) (((-1.7168146928204136 * xa * xa + 8.0) * xa) + 0.5);\nfinal double oneOverXa = 1 / xa;\nidx = (int) (-((-1.7168146928204136 * oneOverXa * oneOverXa + 8.0) * oneOverXa) + 13.07);\ndouble epsA = xa - TANGENT_TABLE_A[idx];\ndouble epsB = -(epsA - xa + TANGENT_TABLE_A[idx]);\nepsB += xb - TANGENT_TABLE_B[idx];\ndouble temp = epsA + epsB;\nepsB = -(temp - epsA - epsB);\nepsA = temp;\ntemp = xa * HEX_40000000;\ndouble ya = xa + temp - temp;\ndouble yb = xb + xa - ya;\nxa = ya;\nxb += yb;\nif (idx == 0) {\nfinal double denom = 1d / (1d + (xa + xb) * (TANGENT_TABLE_A[idx] + TANGENT_TABLE_B[idx]));\nya = epsA * denom;\nyb = epsB * denom;\n} else {\ndouble temp2 = xa * TANGENT_TABLE_A[idx];\ndouble za = 1d + temp2;\ndouble zb = -(za - 1d - temp2);\ntemp2 = xb * TANGENT_TABLE_A[idx] + xa * TANGENT_TABLE_B[idx];\ntemp = za + temp2;\nzb += -(temp - za - temp2);\nza = temp;\nzb += xb * TANGENT_TABLE_B[idx];\nya = epsA / za;\ntemp = ya * HEX_40000000;\nfinal double yaa = (ya + temp) - temp;\nfinal double yab = ya - yaa;\ntemp = za * HEX_40000000;\nfinal double zaa = (za + temp) - temp;\nfinal double zab = za - zaa;\nyb = (epsA - yaa * zaa - yaa * zab - yab * zaa - yab * zab) / za;\nyb += -epsA * zb / za / za;\nyb += epsB / za;\nepsA = ya;\nepsB = yb;\nfinal double epsA2 = epsA * epsA;\nyb = 0.07490822288864472;\nyb = yb * epsA2 + -0.09088450866185192;\nyb = yb * epsA2 + 0.11111095942313305;\nyb = yb * epsA2 + -0.1428571423679182;\nyb = yb * epsA2 + 0.19999999999923582;\nyb = yb * epsA2 + -0.33333333333333287;\nyb = yb * epsA2 * epsA;\nya = epsA;\ntemp = ya + yb;\nyb = -(temp - ya - yb);\nya = temp;\nyb += epsB / (1d + epsA * epsA);\ndouble za = EIGHTHS[idx] + ya;\ndouble zb = -(za - EIGHTHS[idx] - ya);\ntemp = za + yb;\nzb += -(temp - za - yb);\nza = temp;\ndouble result = za + zb;\ndouble resultb = -(result - za - zb);\nif (leftPlane) {\nfinal double pia = 1.5707963267948966 * 2;\nfinal double pib = 6.123233995736766E-17 * 2;\nza = pia - result;\nzb = -(za - pia + result);\nzb += pib - resultb;\nresult = za + zb;\nresultb = -(result - za - zb);\nif (negate ^ leftPlane) {\nresult = -result;\nreturn result;\n}",
+            "method_id": 212
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.euclidean.threed.Vector3D:<init>(DDD)V",
+            "method_body": "public Vector3D(double x, double y, double z) {\nthis.x = x;\nthis.y = y;\nthis.z = z;\n}",
+            "method_id": 213
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:cos(D)D",
+            "method_body": "public static double cos(double x) {\nint quadrant = 0;\ndouble xa = x;\nif (x < 0) {\nif (xa != xa || xa == Double.POSITIVE_INFINITY) {\ndouble xb = 0;\nif (xa > 3294198.0) {\n} else if (xa > 1.5707963267948966) {\nint k = (int)(xa * 0.6366197723675814);\ndouble a = -k * 1.570796251296997;\nremA = xa + a;\nremB = -(remA - xa - a);\na = -k * 7.549789948768648E-8;\ndouble b = remA;\nremA = a + b;\nremB += -(remA - b - a);\na = -k * 6.123233995736766E-17;\nb = remA;\nremA = a + b;\nremB += -(remA - b - a);\nif (remA > 0.0) {\nbreak;\nk--;\n}\nquadrant = k & 3;\nxa = remA;\nxb = remB;\nswitch (quadrant) {\nreturn cosQ(xa, xb);\nreturn -sinQ(xa, xb);\nreturn -cosQ(xa, xb);\nreturn sinQ(xa, xb);\n}",
+            "method_id": 214
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:max(II)I",
+            "method_body": "public static int max(final int a, final int b) {\nreturn (a <= b) ? b : a;\n}",
+            "method_id": 215
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:cosQ(DD)D",
+            "method_body": "private static double cosQ(double xa, double xb) {\nfinal double pi2a = 1.5707963267948966;\nfinal double pi2b = 6.123233995736766E-17;\nfinal double a = pi2a - xa;\ndouble b = -(a - pi2a + xa);\nb += pi2b - xb;\nreturn sinQ(a, b);\n}",
+            "method_id": 216
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sin(D)D",
+            "method_body": "public static double sin(double x) {\nboolean negative = false;\nint quadrant = 0;\ndouble xb = 0.0;\nxa = x;\nif (x < 0) {\nnegative = true;\nxa = -xa;\nif (xa == 0.0) {\nlong bits = Double.doubleToLongBits(x);\nif (bits < 0) {\nreturn 0.0;\nif (xa != xa || xa == Double.POSITIVE_INFINITY) {\nif (xa > 3294198.0) {\n} else if (xa > 1.5707963267948966) {\nint k = (int)(xa * 0.6366197723675814);\ndouble a = -k * 1.570796251296997;\nremA = xa + a;\nremB = -(remA - xa - a);\na = -k * 7.549789948768648E-8;\ndouble b = remA;\nremA = a + b;\nremB += -(remA - b - a);\na = -k * 6.123233995736766E-17;\nb = remA;\nremA = a + b;\nremB += -(remA - b - a);\nif (remA > 0.0) {\nbreak;\nk--;\n}\nquadrant = k & 3;\nxa = remA;\nxb = remB;\nif (negative) {\nquadrant ^= 2;  // Flip bit 1\nswitch (quadrant) {\nreturn sinQ(xa, xb);\nreturn cosQ(xa, xb);\nreturn -sinQ(xa, xb);\nreturn -cosQ(xa, xb);\n}",
+            "method_id": 217
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sinQ(DD)D",
+            "method_body": "private static double sinQ(double xa, double xb) {\nint idx = (int) ((xa * 8.0) + 0.5);\nfinal double epsilon = xa - EIGHTHS[idx]; //idx*0.125;\nfinal double sintA = SINE_TABLE_A[idx];\nfinal double sintB = SINE_TABLE_B[idx];\nfinal double costA = COSINE_TABLE_A[idx];\nfinal double costB = COSINE_TABLE_B[idx];\ndouble sinEpsA = epsilon;\ndouble sinEpsB = polySine(epsilon);\nfinal double cosEpsA = 1.0;\nfinal double cosEpsB = polyCosine(epsilon);\nfinal double temp = sinEpsA * HEX_40000000;\ndouble temp2 = (sinEpsA + temp) - temp;\nsinEpsB +=  sinEpsA - temp2;\nsinEpsA = temp2;\ndouble a = 0;\ndouble b = 0;\ndouble t = sintA;\ndouble c = a + t;\ndouble d = -(c - a - t);\na = c;\nb = b + d;\nt = costA * sinEpsA;\nc = a + t;\nd = -(c - a - t);\na = c;\nb = b + d;\nb = b + sintA * cosEpsB + costA * sinEpsB;\nb = b + sintB + costB * sinEpsA + sintB * cosEpsB + costB * sinEpsB;\nif (xb != 0.0) {\nt = ((costA + costB) * (cosEpsA + cosEpsB) -\nc = a + t;\nd = -(c - a - t);\na = c;\nb = b + d;\nresult = a + b;\nreturn result;\n}",
+            "method_id": 218
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:polySine(D)D",
+            "method_body": "private static double polySine(final double x)\ndouble x2 = x*x;\ndouble p = 2.7553817452272217E-6;\np = p * x2 + -1.9841269659586505E-4;\np = p * x2 + 0.008333333333329196;\np = p * x2 + -0.16666666666666666;\np = p * x2 * x;\nreturn p;\n}",
+            "method_id": 219
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:polyCosine(D)D",
+            "method_body": "private static double polyCosine(double x) {\ndouble x2 = x*x;\ndouble p = 2.479773539153719E-5;\np = p * x2 + -0.0013888888689039883;\np = p * x2 + 0.041666666666621166;\np = p * x2 + -0.49999999999999994;\np *= x2;\nreturn p;\n}",
+            "method_id": 220
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:min(II)I",
+            "method_body": "public static int min(final int a, final int b) {\nreturn (a <= b) ? a : b;\n}",
+            "method_id": 221
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:floor(D)D",
+            "method_body": "public static double floor(double x) {\nif (x != x) { // NaN\nif (x >= TWO_POWER_52 || x <= -TWO_POWER_52) {\ny = (long) x;\nif (x < 0 && y != x) {\nif (y == 0) {\nreturn x*y;\n}",
+            "method_id": 222
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:sqrt(D)D",
+            "method_body": "public static double sqrt(final double a) {\nreturn Math.sqrt(a);\n}",
+            "method_id": 223
+        },
+        {
+            "method_signature": "org.apache.commons.math3.util.FastMath:abs(D)D",
+            "method_body": "public static double abs(double x) {\nreturn (x < 0.0) ? -x : (x == 0.0) ? 0.0 : x; // -0.0 => +0.0\n}",
+            "method_id": 224
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion$2:<init>(Lorg/apache/commons/math3/geometry/partitioning/AbstractRegion;)V",
+            "method_body": "protected AbstractRegion(final Collection<SubHyperplane<S>> boundary) {\nif (boundary.size() == 0) {\nfinal TreeSet<SubHyperplane<S>> ordered = new TreeSet<SubHyperplane<S>>(new Comparator<SubHyperplane<S>>() {\nfinal double size1 = o1.getSize();\nfinal double size2 = o2.getSize();\nreturn (size2 < size1) ? -1 : ((o1 == o2) ? 0 : +1);\nordered.addAll(boundary);\ntree = new BSPTree<S>();\ninsertCuts(tree, ordered);\ntree.visit(new BSPTreeVisitor<S>() {\nreturn Order.PLUS_SUB_MINUS;\n}\nnode.setAttribute((node == node.getParent().getPlus()) ?\n}\n}",
+            "method_id": 225
+        },
+        {
+            "method_signature": "org.apache.commons.math3.geometry.partitioning.AbstractRegion$1:compare(Ljava/lang/Object;Ljava/lang/Object;)I",
+            "method_body": "protected AbstractRegion(final Collection<SubHyperplane<S>> boundary) {\nif (boundary.size() == 0) {\nfinal TreeSet<SubHyperplane<S>> ordered = new TreeSet<SubHyperplane<S>>(new Comparator<SubHyperplane<S>>() {\nfinal double size1 = o1.getSize();\nfinal double size2 = o2.getSize();\nreturn (size2 < size1) ? -1 : ((o1 == o2) ? 0 : +1);\nordered.addAll(boundary);\ntree = new BSPTree<S>();\ninsertCuts(tree, ordered);\ntree.visit(new BSPTreeVisitor<S>() {\nreturn Order.PLUS_SUB_MINUS;\n}\nnode.setAttribute((node == node.getParent().getPlus()) ?\n}\n}",
+            "method_id": 226
+        }
+    ]
+}

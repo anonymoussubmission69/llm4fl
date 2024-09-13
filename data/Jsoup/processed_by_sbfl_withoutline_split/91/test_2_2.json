@@ -1,0 +1,434 @@
+{
+    "bug_id": 91,
+    "test_id": 2,
+    "test_name": "org.jsoup.integration.ConnectTest.testBinaryResultThrows",
+    "test_body": "public void testBinaryResultThrows() {\nConnection con = Jsoup.connect(FileServlet.Url);\ncon.data(FileServlet.LocationParam, \"/htmltests/thumb.jpg\");\ncon.data(FileServlet.ContentTypeParam, \"text/html\");\n518: boolean threw = false;\ntry {\ncon.execute();\nDocument doc = con.response().parse();\n} catch (IOException e) {\nthrew = true;\nassertEquals(\"Input is binary and unsupported\", e.getMessage());\n}\nassertTrue(threw);\n}\n",
+    "stack_trace": "junit.framework.AssertionFailedError\nat org.junit.Assert.fail(Assert.java:86)\nat org.junit.Assert.assertTrue(Assert.java:41)\nat org.junit.Assert.assertTrue(Assert.java:52)\nat org.jsoup.integration.ConnectTest.testBinaryResultThrows(ConnectTest.java:526)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesAny([Ljava/lang/String;)Z",
+            "method_body": "public boolean matchesAny(String... seq) {\nfor (String s : seq) {\nif (matches(s))\nreturn true;\nreturn false;\n}",
+            "method_id": 200
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchChomp(Ljava/lang/String;)Z",
+            "method_body": "public boolean matchChomp(String seq) {\nif (matches(seq)) {\npos += seq.length();\nreturn true;\nreturn false;\n}",
+            "method_id": 201
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWhitespace()Z",
+            "method_body": "public boolean matchesWhitespace() {\nreturn !isEmpty() && StringUtil.isWhitespace(queue.charAt(pos));\n}",
+            "method_id": 202
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:matchesWord()Z",
+            "method_body": "public boolean matchesWord() {\nreturn !isEmpty() && Character.isLetterOrDigit(queue.charAt(pos));\n}",
+            "method_id": 203
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consume()C",
+            "method_body": "public char consume() {\nreturn queue.charAt(pos++);\n}",
+            "method_id": 204
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeToAny([Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "public String consumeToAny(String... seq) {\nint start = pos;\nwhile (!isEmpty() && !matchesAny(seq)) {\npos++;\nreturn queue.substring(start, pos);\n}",
+            "method_id": 205
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:chompBalanced(CC)Ljava/lang/String;",
+            "method_body": "public String chompBalanced(char open, char close) {\nint start = -1;\nint end = -1;\nint depth = 0;\nchar last = 0;\nboolean inSingleQuote = false;\nboolean inDoubleQuote = false;\nif (isEmpty()) break;\nCharacter c = consume();\nif (last == 0 || last != ESC) {\nif (c.equals('\\'') && c != open && !inDoubleQuote)\nelse if (c.equals('\"') && c != open && !inSingleQuote)\nif (inSingleQuote || inDoubleQuote)\nif (c.equals(open)) {\ndepth++;\nif (start == -1)\nstart = pos;\nelse if (c.equals(close))\ndepth--;\nif (depth > 0 && last != 0)\nend = pos; // don't include the outer match pair in the return\nlast = c;\n} while (depth > 0);\nfinal String out = (end >= 0) ? queue.substring(start, end) : \"\";\nif (depth > 0) {// ran out of queue before seeing enough )\nreturn out;\n}",
+            "method_id": 206
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeWhitespace()Z",
+            "method_body": "public boolean consumeWhitespace() {\nboolean seen = false;\nwhile (matchesWhitespace()) {\npos++;\nseen = true;\nreturn seen;\n}",
+            "method_id": 207
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:consumeElementSelector()Ljava/lang/String;",
+            "method_body": "public String consumeElementSelector() {\nint start = pos;\nwhile (!isEmpty() && (matchesWord() || matchesAny(\"*|\",\"|\", \"_\", \"-\")))\npos++;\nreturn queue.substring(start, pos);\n}",
+            "method_id": 208
+        },
+        {
+            "method_signature": "org.jsoup.parser.TokenQueue:remainder()Ljava/lang/String;",
+            "method_body": "public String remainder() {\nfinal String remainder = queue.substring(pos, queue.length());\npos = queue.length();\nreturn remainder;\n}",
+            "method_id": 209
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator:<init>()V",
+            "method_body": "protected Evaluator() {\n}",
+            "method_id": 210
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector:collect(Lorg/jsoup/select/Evaluator;Lorg/jsoup/nodes/Element;)Lorg/jsoup/select/Elements;",
+            "method_body": "public static Elements collect (Evaluator eval, Element root) {\nElements elements = new Elements();\nNodeTraversor.traverse(new Accumulator(root, elements, eval), root);\nreturn elements;\n}",
+            "method_id": 211
+        },
+        {
+            "method_signature": "org.jsoup.select.Elements:<init>()V",
+            "method_body": "public Elements() {\n}",
+            "method_id": 212
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:<init>(Lorg/jsoup/nodes/Element;Lorg/jsoup/select/Elements;Lorg/jsoup/select/Evaluator;)V",
+            "method_body": "Accumulator(Element root, Elements elements, Evaluator eval) {\nthis.root = root;\nthis.elements = elements;\nthis.eval = eval;\n}",
+            "method_id": 213
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:head(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void head(Node node, int depth) {\nif (node instanceof Element) {\nElement el = (Element) node;\nif (eval.matches(root, el))\n}",
+            "method_id": 214
+        },
+        {
+            "method_signature": "org.jsoup.select.Collector$Accumulator:tail(Lorg/jsoup/nodes/Node;I)V",
+            "method_body": "public void tail(Node node, int depth) {\n}",
+            "method_id": 215
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:<init>(Ljava/lang/String;)V",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 216
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Tag:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public abstract boolean matches(Element root, Element element);\npublic Tag(String tagName) {\nthis.tagName = tagName;\n}\nreturn (element.tagName().equalsIgnoreCase(tagName));\n}",
+            "method_id": 217
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:<init>()V",
+            "method_body": "CombiningEvaluator() {\nsuper();\nevaluators = new ArrayList<>();\n}",
+            "method_id": 218
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:<init>(Ljava/util/Collection;)V",
+            "method_body": "CombiningEvaluator(Collection<Evaluator> evaluators) {\nthis();\nthis.evaluators.addAll(evaluators);\nupdateNumEvaluators();\n}",
+            "method_id": 219
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator:updateNumEvaluators()V",
+            "method_body": "void updateNumEvaluators() {\nnum = evaluators.size();\n}",
+            "method_id": 220
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$And:<init>(Ljava/util/Collection;)V",
+            "method_body": "And(Collection<Evaluator> evaluators) {\nsuper(evaluators);\n}",
+            "method_id": 221
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$And:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public boolean matches(Element root, Element node) {\nfor (int i = 0; i < num; i++) {\nEvaluator s = evaluators.get(i);\nif (!s.matches(root, node))\nreturn false;\n}",
+            "method_id": 222
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$AttributeKeyPair:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public AttributeKeyPair(String key, String value) {\nValidate.notEmpty(key);\nValidate.notEmpty(value);\nthis.key = normalize(key);\nif (value.startsWith(\"\\\"\") && value.endsWith(\"\\\"\")\nthis.value = normalize(value);\n}",
+            "method_id": 223
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$AttributeWithValue:<init>(Ljava/lang/String;Ljava/lang/String;)V",
+            "method_body": "public AttributeWithValue(String key, String value) {\nsuper(key, value);\n}",
+            "method_id": 224
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:<init>()V",
+            "method_body": "Or() {\nsuper();\n}",
+            "method_id": 225
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:add(Lorg/jsoup/select/Evaluator;)V",
+            "method_body": "public void add(Evaluator e) {\nevaluators.add(e);\nupdateNumEvaluators();\n}",
+            "method_id": 226
+        },
+        {
+            "method_signature": "org.jsoup.select.CombiningEvaluator$Or:matches(Lorg/jsoup/nodes/Element;Lorg/jsoup/nodes/Element;)Z",
+            "method_body": "public boolean matches(Element root, Element node) {\nfor (int i = 0; i < num; i++) {\nEvaluator s = evaluators.get(i);\nif (s.matches(root, node))\nreturn false;\n}",
+            "method_id": 227
+        },
+        {
+            "method_signature": "org.jsoup.select.Evaluator$Attribute:<init>(Ljava/lang/String;)V",
+            "method_body": "public Attribute(String key) {\nthis.key = key;\n}",
+            "method_id": 228
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:getCharsetFromContentType(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "static String getCharsetFromContentType(String contentType) {\nif (contentType == null) return null;\nMatcher m = charsetPattern.matcher(contentType);\nif (m.find()) {\nreturn null;\n}",
+            "method_id": 229
+        },
+        {
+            "method_signature": "org.jsoup.helper.DataUtil:validateCharset(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "private static String validateCharset(String cs) {\nif (cs == null || cs.length() == 0) return null;\n}",
+            "method_id": 230
+        },
+        {
+            "method_signature": "org.jsoup.internal.ConstrainableInputStream:timeout(JJ)Lorg/jsoup/internal/ConstrainableInputStream;",
+            "method_body": "public ConstrainableInputStream timeout(long startTimeNanos, long timeoutMillis) {\nthis.startTime = startTimeNanos;\nthis.timeout = timeoutMillis * 1000000;\nreturn this;\n}",
+            "method_id": 231
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:<init>()V",
+            "method_body": "public HttpConnection() {\nreq = new Request();\nres = new Response();\n}",
+            "method_id": 232
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:connect(Ljava/lang/String;)Lorg/jsoup/Connection;",
+            "method_body": "public static Connection connect(String url) {\nConnection con = new HttpConnection();\ncon.url(url);\nreturn con;\n}",
+            "method_id": 233
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:encodeUrl(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "private static String encodeUrl(String url) {\nURL u = new URL(url);\nreturn encodeUrl(u).toExternalForm();\n}",
+            "method_id": 234
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:encodeUrl(Ljava/net/URL;)Ljava/net/URL;",
+            "method_body": "static URL encodeUrl(URL u) {\nString urlS = u.toExternalForm(); // URL external form may have spaces which is illegal in new URL() (odd asymmetry)\nurlS = urlS.replaceAll(\" \", \"%20\");\nfinal URI uri = new URI(urlS);\nreturn new URL(uri.toASCIIString());\n}",
+            "method_id": 235
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:url(Ljava/lang/String;)Lorg/jsoup/Connection;",
+            "method_body": "public Connection url(String url) {\nValidate.notEmpty(url, \"Must supply a valid URL\");\nreq.url(new URL(encodeUrl(url)));\n}\nreturn this;\n}",
+            "method_id": 236
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:data(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/Connection;",
+            "method_body": "public Connection data(String key, String value) {\nreq.data(KeyVal.create(key, value));\nreturn this;\n}",
+            "method_id": 237
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:execute()Lorg/jsoup/Connection$Response;",
+            "method_body": "public Connection.Response execute() throws IOException {\nres = Response.execute(req);\nreturn res;\n}",
+            "method_id": 238
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection:response()Lorg/jsoup/Connection$Response;",
+            "method_body": "public Connection.Response response() {\nreturn res;\n}",
+            "method_id": 239
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:<init>()V",
+            "method_body": "private Base() {\nheaders = new LinkedHashMap<>();\ncookies = new LinkedHashMap<>();\n}",
+            "method_id": 240
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:url()Ljava/net/URL;",
+            "method_body": "public URL url() {\nreturn url;\n}",
+            "method_id": 241
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:url(Ljava/net/URL;)Lorg/jsoup/Connection$Base;",
+            "method_body": "public T url(URL url) {\nValidate.notNull(url, \"URL must not be null\");\nthis.url = url;\nreturn (T) this;\n}",
+            "method_id": 242
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:method()Lorg/jsoup/Connection$Method;",
+            "method_body": "public Method method() {\nreturn method;\n}",
+            "method_id": 243
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:addHeader(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/Connection$Base;",
+            "method_body": "public T addHeader(String name, String value) {\nValidate.notEmpty(name);\nvalue = value == null ? \"\" : value;\nList<String> values = headers(name);\nif (values.isEmpty()) {\nvalues = new ArrayList<>();\nheaders.put(name, values);\nvalues.add(fixHeaderEncoding(value));\nreturn (T) this;\n}",
+            "method_id": 244
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:headers(Ljava/lang/String;)Ljava/util/List;",
+            "method_body": "public List<String> headers(String name) {\nValidate.notEmpty(name);\nreturn getHeadersCaseInsensitive(name);\n}",
+            "method_id": 245
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:fixHeaderEncoding(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "private static String fixHeaderEncoding(String val) {\nbyte[] bytes = val.getBytes(\"ISO-8859-1\");\nif (!looksLikeUtf8(bytes))\nreturn new String(bytes, \"UTF-8\");\n}",
+            "method_id": 246
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:looksLikeUtf8([B)Z",
+            "method_body": "private static boolean looksLikeUtf8(byte[] input) {\nint i = 0;\nif (input.length >= 3 && (input[0] & 0xFF) == 0xEF\nfor (int j = input.length; i < j; ++i) {\nint o = input[i];\nif ((o & 0x80) == 0) {\ncontinue; // ASCII\nreturn true;\n}",
+            "method_id": 247
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:hasHeader(Ljava/lang/String;)Z",
+            "method_body": "public boolean hasHeader(String name) {\nValidate.notEmpty(name, \"Header name must not be empty\");\nreturn getHeadersCaseInsensitive(name).size() != 0;\n}",
+            "method_id": 248
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:hasHeaderWithValue(Ljava/lang/String;Ljava/lang/String;)Z",
+            "method_body": "public boolean hasHeaderWithValue(String name, String value) {\nValidate.notEmpty(name);\nValidate.notEmpty(value);\nList<String> values = headers(name);\nfor (String candidate : values) {\nreturn false;\n}",
+            "method_id": 249
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:multiHeaders()Ljava/util/Map;",
+            "method_body": "public Map<String, List<String>> multiHeaders() {\nreturn headers;\n}",
+            "method_id": 250
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:getHeadersCaseInsensitive(Ljava/lang/String;)Ljava/util/List;",
+            "method_body": "private List<String> getHeadersCaseInsensitive(String name) {\nValidate.notNull(name);\nfor (Map.Entry<String, List<String>> entry : headers.entrySet()) {\nif (name.equalsIgnoreCase(entry.getKey()))\n}\nreturn Collections.emptyList();\n}",
+            "method_id": 251
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Base:cookies()Ljava/util/Map;",
+            "method_body": "public Map<String, String> cookies() {\nreturn cookies;\n}",
+            "method_id": 252
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:<init>()V",
+            "method_body": "Request() {\ntimeoutMilliseconds = 30000; // 30 seconds\nmaxBodySizeBytes = 1024 * 1024; // 1MB\nfollowRedirects = true;\ndata = new ArrayList<>();\nmethod = Method.GET;\naddHeader(\"Accept-Encoding\", \"gzip\");\naddHeader(USER_AGENT, DEFAULT_UA);\nparser = Parser.htmlParser();\n}",
+            "method_id": 253
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:proxy()Ljava/net/Proxy;",
+            "method_body": "public Proxy proxy() {\nreturn proxy;\n}",
+            "method_id": 254
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:timeout()I",
+            "method_body": "public int timeout() {\nreturn timeoutMilliseconds;\n}",
+            "method_id": 255
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:maxBodySize()I",
+            "method_body": "public int maxBodySize() {\nreturn maxBodySizeBytes;\n}",
+            "method_id": 256
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:sslSocketFactory()Ljavax/net/ssl/SSLSocketFactory;",
+            "method_body": "public SSLSocketFactory sslSocketFactory() {\nreturn sslSocketFactory;\n}",
+            "method_id": 257
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:ignoreContentType()Z",
+            "method_body": "public boolean ignoreContentType() {\nreturn ignoreContentType;\n}",
+            "method_id": 258
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:data(Lorg/jsoup/Connection$KeyVal;)Lorg/jsoup/helper/HttpConnection$Request;",
+            "method_body": "public Request data(Connection.KeyVal keyval) {\nValidate.notNull(keyval, \"Key val must not be null\");\ndata.add(keyval);\nreturn this;\n}",
+            "method_id": 259
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:data()Ljava/util/Collection;",
+            "method_body": "public Collection<Connection.KeyVal> data() {\nreturn data;\n}",
+            "method_id": 260
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:requestBody()Ljava/lang/String;",
+            "method_body": "public String requestBody() {\nreturn body;\n}",
+            "method_id": 261
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Request:parser()Lorg/jsoup/parser/Parser;",
+            "method_body": "public Parser parser() {\nreturn parser;\n}",
+            "method_id": 262
+        },
+        {
+            "method_signature": "org.jsoup.Connection$Method:<init>(Ljava/lang/String;IZ)V",
+            "method_body": "Method(boolean hasBody) {\nthis.hasBody = hasBody;\n}",
+            "method_id": 263
+        },
+        {
+            "method_signature": "org.jsoup.Connection$Method:hasBody()Z",
+            "method_body": "public final boolean hasBody() {\nreturn hasBody;\n}",
+            "method_id": 264
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:<init>()V",
+            "method_body": "Response() {\nsuper();\n}",
+            "method_id": 265
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:<init>(Lorg/jsoup/helper/HttpConnection$Response;)V",
+            "method_body": "private static final int MAX_REDIRECTS = 20;\nprivate boolean executed = false;\nprivate boolean inputStreamRead = false;\nprivate int numRedirects = 0;\nprivate static final Pattern xmlContentTypeRxp = Pattern.compile(\"(application|text)/\\\\w*\\\\+?xml.*\");\nsuper();\n}",
+            "method_id": 266
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:<clinit>()V",
+            "method_body": "private static final int MAX_REDIRECTS = 20;\nprivate boolean executed = false;\nprivate boolean inputStreamRead = false;\nprivate int numRedirects = 0;\nprivate static final Pattern xmlContentTypeRxp = Pattern.compile(\"(application|text)/\\\\w*\\\\+?xml.*\");\nsuper();\n}",
+            "method_id": 267
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:execute(Lorg/jsoup/Connection$Request;)Lorg/jsoup/helper/HttpConnection$Response;",
+            "method_body": "static Response execute(Connection.Request req) throws IOException {\nreturn execute(req, null);\n}",
+            "method_id": 268
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:execute(Lorg/jsoup/Connection$Request;Lorg/jsoup/helper/HttpConnection$Response;)Lorg/jsoup/helper/HttpConnection$Response;",
+            "method_body": "static Response execute(Connection.Request req, Response previousResponse) throws IOException {\nValidate.notNull(req, \"Request must not be null\");\nValidate.notNull(req.url(), \"URL must be specified to connect\");\nString protocol = req.url().getProtocol();\nif (!protocol.equals(\"http\") && !protocol.equals(\"https\"))\nfinal boolean methodHasBody = req.method().hasBody();\nfinal boolean hasRequestBody = req.requestBody() != null;\nif (!methodHasBody)\nValidate.isFalse(hasRequestBody, \"Cannot set a request body for HTTP method \" + req.method());\nString mimeBoundary = null;\nif (req.data().size() > 0 && (!methodHasBody || hasRequestBody))\nserialiseRequestUrl(req);\nlong startTime = System.nanoTime();\nHttpURLConnection conn = createConnection(req);\nconn.connect();\nif (conn.getDoOutput())\nint status = conn.getResponseCode();\nres = new Response(previousResponse);\nres.setupFromConnection(conn, previousResponse);\nres.req = req;\nif (res.hasHeader(LOCATION) && req.followRedirects()) {\nif ((status < 200 || status >= 400) && !req.ignoreHttpErrors())\nString contentType = res.contentType();\nif (contentType != null\nif (contentType != null && xmlContentTypeRxp.matcher(contentType).matches()) {\nres.charset = DataUtil.getCharsetFromContentType(res.contentType); // may be null, readInputStream deals with it\nif (conn.getContentLength() != 0 && req.method() != HEAD) { // -1 means unknown, chunked. sun throws an IO exception on 500 response with no content when trying to read body\nres.bodyStream = null;\nres.bodyStream = conn.getErrorStream() != null ? conn.getErrorStream() : conn.getInputStream();\nif (res.hasHeaderWithValue(CONTENT_ENCODING, \"gzip\")) {\n} else if (res.hasHeaderWithValue(CONTENT_ENCODING, \"deflate\")) {\nres.bodyStream = ConstrainableInputStream\n}\nres.executed = true;\nreturn res;\n}",
+            "method_id": 269
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:contentType()Ljava/lang/String;",
+            "method_body": "public String contentType() {\nreturn contentType;\n}",
+            "method_id": 270
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:parse()Lorg/jsoup/nodes/Document;",
+            "method_body": "public Document parse() throws IOException {\nValidate.isTrue(executed, \"Request must be executed (with .execute(), .get(), or .post() before parsing response\");\nif (byteData != null) { // bytes have been read in to the buffer, parse that\nValidate.isFalse(inputStreamRead, \"Input stream already read and parsed, cannot re-read.\");\nDocument doc = DataUtil.parseInputStream(bodyStream, charset, url.toExternalForm(), req.parser());\ncharset = doc.outputSettings().charset().name(); // update charset from meta-equiv, possibly\ninputStreamRead = true;\nsafeClose();\nreturn doc;\n}",
+            "method_id": 271
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:createConnection(Lorg/jsoup/Connection$Request;)Ljava/net/HttpURLConnection;",
+            "method_body": "private static HttpURLConnection createConnection(Connection.Request req) throws IOException {\nfinal HttpURLConnection conn = (HttpURLConnection) (\nconn.setRequestMethod(req.method().name());\nconn.setInstanceFollowRedirects(false); // don't rely on native redirection support\nconn.setConnectTimeout(req.timeout());\nconn.setReadTimeout(req.timeout() / 2); // gets reduced after connection is made and status is read\nif (req.sslSocketFactory() != null && conn instanceof HttpsURLConnection)\nif (req.method().hasBody())\nif (req.cookies().size() > 0)\nfor (Map.Entry<String, List<String>> header : req.multiHeaders().entrySet()) {\nfor (String value : header.getValue()) {\nconn.addRequestProperty(header.getKey(), value);\n}\n}\nreturn conn;\n}",
+            "method_id": 272
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:safeClose()V",
+            "method_body": "private void safeClose() {\nif (conn != null) {\nconn.disconnect();\nconn = null;\nif (bodyStream != null) {\nbodyStream.close();\nbodyStream = null;\n}\n}",
+            "method_id": 273
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:setupFromConnection(Ljava/net/HttpURLConnection;Lorg/jsoup/helper/HttpConnection$Response;)V",
+            "method_body": "private void setupFromConnection(HttpURLConnection conn, HttpConnection.Response previousResponse) throws IOException {\nthis.conn = conn;\nmethod = Method.valueOf(conn.getRequestMethod());\nurl = conn.getURL();\nstatusCode = conn.getResponseCode();\nstatusMessage = conn.getResponseMessage();\ncontentType = conn.getContentType();\nMap<String, List<String>> resHeaders = createHeaderMap(conn);\nprocessResponseHeaders(resHeaders);\nif (previousResponse != null) {\n}",
+            "method_id": 274
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:createHeaderMap(Ljava/net/HttpURLConnection;)Ljava/util/LinkedHashMap;",
+            "method_body": "private static LinkedHashMap<String, List<String>> createHeaderMap(HttpURLConnection conn) {\nfinal LinkedHashMap<String, List<String>> headers = new LinkedHashMap<>();\nint i = 0;\nfinal String key = conn.getHeaderFieldKey(i);\nfinal String val = conn.getHeaderField(i);\nif (key == null && val == null)\nbreak;\ni++;\nif (key == null || val == null)\nif (headers.containsKey(key))\nfinal ArrayList<String> vals = new ArrayList<>();\nvals.add(val);\nheaders.put(key, vals);\n}\nreturn headers;\n}",
+            "method_id": 275
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:processResponseHeaders(Ljava/util/Map;)V",
+            "method_body": "void processResponseHeaders(Map<String, List<String>> resHeaders) {\nfor (Map.Entry<String, List<String>> entry : resHeaders.entrySet()) {\nString name = entry.getKey();\nif (name == null)\nList<String> values = entry.getValue();\nif (name.equalsIgnoreCase(\"Set-Cookie\")) {\nfor (String value : values) {\naddHeader(name, value);\n}\n}\n}",
+            "method_id": 276
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$Response:serialiseRequestUrl(Lorg/jsoup/Connection$Request;)V",
+            "method_body": "private static void serialiseRequestUrl(Connection.Request req) throws IOException {\nURL in = req.url();\nStringBuilder url = StringUtil.borrowBuilder();\nboolean first = true;\nurl\nif (in.getQuery() != null) {\nfor (Connection.KeyVal keyVal : req.data()) {\nValidate.isFalse(keyVal.hasInputStream(), \"InputStream data not supported in URL query string.\");\nif (!first)\nurl.append('&');\nfirst = false;\nurl\n}\nreq.url(new URL(StringUtil.releaseBuilder(url)));\nreq.data().clear(); // moved into url as get params\n}",
+            "method_id": 277
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:<init>()V",
+            "method_body": "private KeyVal() {}\nprivate KeyVal() {}",
+            "method_id": 278
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:create(Ljava/lang/String;Ljava/lang/String;)Lorg/jsoup/helper/HttpConnection$KeyVal;",
+            "method_body": "public static KeyVal create(String key, String value) {\nreturn new KeyVal().key(key).value(value);\n}",
+            "method_id": 279
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:key(Ljava/lang/String;)Lorg/jsoup/helper/HttpConnection$KeyVal;",
+            "method_body": "public KeyVal key(String key) {\nValidate.notEmpty(key, \"Data key must not be empty\");\nthis.key = key;\nreturn this;\n}",
+            "method_id": 280
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:key()Ljava/lang/String;",
+            "method_body": "public String key() {\nreturn key;\n}",
+            "method_id": 281
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:value(Ljava/lang/String;)Lorg/jsoup/helper/HttpConnection$KeyVal;",
+            "method_body": "public KeyVal value(String value) {\nValidate.notNull(value, \"Data value must not be null\");\nthis.value = value;\nreturn this;\n}",
+            "method_id": 282
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:value()Ljava/lang/String;",
+            "method_body": "public String value() {\nreturn value;\n}",
+            "method_id": 283
+        },
+        {
+            "method_signature": "org.jsoup.helper.HttpConnection$KeyVal:hasInputStream()Z",
+            "method_body": "public boolean hasInputStream() {\nreturn stream != null;\n}",
+            "method_id": 284
+        }
+    ]
+}

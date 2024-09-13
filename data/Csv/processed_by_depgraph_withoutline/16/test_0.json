@@ -1,0 +1,54 @@
+{
+    "bug_id": 16,
+    "test_id": 0,
+    "test_name": "org.apache.commons.csv.CSVParserTest.testIteratorSequenceBreaking",
+    "test_body": "public void testIteratorSequenceBreaking() throws IOException {\nfinal String fiveRows = \"1\\n2\\n3\\n4\\n5\\n\";\n1005: // Iterator hasNext() shouldn't break sequence\nCSVParser parser = CSVFormat.DEFAULT.parse(new StringReader(fiveRows));\nint recordNumber = 0;\nIterator<CSVRecord> iter = parser.iterator();\nrecordNumber = 0;\nwhile (iter.hasNext()) {\nCSVRecord record = iter.next();\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\nif (recordNumber >= 2) {\nbreak;\n}\n}\niter.hasNext();\nwhile (iter.hasNext()) {\nCSVRecord record = iter.next();\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\n}\n1025: // Consecutive enhanced for loops shouldn't break sequence\nparser = CSVFormat.DEFAULT.parse(new StringReader(fiveRows));\nrecordNumber = 0;\nfor (CSVRecord record : parser) {\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\nif (recordNumber >= 2) {\nbreak;\n}\n}\nfor (CSVRecord record : parser) {\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\n}\n1040: // Consecutive enhanced for loops with hasNext() peeking shouldn't break sequence\nparser = CSVFormat.DEFAULT.parse(new StringReader(fiveRows));\nrecordNumber = 0;\nfor (CSVRecord record : parser) {\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\nif (recordNumber >= 2) {\nbreak;\n}\n}\nparser.iterator().hasNext();\nfor (CSVRecord record : parser) {\nrecordNumber++;\nassertEquals(String.valueOf(recordNumber), record.get(0));\n}",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<[3]> but was:<[4]>\nat org.junit.Assert.assertEquals(Assert.java:115)\nat org.junit.Assert.assertEquals(Assert.java:144)\nat org.apache.commons.csv.CSVParserTest.testIteratorSequenceBreaking(CSVParserTest.java:1053)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:nextRecord()Lorg/apache/commons/csv/CSVRecord;",
+            "method_body": "CSVRecord nextRecord() throws IOException {\nCSVRecord result = null;\nthis.recordList.clear();\nStringBuilder sb = null;\nfinal long startCharPosition = lexer.getCharacterPosition() + this.characterOffset;\nthis.reusableToken.reset();\nthis.lexer.nextToken(this.reusableToken);\nswitch (this.reusableToken.type) {\nthis.addRecordValue(true);\nbreak;\nif (this.reusableToken.isReady) {\n} while (this.reusableToken.type == TOKEN);\nif (!this.recordList.isEmpty()) {\nthis.recordNumber++;\nfinal String comment = sb == null ? null : sb.toString();\nresult = new CSVRecord(this.recordList.toArray(new String[this.recordList.size()]), this.headerMap, comment,\nreturn result;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:<init>(Ljava/io/Reader;Lorg/apache/commons/csv/CSVFormat;JJ)V",
+            "method_body": "public CSVParser(final Reader reader, final CSVFormat format, final long characterOffset, final long recordNumber)\nthrows IOException {\nAssertions.notNull(reader, \"reader\");\nAssertions.notNull(format, \"format\");\nthis.format = format;\nthis.lexer = new Lexer(format, new ExtendedBufferedReader(reader));\nthis.headerMap = this.initializeHeader();\nthis.characterOffset = characterOffset;\nthis.recordNumber = recordNumber - 1;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:addRecordValue(Z)V",
+            "method_body": "private void addRecordValue(final boolean lastRecord) {\nfinal String input = this.reusableToken.content.toString();\nfinal String inputClean = this.format.getTrim() ? input.trim() : input;\nif (lastRecord && inputClean.isEmpty() && this.format.getTrailingDelimiter()) {\nfinal String nullString = this.format.getNullString();\nthis.recordList.add(inputClean.equals(nullString) ? null : inputClean);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVRecord:get(I)Ljava/lang/String;",
+            "method_body": "public String get(final int i) {\nreturn values[i];\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVFormat:parse(Ljava/io/Reader;)Lorg/apache/commons/csv/CSVParser;",
+            "method_body": "public CSVParser parse(final Reader in) throws IOException {\nreturn new CSVParser(in, this);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:initializeHeader()Ljava/util/Map;",
+            "method_body": "private Map<String, Integer> initializeHeader() throws IOException {\nMap<String, Integer> hdrMap = null;\nfinal String[] formatHeader = this.format.getHeader();\nif (formatHeader != null) {\nreturn hdrMap;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:<init>(Ljava/io/Reader;Lorg/apache/commons/csv/CSVFormat;)V",
+            "method_body": "public CSVParser(final Reader reader, final CSVFormat format) throws IOException {\nthis(reader, format, 0, 1);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:iterator()Ljava/util/Iterator;",
+            "method_body": "public Iterator<CSVRecord> iterator() {\nreturn new Iterator<CSVRecord>() {\nreturn CSVParser.this.nextRecord();\nif (CSVParser.this.isClosed()) {\nif (this.current == null) {\nthis.current = this.getNextRecord();\nreturn this.current != null;\nif (CSVParser.this.isClosed()) {\nCSVRecord next = this.current;\nthis.current = null;\nif (next == null) {\nreturn next;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.csv.CSVParser:isClosed()Z",
+            "method_body": "public boolean isClosed() {\nreturn this.lexer.isClosed();\n}",
+            "method_id": 8
+        }
+    ]
+}

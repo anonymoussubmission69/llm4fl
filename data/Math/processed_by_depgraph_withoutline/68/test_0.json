@@ -1,0 +1,119 @@
+{
+    "bug_id": 68,
+    "test_id": 0,
+    "test_name": "org.apache.commons.math.optimization.general.MinpackTest.testMinpackFreudensteinRoth",
+    "test_body": "public void testMinpackFreudensteinRoth() {\nminpackTest(new FreudensteinRothFunction(new double[] { 0.5, -2.0 },\n20.0124960961895, 6.99887517584575,\nnew double[] {\n11.4124844654993,\n-0.896827913731509\n}), false);\nminpackTest(new FreudensteinRothFunction(new double[] { 5.0, -20.0 },\n12432.833948863, 6.9988751744895,",
+    "stack_trace": "junit.framework.AssertionFailedError: expected:<11.4121122022341> but was:<11.41300466147456>\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.Assert.failNotEquals(Assert.java:329)\nat junit.framework.Assert.assertEquals(Assert.java:120)\nat junit.framework.Assert.assertEquals(Assert.java:129)\nat junit.framework.TestCase.assertEquals(TestCase.java:288)\nat org.apache.commons.math.optimization.general.MinpackTest$MinpackFunction.checkTheoreticalMinParams(MinpackTest.java:575)\nat org.apache.commons.math.optimization.general.MinpackTest.minpackTest(MinpackTest.java:503)\nat org.apache.commons.math.optimization.general.MinpackTest.testMinpackFreudensteinRoth(MinpackTest.java:152)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:determineLMParameter([DD[D[D[D[D)V",
+            "method_body": "private void determineLMParameter(double[] qy, double delta, double[] diag,\nfor (int j = 0; j < rank; ++j) {\nlmDir[permutation[j]] = qy[j];\nfor (int j = rank; j < cols; ++j) {\nfor (int k = rank - 1; k >= 0; --k) {\nint pk = permutation[k];\ndouble ypk = lmDir[pk] / diagR[pk];\nfor (int i = 0; i < k; ++i) {\nlmDir[permutation[i]] -= ypk * jacobian[i][pk];\nlmDir[pk] = ypk;\ndouble dxNorm = 0;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble s = diag[pj] * lmDir[pj];\nwork1[pj] = s;\ndxNorm += s * s;\ndxNorm = Math.sqrt(dxNorm);\ndouble fp = dxNorm - delta;\nif (fp <= 0.1 * delta) {\nlmPar = 0;\nreturn;\ndouble parl = 0;\nif (rank == solvedCols) {\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nwork1[pj] *= diag[pj] / dxNorm;\nsum2 = 0;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble sum = 0;\nfor (int i = 0; i < j; ++i) {\nsum += jacobian[i][pj] * work1[permutation[i]];\ndouble s = (work1[pj] - sum) / diagR[pj];\nwork1[pj] = s;\nsum2 += s * s;\nparl = fp / (delta * sum2);\nsum2 = 0;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble sum = 0;\nfor (int i = 0; i <= j; ++i) {\nsum += jacobian[i][pj] * qy[i];\nsum /= diag[pj];\nsum2 += sum * sum;\ndouble gNorm = Math.sqrt(sum2);\ndouble paru = gNorm / delta;\nif (paru == 0) {\nlmPar = Math.min(paru, Math.max(lmPar, parl));\nif (lmPar == 0) {\nfor (int countdown = 10; countdown >= 0; --countdown) {\nif (lmPar == 0) {\ndouble sPar = Math.sqrt(lmPar);\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nwork1[pj] = sPar * diag[pj];\ndetermineLMDirection(qy, work1, work2, work3);\ndxNorm = 0;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble s = diag[pj] * lmDir[pj];\nwork3[pj] = s;\ndxNorm += s * s;\ndxNorm = Math.sqrt(dxNorm);\ndouble previousFP = fp;\nfp = dxNorm - delta;\nif ((Math.abs(fp) <= 0.1 * delta) ||\nreturn;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nwork1[pj] = work3[pj] * diag[pj] / dxNorm;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nwork1[pj] /= work2[j];\ndouble tmp = work1[pj];\nfor (int i = j + 1; i < solvedCols; ++i) {\nwork1[permutation[i]] -= jacobian[i][pj] * tmp;\nsum2 = 0;\nfor (int j = 0; j < solvedCols; ++j) {\ndouble s = work1[permutation[j]];\nsum2 += s * s;\ndouble correction = fp / (delta * sum2);\nif (fp > 0) {\nparl = Math.max(parl, lmPar);\n} else if (fp < 0) {\nparu = Math.min(paru, lmPar);\nlmPar = Math.max(parl, lmPar + correction);\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:doOptimize()Lorg/apache/commons/math/optimization/VectorialPointValuePair;",
+            "method_body": "protected VectorialPointValuePair doOptimize()\nsolvedCols  = Math.min(rows, cols);\ndiagR       = new double[cols];\njacNorm     = new double[cols];\nbeta        = new double[cols];\npermutation = new int[cols];\nlmDir       = new double[cols];\ndouble   delta   = 0;\ndouble   xNorm   = 0;\ndouble[] diag    = new double[cols];\ndouble[] oldX    = new double[cols];\ndouble[] oldRes  = new double[rows];\ndouble[] work1   = new double[cols];\ndouble[] work2   = new double[cols];\ndouble[] work3   = new double[cols];\nupdateResidualsAndCost();\nlmPar = 0;\nboolean firstIteration = true;\nincrementIterationsCounter();\nupdateJacobian();\nqrDecomposition();\nqTy(residuals);\nfor (int k = 0; k < solvedCols; ++k) {\nint pk = permutation[k];\njacobian[k][pk] = diagR[pk];\nif (firstIteration) {\nxNorm = 0;\nfor (int k = 0; k < cols; ++k) {\ndouble dk = jacNorm[k];\nif (dk == 0) {\ndouble xk = dk * point[k];\nxNorm  += xk * xk;\ndiag[k] = dk;\nxNorm = Math.sqrt(xNorm);\ndelta = (xNorm == 0) ? initialStepBoundFactor : (initialStepBoundFactor * xNorm);\ndouble maxCosine = 0;\nif (cost != 0) {\nfor (int j = 0; j < solvedCols; ++j) {\nint    pj = permutation[j];\ndouble s  = jacNorm[pj];\nif (s != 0) {\ndouble sum = 0;\nfor (int i = 0; i <= j; ++i) {\nsum += jacobian[i][pj] * residuals[i];\nmaxCosine = Math.max(maxCosine, Math.abs(sum) / (s * cost));\nif (maxCosine <= orthoTolerance) {\nfor (int j = 0; j < cols; ++j) {\ndiag[j] = Math.max(diag[j], jacNorm[j]);\nfor (double ratio = 0; ratio < 1.0e-4;) {\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\noldX[pj] = point[pj];\ndouble previousCost = cost;\ndouble[] tmpVec = residuals;\nresiduals = oldRes;\noldRes    = tmpVec;\ndetermineLMParameter(oldRes, delta, diag, work1, work2, work3);\ndouble lmNorm = 0;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nlmDir[pj] = -lmDir[pj];\npoint[pj] = oldX[pj] + lmDir[pj];\ndouble s = diag[pj] * lmDir[pj];\nlmNorm  += s * s;\nlmNorm = Math.sqrt(lmNorm);\nif (firstIteration) {\ndelta = Math.min(delta, lmNorm);\nupdateResidualsAndCost();\ndouble actRed = -1.0;\nif (0.1 * cost < previousCost) {\ndouble r = cost / previousCost;\nactRed = 1.0 - r * r;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble dirJ = lmDir[pj];\nwork1[j] = 0;\nfor (int i = 0; i <= j; ++i) {\nwork1[i] += jacobian[i][pj] * dirJ;\ndouble coeff1 = 0;\nfor (int j = 0; j < solvedCols; ++j) {\ncoeff1 += work1[j] * work1[j];\ndouble pc2 = previousCost * previousCost;\ncoeff1 = coeff1 / pc2;\ndouble coeff2 = lmPar * lmNorm * lmNorm / pc2;\ndouble preRed = coeff1 + 2 * coeff2;\ndouble dirDer = -(coeff1 + coeff2);\nratio = (preRed == 0) ? 0 : (actRed / preRed);\nif (ratio <= 0.25) {\ndouble tmp =\nif ((0.1 * cost >= previousCost) || (tmp < 0.1)) {\ntmp = 0.1;\ndelta = tmp * Math.min(delta, 10.0 * lmNorm);\nlmPar /= tmp;\n} else if ((lmPar == 0) || (ratio >= 0.75)) {\ndelta = 2 * lmNorm;\nlmPar *= 0.5;\nif (ratio >= 1.0e-4) {\nfirstIteration = false;\nxNorm = 0;\nfor (int k = 0; k < cols; ++k) {\ndouble xK = diag[k] * point[k];\nxNorm    += xK * xK;\nxNorm = Math.sqrt(xNorm);\ncost = previousCost;\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\npoint[pj] = oldX[pj];\ntmpVec    = residuals;\nresiduals = oldRes;\noldRes    = tmpVec;\nif (((Math.abs(actRed) <= costRelativeTolerance) &&\nreturn new VectorialPointValuePair(point, objective);\nif ((Math.abs(actRed) <= 2.2204e-16) && (preRed <= 2.2204e-16) && (ratio <= 2.0)) {\n} else if (delta <= 2.2204e-16 * xNorm) {\n} else if (maxCosine <= 2.2204e-16)  {\n}\n}\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:determineLMDirection([D[D[D[D)V",
+            "method_body": "private void determineLMDirection(double[] qy, double[] diag,\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\nfor (int i = j + 1; i < solvedCols; ++i) {\njacobian[i][pj] = jacobian[j][permutation[i]];\nlmDir[j] = diagR[pj];\nwork[j]  = qy[j];\nfor (int j = 0; j < solvedCols; ++j) {\nint pj = permutation[j];\ndouble dpj = diag[pj];\nif (dpj != 0) {\nArrays.fill(lmDiag, j + 1, lmDiag.length, 0);\nlmDiag[j] = dpj;\ndouble qtbpj = 0;\nfor (int k = j; k < solvedCols; ++k) {\nint pk = permutation[k];\nif (lmDiag[k] != 0) {\ndouble rkk = jacobian[k][pk];\nif (Math.abs(rkk) < Math.abs(lmDiag[k])) {\nfinal double cotan = rkk / lmDiag[k];\nsin   = 1.0 / Math.sqrt(1.0 + cotan * cotan);\ncos   = sin * cotan;\n} else {\nfinal double tan = lmDiag[k] / rkk;\ncos = 1.0 / Math.sqrt(1.0 + tan * tan);\nsin = cos * tan;\njacobian[k][pk] = cos * rkk + sin * lmDiag[k];\nfinal double temp = cos * work[k] + sin * qtbpj;\nqtbpj = -sin * work[k] + cos * qtbpj;\nwork[k] = temp;\nfor (int i = k + 1; i < solvedCols; ++i) {\ndouble rik = jacobian[i][pk];\nfinal double temp2 = cos * rik + sin * lmDiag[i];\nlmDiag[i] = -sin * rik + cos * lmDiag[i];\njacobian[i][pk] = temp2;\nlmDiag[j] = jacobian[j][permutation[j]];\njacobian[j][permutation[j]] = lmDir[j];\nint nSing = solvedCols;\nfor (int j = 0; j < solvedCols; ++j) {\nif ((lmDiag[j] == 0) && (nSing == solvedCols)) {\nif (nSing < solvedCols) {\nif (nSing > 0) {\nfor (int j = nSing - 1; j >= 0; --j) {\nint pj = permutation[j];\ndouble sum = 0;\nfor (int i = j + 1; i < nSing; ++i) {\nsum += jacobian[i][pj] * work[i];\nwork[j] = (work[j] - sum) / lmDiag[j];\nfor (int j = 0; j < lmDir.length; ++j) {\nlmDir[permutation[j]] = work[j];\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:qrDecomposition()V",
+            "method_body": "private void qrDecomposition() throws OptimizationException {\nfor (int k = 0; k < cols; ++k) {\npermutation[k] = k;\ndouble norm2 = 0;\nfor (int i = 0; i < jacobian.length; ++i) {\ndouble akk = jacobian[i][k];\nnorm2 += akk * akk;\njacNorm[k] = Math.sqrt(norm2);\nfor (int k = 0; k < cols; ++k) {\nint nextColumn = -1;\ndouble ak2 = Double.NEGATIVE_INFINITY;\nfor (int i = k; i < cols; ++i) {\ndouble norm2 = 0;\nfor (int j = k; j < jacobian.length; ++j) {\ndouble aki = jacobian[j][permutation[i]];\nnorm2 += aki * aki;\nif (Double.isInfinite(norm2) || Double.isNaN(norm2)) {\nif (norm2 > ak2) {\nnextColumn = i;\nak2        = norm2;\nif (ak2 == 0) {\nint pk                  = permutation[nextColumn];\npermutation[nextColumn] = permutation[k];\npermutation[k]          = pk;\ndouble akk   = jacobian[k][pk];\ndouble alpha = (akk > 0) ? -Math.sqrt(ak2) : Math.sqrt(ak2);\ndouble betak = 1.0 / (ak2 - akk * alpha);\nbeta[pk]     = betak;\ndiagR[pk]        = alpha;\njacobian[k][pk] -= alpha;\nfor (int dk = cols - 1 - k; dk > 0; --dk) {\ndouble gamma = 0;\nfor (int j = k; j < jacobian.length; ++j) {\ngamma += jacobian[j][pk] * jacobian[j][permutation[k + dk]];\ngamma *= betak;\nfor (int j = k; j < jacobian.length; ++j) {\njacobian[j][permutation[k + dk]] -= gamma * jacobian[j][pk];\nrank = solvedCols;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:qTy([D)V",
+            "method_body": "private void qTy(double[] y) {\nfor (int k = 0; k < cols; ++k) {\nint pk = permutation[k];\ndouble gamma = 0;\nfor (int i = k; i < rows; ++i) {\ngamma += jacobian[i][pk] * y[i];\ngamma *= beta[pk];\nfor (int i = k; i < rows; ++i) {\ny[i] -= gamma * jacobian[i][pk];\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.VectorialPointValuePair:getPointRef()[D",
+            "method_body": "public double[] getPointRef() {\nreturn point;\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:<init>()V",
+            "method_body": "public LevenbergMarquardtOptimizer() {\nsetMaxIterations(1000);\nsetInitialStepBoundFactor(100.0);\nsetCostRelativeTolerance(1.0e-10);\nsetParRelativeTolerance(1.0e-10);\nsetOrthoTolerance(1.0e-10);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:setInitialStepBoundFactor(D)V",
+            "method_body": "public void setInitialStepBoundFactor(double initialStepBoundFactor) {\nthis.initialStepBoundFactor = initialStepBoundFactor;\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:setCostRelativeTolerance(D)V",
+            "method_body": "public void setCostRelativeTolerance(double costRelativeTolerance) {\nthis.costRelativeTolerance = costRelativeTolerance;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:setParRelativeTolerance(D)V",
+            "method_body": "public void setParRelativeTolerance(double parRelativeTolerance) {\nthis.parRelativeTolerance = parRelativeTolerance;\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizer:setOrthoTolerance(D)V",
+            "method_body": "public void setOrthoTolerance(double orthoTolerance) {\nthis.orthoTolerance = orthoTolerance;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:getRMS()D",
+            "method_body": "public double getRMS() {\ndouble criterion = 0;\nfor (int i = 0; i < rows; ++i) {\nfinal double residual = residuals[i];\ncriterion += residualsWeights[i] * residual * residual;\nreturn Math.sqrt(criterion / rows);\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.VectorialPointValuePair:<init>([D[D)V",
+            "method_body": "public VectorialPointValuePair(final double[] point, final double[] value) {\nthis.point = point.clone();\nthis.value = value.clone();\n}",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:updateJacobian()V",
+            "method_body": "protected void updateJacobian() throws FunctionEvaluationException {\n++jacobianEvaluations;\njacobian = jF.value(point);\nif (jacobian.length != rows) {\nfor (int i = 0; i < rows; i++) {\nfinal double[] ji = jacobian[i];\nfinal double factor = -Math.sqrt(residualsWeights[i]);\nfor (int j = 0; j < cols; ++j) {\nji[j] *= factor;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:<init>()V",
+            "method_body": "protected AbstractLeastSquaresOptimizer() {\nsetConvergenceChecker(new SimpleVectorialValueChecker());\nsetMaxIterations(DEFAULT_MAX_ITERATIONS);\nsetMaxEvaluations(Integer.MAX_VALUE);\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:setMaxIterations(I)V",
+            "method_body": "public void setMaxIterations(int maxIterations) {\nthis.maxIterations = maxIterations;\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:setMaxEvaluations(I)V",
+            "method_body": "public void setMaxEvaluations(int maxEvaluations) {\nthis.maxEvaluations = maxEvaluations;\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:setConvergenceChecker(Lorg/apache/commons/math/optimization/VectorialConvergenceChecker;)V",
+            "method_body": "public void setConvergenceChecker(VectorialConvergenceChecker convergenceChecker) {\nthis.checker = convergenceChecker;\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:incrementIterationsCounter()V",
+            "method_body": "protected void incrementIterationsCounter()\nif (++iterations > maxIterations) {\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:updateResidualsAndCost()V",
+            "method_body": "protected void updateResidualsAndCost()\nif (++objectiveEvaluations > maxEvaluations) {\nobjective = function.value(point);\nif (objective.length != rows) {\ncost = 0;\nint index = 0;\nfor (int i = 0; i < rows; i++) {\nfinal double residual = targetValues[i] - objective[i];\nresiduals[i] = residual;\ncost += residualsWeights[i] * residual * residual;\nindex += cols;\ncost = Math.sqrt(cost);\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.general.AbstractLeastSquaresOptimizer:optimize(Lorg/apache/commons/math/analysis/DifferentiableMultivariateVectorialFunction;[D[D[D)Lorg/apache/commons/math/optimization/VectorialPointValuePair;",
+            "method_body": "public VectorialPointValuePair optimize(final DifferentiableMultivariateVectorialFunction f,\nif (target.length != weights.length) {\niterations           = 0;\nobjectiveEvaluations = 0;\njacobianEvaluations  = 0;\nfunction         = f;\njF               = f.jacobian();\ntargetValues     = target.clone();\nresidualsWeights = weights.clone();\nthis.point       = startPoint.clone();\nthis.residuals   = new double[target.length];\nrows      = target.length;\ncols      = point.length;\njacobian  = new double[rows][cols];\ncost = Double.POSITIVE_INFINITY;\nreturn doOptimize();\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.math.optimization.SimpleVectorialValueChecker:<init>()V",
+            "method_body": "public SimpleVectorialValueChecker() {\nthis.relativeThreshold = DEFAULT_RELATIVE_THRESHOLD;\nthis.absoluteThreshold = DEFAULT_ABSOLUTE_THRESHOLD;\n}",
+            "method_id": 21
+        }
+    ]
+}

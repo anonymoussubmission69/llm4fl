@@ -1,0 +1,51 @@
+{
+    "bug_id": 19,
+    "tests": [
+        {
+            "test_name": "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testOutOfBounds",
+            "test_body": "public void testOutOfBounds() {\nNumericEntityUnescaper neu = new NumericEntityUnescaper();\n40: assertEquals(\"Failed to ignore when last character is &\", \"Test &\", neu.translate(\"Test &\"));\nassertEquals(\"Failed to ignore when last character is &\", \"Test &#\", neu.translate(\"Test &#\"));\nassertEquals(\"Failed to ignore when last character is &\", \"Test &#x\", neu.translate(\"Test &#x\"));",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V",
+                    "method_body": "public final void translate(CharSequence input, Writer out) throws IOException {\nif (out == null) {\nif (input == null) {\nint sz = Character.codePointCount(input, 0, input.length());\nfor (int i = 0; i < sz; i++) {\nint consumed = translate(input, i, out);\nif (consumed == 0) {\nout.write(Character.toChars(Character.codePointAt(input, i)));\n}",
+                    "method_id": 0
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;)Ljava/lang/String;",
+                    "method_body": "public abstract int translate(CharSequence input, int index, Writer out) throws IOException;\nif (input == null) {\nStringWriter writer = new StringWriter(input.length() * 2);\ntranslate(input, writer);\nreturn writer.toString();\n}",
+                    "method_id": 1
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.NumericEntityUnescaper:translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",
+                    "method_body": "public int translate(CharSequence input, int index, Writer out) throws IOException {\nint seqEnd = input.length();\nif(input.charAt(index) == '&' && index < seqEnd - 1 && input.charAt(index + 1) == '#') {\nint start = index + 2;\nboolean isHex = false;\nchar firstChar = input.charAt(start);\nif(firstChar == 'x' || firstChar == 'X') {\nstart++;\nisHex = true;\nint end = start;\nwhile(input.charAt(end) != ';')\nend++;\nreturn 0;\n}",
+                    "method_id": 2
+                }
+            ],
+            "stack_trace": "java.lang.StringIndexOutOfBoundsException: String index out of range: 7\nat java.lang.String.charAt(String.java:658)\nat org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(NumericEntityUnescaper.java:44)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:86)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:59)\nat org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testOutOfBounds(NumericEntityUnescaperTest.java:41)",
+            "test_id": 0
+        },
+        {
+            "test_name": "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testUnfinishedEntity",
+            "test_body": "public void testUnfinishedEntity() {\nNumericEntityUnescaper neu = new NumericEntityUnescaper();\nString input = \"Test &#x30 not test\";\nString expected = \"Test \\u0030 not test\";\n51: String result = neu.translate(input);\nassertEquals(\"Failed to support unfinished entities (i.e. missing semi-colon\", expected, result);",
+            "covered_methods": [
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;Ljava/io/Writer;)V",
+                    "method_body": "public final void translate(CharSequence input, Writer out) throws IOException {\nif (out == null) {\nif (input == null) {\nint sz = Character.codePointCount(input, 0, input.length());\nfor (int i = 0; i < sz; i++) {\nint consumed = translate(input, i, out);\nif (consumed == 0) {\nout.write(Character.toChars(Character.codePointAt(input, i)));\n}",
+                    "method_id": 3
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.CharSequenceTranslator:translate(Ljava/lang/CharSequence;)Ljava/lang/String;",
+                    "method_body": "public abstract int translate(CharSequence input, int index, Writer out) throws IOException;\nif (input == null) {\nStringWriter writer = new StringWriter(input.length() * 2);\ntranslate(input, writer);\nreturn writer.toString();\n}",
+                    "method_id": 4
+                },
+                {
+                    "method_signature": "org.apache.commons.lang3.text.translate.NumericEntityUnescaper:translate(Ljava/lang/CharSequence;ILjava/io/Writer;)I",
+                    "method_body": "public int translate(CharSequence input, int index, Writer out) throws IOException {\nint seqEnd = input.length();\nif(input.charAt(index) == '&' && index < seqEnd - 1 && input.charAt(index + 1) == '#') {\nint start = index + 2;\nboolean isHex = false;\nchar firstChar = input.charAt(start);\nif(firstChar == 'x' || firstChar == 'X') {\nstart++;\nisHex = true;\nint end = start;\nwhile(input.charAt(end) != ';')\nend++;\nreturn 0;\n}",
+                    "method_id": 5
+                }
+            ],
+            "stack_trace": "java.lang.StringIndexOutOfBoundsException: String index out of range: 19\nat java.lang.String.charAt(String.java:658)\nat org.apache.commons.lang3.text.translate.NumericEntityUnescaper.translate(NumericEntityUnescaper.java:54)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:86)\nat org.apache.commons.lang3.text.translate.CharSequenceTranslator.translate(CharSequenceTranslator.java:59)\nat org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest.testUnfinishedEntity(NumericEntityUnescaperTest.java:51)",
+            "test_id": 1
+        }
+    ]
+}

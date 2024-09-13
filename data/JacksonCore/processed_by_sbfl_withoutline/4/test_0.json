@@ -1,0 +1,69 @@
+{
+    "bug_id": 4,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.util.TestTextBuffer.testExpand",
+    "test_body": "public void testExpand()\n{\nTextBuffer tb = new TextBuffer(new BufferRecycler());\nchar[] buf = tb.getCurrentSegment();\n72: while (buf.length < 500 * 1000) {\nchar[] old = buf;\nbuf = tb.expandCurrentSegment();\nif (old.length >= buf.length) {\nfail(\"Expected buffer of \"+old.length+\" to expand, did not, length now \"+buf.length);\n}",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected buffer of 262145 to expand, did not, length now 262144\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.core.util.TestTextBuffer.testExpand(TestTextBuffer.java:76)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:expandCurrentSegment()[C",
+            "method_body": "public char[] expandCurrentSegment()\nfinal char[] curr = _currentSegment;\nfinal int len = curr.length;\nint newLen = (len == MAX_SEGMENT_LEN) ? (MAX_SEGMENT_LEN+1) : Math.min(MAX_SEGMENT_LEN, len + (len >> 1));\nreturn (_currentSegment = Arrays.copyOf(curr, newLen));\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:unshare(I)V",
+            "method_body": "private void unshare(int needExtra)\nint sharedLen = _inputLen;\n_inputLen = 0;\nchar[] inputBuf = _inputBuffer;\n_inputBuffer = null;\nint start = _inputStart;\n_inputStart = -1;\nint needed = sharedLen+needExtra;\nif (_currentSegment == null || needed > _currentSegment.length) {\n_currentSegment = buf(needed);\nif (sharedLen > 0) {\n_segmentSize = 0;\n_currentSize = sharedLen;\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:getCurrentSegment()[C",
+            "method_body": "public char[] getCurrentSegment()\nif (_inputStart >= 0) {\nunshare(1);\nreturn _currentSegment;\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:buf(I)[C",
+            "method_body": "private char[] buf(int needed)\nif (_allocator != null) {\nreturn _allocator.allocCharBuffer(BufferRecycler.CHAR_TEXT_BUFFER, needed);\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:<init>(Lcom/fasterxml/jackson/core/util/BufferRecycler;)V",
+            "method_body": "final static char[] NO_CHARS = new char[0];\nprivate boolean _hasSegments = false;\n* Amount of characters in segments in {@link _segments}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.TextBuffer:<clinit>()V",
+            "method_body": "final static char[] NO_CHARS = new char[0];\nprivate boolean _hasSegments = false;\n* Amount of characters in segments in {@link _segments}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:allocCharBuffer(II)[C",
+            "method_body": "public char[] allocCharBuffer(int ix, int minSize) {\nfinal int DEF_SIZE = charBufferLength(ix);\nif (minSize < DEF_SIZE) {\nminSize = DEF_SIZE;\nchar[] buffer = _charBuffers[ix];\nif (buffer == null || buffer.length < minSize) {\nbuffer = calloc(minSize);\nreturn buffer;\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:charBufferLength(I)I",
+            "method_body": "protected int charBufferLength(int ix) {\nreturn CHAR_BUFFER_LENGTHS[ix];\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:calloc(I)[C",
+            "method_body": "protected char[] calloc(int size) { return new char[size]; }\nprotected char[] calloc(int size) { return new char[size]; }",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>()V",
+            "method_body": "public BufferRecycler() {\nthis(4, 4);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>(II)V",
+            "method_body": "protected BufferRecycler(int bbCount, int cbCount) {\n_byteBuffers = new byte[bbCount][];\n_charBuffers = new char[cbCount][];\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<clinit>()V",
+            "method_body": "private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };\nprivate final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };",
+            "method_id": 11
+        }
+    ]
+}

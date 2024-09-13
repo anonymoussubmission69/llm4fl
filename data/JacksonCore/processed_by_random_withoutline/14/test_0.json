@@ -1,0 +1,74 @@
+{
+    "bug_id": 14,
+    "test_id": 0,
+    "test_name": "com.fasterxml.jackson.core.io.TestIOContext.testAllocations",
+    "test_body": "public void testAllocations() throws Exception\n{\nIOContext ctxt = new IOContext(new BufferRecycler(), \"N/A\", true);\n13: /* I/O Read buffer */\n15: // First succeeds:\nassertNotNull(ctxt.allocReadIOBuffer());\n// second fails\ntry {\nctxt.allocReadIOBuffer();\n} catch (IllegalStateException e) {\nverifyException(e, \"second time\");\n}\n// Also: can't succeed with different buffer\ntry {\nctxt.releaseReadIOBuffer(new byte[1]);\n} catch (IllegalArgumentException e) {\nverifyException(e, \"smaller than original\");\n}",
+    "stack_trace": "junit.framework.AssertionFailedError: Expected an exception with one of substrings ([smaller than original]): got one with message \"Trying to release buffer not owned by the context\"\nat junit.framework.Assert.fail(Assert.java:57)\nat junit.framework.TestCase.fail(TestCase.java:227)\nat com.fasterxml.jackson.core.BaseTest.verifyException(BaseTest.java:390)\nat com.fasterxml.jackson.core.io.TestIOContext.testAllocations(TestIOContext.java:27)",
+    "covered_methods": [
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:<init>(Lcom/fasterxml/jackson/core/util/BufferRecycler;Ljava/lang/Object;Z)V",
+            "method_body": "public IOContext(BufferRecycler br, Object sourceRef, boolean managedResource)\n{\n_bufferRecycler = br;\n_sourceRef = sourceRef;\n_managedResource = managedResource;\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:allocReadIOBuffer()[B",
+            "method_body": "public byte[] allocReadIOBuffer() {\n_verifyAlloc(_readIOBuffer);\nreturn (_readIOBuffer = _bufferRecycler.allocByteBuffer(BufferRecycler.BYTE_READ_IO_BUFFER));\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:releaseReadIOBuffer([B)V",
+            "method_body": "public void releaseReadIOBuffer(byte[] buf) {\nif (buf != null) {\n_verifyRelease(buf, _readIOBuffer);\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:_verifyAlloc(Ljava/lang/Object;)V",
+            "method_body": "protected final void _verifyAlloc(Object buffer) {\nif (buffer != null) { throw new IllegalStateException(\"Trying to call same allocXxx() method second time\"); }\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:_verifyRelease([B[B)V",
+            "method_body": "protected final void _verifyRelease(byte[] toRelease, byte[] src) {\nif ((toRelease != src) && (toRelease.length <= src.length)) { throw wrongBuf(); }\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.io.IOContext:wrongBuf()Ljava/lang/IllegalArgumentException;",
+            "method_body": "private IllegalArgumentException wrongBuf() {\nreturn new IllegalArgumentException(\"Trying to release buffer not owned by the context\");\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>()V",
+            "method_body": "public BufferRecycler() {\nthis(4, 4);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<init>(II)V",
+            "method_body": "protected BufferRecycler(int bbCount, int cbCount) {\n_byteBuffers = new byte[bbCount][];\n_charBuffers = new char[cbCount][];\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:<clinit>()V",
+            "method_body": "private final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };\nprivate final static int[] CHAR_BUFFER_LENGTHS = new int[] { 4000, 4000, 200, 200 };",
+            "method_id": 8
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:allocByteBuffer(I)[B",
+            "method_body": "public final byte[] allocByteBuffer(int ix) {\nreturn allocByteBuffer(ix, 0);\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:allocByteBuffer(II)[B",
+            "method_body": "public byte[] allocByteBuffer(int ix, int minSize) {\nfinal int DEF_SIZE = byteBufferLength(ix);\nif (minSize < DEF_SIZE) {\nminSize = DEF_SIZE;\nbyte[] buffer = _byteBuffers[ix];\nif (buffer == null || buffer.length < minSize) {\nbuffer = balloc(minSize);\nreturn buffer;\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:byteBufferLength(I)I",
+            "method_body": "protected int byteBufferLength(int ix) {\nreturn BYTE_BUFFER_LENGTHS[ix];\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "com.fasterxml.jackson.core.util.BufferRecycler:balloc(I)[B",
+            "method_body": "protected byte[] balloc(int size) { return new byte[size]; }\nprotected byte[] balloc(int size) { return new byte[size]; }",
+            "method_id": 12
+        }
+    ]
+}

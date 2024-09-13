@@ -1,0 +1,279 @@
+{
+    "bug_id": 18,
+    "test_id": 0,
+    "test_name": "org.apache.commons.lang3.time.FastDateFormatTest.testFormat",
+    "test_body": "public void testFormat() {\nLocale realDefaultLocale = Locale.getDefault();\nTimeZone realDefaultZone = TimeZone.getDefault();\ntry {\nLocale.setDefault(Locale.US);\nTimeZone.setDefault(TimeZone.getTimeZone(\"America/New_York\"));\n180: GregorianCalendar cal1 = new GregorianCalendar(2003, 0, 10, 15, 33, 20);\nGregorianCalendar cal2 = new GregorianCalendar(2003, 6, 10, 9, 00, 00);\nDate date1 = cal1.getTime();\nDate date2 = cal2.getTime();\nlong millis1 = date1.getTime();\nlong millis2 = date2.getTime();\n187: FastDateFormat fdf = FastDateFormat.getInstance(\"yyyy-MM-dd'T'HH:mm:ss\");\nSimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss\");\nassertEquals(sdf.format(date1), fdf.format(date1));\nassertEquals(\"2003-01-10T15:33:20\", fdf.format(date1));\nassertEquals(\"2003-01-10T15:33:20\", fdf.format(cal1));\nassertEquals(\"2003-01-10T15:33:20\", fdf.format(millis1));\nassertEquals(\"2003-07-10T09:00:00\", fdf.format(date2));\nassertEquals(\"2003-07-10T09:00:00\", fdf.format(cal2));\nassertEquals(\"2003-07-10T09:00:00\", fdf.format(millis2));\n197: fdf = FastDateFormat.getInstance(\"Z\");\nassertEquals(\"-0500\", fdf.format(date1));\nassertEquals(\"-0500\", fdf.format(cal1));\nassertEquals(\"-0500\", fdf.format(millis1));\n202: assertEquals(\"-0400\", fdf.format(date2));\nassertEquals(\"-0400\", fdf.format(cal2));\nassertEquals(\"-0400\", fdf.format(millis2));\n206: fdf = FastDateFormat.getInstance(\"ZZ\");\nassertEquals(\"-05:00\", fdf.format(date1));\nassertEquals(\"-05:00\", fdf.format(cal1));\nassertEquals(\"-05:00\", fdf.format(millis1));\n211: assertEquals(\"-04:00\", fdf.format(date2));\nassertEquals(\"-04:00\", fdf.format(cal2));\nassertEquals(\"-04:00\", fdf.format(millis2));\n215: String pattern = \"GGGG GGG GG G yyyy yyy yy y MMMM MMM MM M\" +\n\" dddd ddd dd d DDDD DDD DD D EEEE EEE EE E aaaa aaa aa a zzzz zzz zz z\";\nfdf = FastDateFormat.getInstance(pattern);\nsdf = new SimpleDateFormat(pattern);\n// SDF bug fix starting with Java 7\nassertEquals(sdf.format(date1).replaceAll(\"2003 03 03 03\", \"2003 2003 03 2003\"), fdf.format(date1));\nassertEquals(sdf.format(date2).replaceAll(\"2003 03 03 03\", \"2003 2003 03 2003\"), fdf.format(date2));",
+    "stack_trace": "junit.framework.ComparisonFailure: expected:<AD AD AD AD 2003 [2003 03 20]03 January Jan 01 1 ...> but was:<AD AD AD AD 2003 [03 03 ]03 January Jan 01 1 ...>\nat junit.framework.Assert.assertEquals(Assert.java:100)\nat junit.framework.Assert.assertEquals(Assert.java:107)\nat junit.framework.TestCase.assertEquals(TestCase.java:269)\nat org.apache.commons.lang3.time.FastDateFormatTest.testFormat(FastDateFormatTest.java:220)",
+    "covered_methods": [
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(J)Ljava/lang/String;",
+            "method_body": "public String format(long millis) {\nreturn format(new Date(millis));\n}",
+            "method_id": 0
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneNameRule:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nif (mTimeZone.useDaylightTime() && calendar.get(Calendar.DST_OFFSET) != 0) {\nbuffer.append(mStandard);\n}",
+            "method_id": 1
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneDisplayKey:equals(Ljava/lang/Object;)Z",
+            "method_body": "public boolean equals(Object obj) {\nif (this == obj) {\nif (obj instanceof TimeZoneDisplayKey) {\nTimeZoneDisplayKey other = (TimeZoneDisplayKey)obj;\nreturn\n}",
+            "method_id": 2
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:getTimeZoneDisplay(Ljava/util/TimeZone;ZILjava/util/Locale;)Ljava/lang/String;",
+            "method_body": "static String getTimeZoneDisplay(TimeZone tz, boolean daylight, int style, Locale locale) {\nTimeZoneDisplayKey key = new TimeZoneDisplayKey(tz, daylight, style, locale);\nString value = cTimeZoneDisplayCache.get(key);\nif (value == null) {\nvalue = tz.getDisplayName(daylight, style, locale);\nString prior = cTimeZoneDisplayCache.putIfAbsent(key, value);\nif (prior != null) {\nreturn value;\n}",
+            "method_id": 3
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitYearField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(Calendar.YEAR) % 100);\n}",
+            "method_id": 4
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitYearField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+            "method_id": 5
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneNameRule:<init>(Ljava/util/TimeZone;Ljava/util/Locale;I)V",
+            "method_body": "TimeZoneNameRule(TimeZone timeZone, Locale locale, int style) {\nmTimeZone = timeZone;\nmStandard = getTimeZoneDisplay(timeZone, false, style, locale);\nmDaylight = getTimeZoneDisplay(timeZone, true, style, locale);\n}",
+            "method_id": 6
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneNameRule:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn Math.max(mStandard.length(), mDaylight.length());\n}",
+            "method_id": 7
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneDisplayKey:<init>(Ljava/util/TimeZone;ZILjava/util/Locale;)V",
+            "method_body": "TimeZoneDisplayKey(TimeZone timeZone,\nboolean daylight, int style, Locale locale) {\nmTimeZone = timeZone;\nif (daylight) {\nstyle |= 0x80000000;\nmStyle = style;\nmLocale = locale;\n}",
+            "method_id": 8
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneDisplayKey:hashCode()I",
+            "method_body": "public int hashCode() {\nreturn (mStyle * 31 + mLocale.hashCode() ) * 31 + mTimeZone.hashCode();\n}",
+            "method_id": 9
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nbuffer.append(mValues[calendar.get(mField)]);\n}",
+            "method_id": 10
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitYearField:<init>()V",
+            "method_body": "TwoDigitYearField() {\nsuper();\n}",
+            "method_id": 11
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitYearField:<clinit>()V",
+            "method_body": "static final TwoDigitYearField INSTANCE = new TwoDigitYearField();\n* Constructs an instance of {@code TwoDigitYearField}.",
+            "method_id": 12
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitYearField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 2;\n}",
+            "method_id": 13
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedMonthField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 2;\n}",
+            "method_id": 14
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedMonthField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(Calendar.MONTH) + 1);\n}",
+            "method_id": 15
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedMonthField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 10) {\nbuffer.append((char)(value + '0'));\n}",
+            "method_id": 16
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedNumberField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(mField));\n}",
+            "method_id": 17
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 10) {\n} else if (value < 100) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+            "method_id": 18
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedNumberField:<init>(I)V",
+            "method_body": "UnpaddedNumberField(int field) {\nmField = field;\n}",
+            "method_id": 19
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$UnpaddedNumberField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 4;\n}",
+            "method_id": 20
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneNumberRule:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nint offset = calendar.get(Calendar.ZONE_OFFSET) + calendar.get(Calendar.DST_OFFSET);\nif (offset < 0) {\nbuffer.append('-');\noffset = -offset;\nint hours = offset / (60 * 60 * 1000);\nbuffer.append((char)(hours / 10 + '0'));\nbuffer.append((char)(hours % 10 + '0'));\nif (mColon) {\nbuffer.append(':');\nint minutes = offset / (60 * 1000) - 60 * hours;\nbuffer.append((char)(minutes / 10 + '0'));\nbuffer.append((char)(minutes % 10 + '0'));\n}",
+            "method_id": 21
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(Ljava/util/Date;)Ljava/lang/String;",
+            "method_body": "public String format(Date date) {\nCalendar c = new GregorianCalendar(mTimeZone, mLocale);  // hard code GregorianCalendar\nc.setTime(date);\nreturn applyRules(c, new StringBuffer(mMaxLengthEstimate)).toString();\n}",
+            "method_id": 22
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitMonthField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(Calendar.MONTH) + 1);\n}",
+            "method_id": 23
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitMonthField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+            "method_id": 24
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TimeZoneNumberRule:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 5;\n}",
+            "method_id": 25
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(Ljava/util/Calendar;)Ljava/lang/String;",
+            "method_body": "public String format(Calendar calendar) {\nreturn format(calendar, new StringBuffer(mMaxLengthEstimate)).toString();\n}",
+            "method_id": 26
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:format(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;",
+            "method_body": "public StringBuffer format(Calendar calendar, StringBuffer buf) {\nreturn applyRules(calendar, buf);\n}",
+            "method_id": 27
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$PaddedNumberField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(mField));\n}",
+            "method_id": 28
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$PaddedNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 100) {\nfor (int i = mSize; --i >= 2; ) {\nbuffer.append('0');\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\nif (value < 1000) {\nValidate.isTrue(value > -1, \"Negative values should not be possible\", value);\ndigits = Integer.toString(value).length();\nfor (int i = mSize; --i >= digits; ) {\nbuffer.append(Integer.toString(value));\n}",
+            "method_id": 29
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$CharacterLiteral:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "void appendTo(StringBuffer buffer, int value);\nCharacterLiteral(char value) {\nmValue = value;\n}\nreturn 1;\nbuffer.append(mValue);\n}\n}",
+            "method_id": 30
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.Validate:isTrue(ZLjava/lang/String;J)V",
+            "method_body": "public static void isTrue(boolean expression, String message, long value) {\nif (expression == false) {\n}",
+            "method_id": 31
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;Ljava/util/Calendar;)V",
+            "method_body": "public void appendTo(StringBuffer buffer, Calendar calendar) {\nappendTo(buffer, calendar.get(mField));\n}",
+            "method_id": 32
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:appendTo(Ljava/lang/StringBuffer;I)V",
+            "method_body": "public final void appendTo(StringBuffer buffer, int value) {\nif (value < 100) {\nbuffer.append((char)(value / 10 + '0'));\nbuffer.append((char)(value % 10 + '0'));\n}",
+            "method_id": 33
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:<init>(I[Ljava/lang/String;)V",
+            "method_body": "TextField(int field, String[] values) {\nmField = field;\nmValues = values;\n}",
+            "method_id": 34
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TextField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nint max = 0;\nfor (int i=mValues.length; --i >= 0; ) {\nint len = mValues[i].length();\nif (len > max) {\nmax = len;\n}\nreturn max;\n}",
+            "method_id": 35
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:applyRules(Ljava/util/Calendar;Ljava/lang/StringBuffer;)Ljava/lang/StringBuffer;",
+            "method_body": "protected StringBuffer applyRules(Calendar calendar, StringBuffer buf) {\nfor (Rule rule : mRules) {\nrule.appendTo(buf, calendar);\nreturn buf;\n}",
+            "method_id": 36
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:getInstance(Ljava/lang/String;)Lorg/apache/commons/lang3/time/FastDateFormat;",
+            "method_body": "public static FastDateFormat getInstance(String pattern) {\nreturn cache.getInstance(pattern, null, null);\n}",
+            "method_id": 37
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitMonthField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 2;\n}",
+            "method_id": 38
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$PaddedNumberField:<init>(II)V",
+            "method_body": "PaddedNumberField(int field, int size) {\nif (size < 3) {\nmField = field;\nmSize = size;\n}",
+            "method_id": 39
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$PaddedNumberField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 4;\n}",
+            "method_id": 40
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$CharacterLiteral:<init>(C)V",
+            "method_body": "void appendTo(StringBuffer buffer, int value);\nCharacterLiteral(char value) {\nmValue = value;\n}\nreturn 1;\nbuffer.append(mValue);\n}\n}",
+            "method_id": 41
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$CharacterLiteral:estimateLength()I",
+            "method_body": "void appendTo(StringBuffer buffer, int value);\nCharacterLiteral(char value) {\nmValue = value;\n}\nreturn 1;\nbuffer.append(mValue);\n}\n}",
+            "method_id": 42
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:<init>(I)V",
+            "method_body": "TwoDigitNumberField(int field) {\nmField = field;\n}",
+            "method_id": 43
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$TwoDigitNumberField:estimateLength()I",
+            "method_body": "public int estimateLength() {\nreturn 2;\n}",
+            "method_id": 44
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:<init>(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)V",
+            "method_body": "protected FastDateFormat(String pattern, TimeZone timeZone, Locale locale) {\nmPattern = pattern;\nmTimeZone = timeZone;\nmLocale = locale;\ninit();\n}",
+            "method_id": 45
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:init()V",
+            "method_body": "private void init() {\nList<Rule> rulesList = parsePattern();\nmRules = rulesList.toArray(new Rule[rulesList.size()]);\nint len = 0;\nfor (int i=mRules.length; --i >= 0; ) {\nlen += mRules[i].estimateLength();\nmMaxLengthEstimate = len;\n}",
+            "method_id": 46
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:parsePattern()Ljava/util/List;",
+            "method_body": "protected List<Rule> parsePattern() {\nDateFormatSymbols symbols = new DateFormatSymbols(mLocale);\nList<Rule> rules = new ArrayList<Rule>();\nString[] ERAs = symbols.getEras();\nString[] months = symbols.getMonths();\nString[] shortMonths = symbols.getShortMonths();\nString[] weekdays = symbols.getWeekdays();\nString[] shortWeekdays = symbols.getShortWeekdays();\nString[] AmPmStrings = symbols.getAmPmStrings();\nint length = mPattern.length();\nint[] indexRef = new int[1];\nfor (int i = 0; i < length; i++) {\nindexRef[0] = i;\nString token = parseToken(mPattern, indexRef);\ni = indexRef[0];\nint tokenLen = token.length();\nif (tokenLen == 0) {\nchar c = token.charAt(0);\nswitch (c) {\nrule = new TextField(Calendar.ERA, ERAs);\nbreak;\nif (tokenLen >= 4) {\nrule = selectNumberRule(Calendar.YEAR, tokenLen);\nrule = TwoDigitYearField.INSTANCE;\nbreak;\nif (tokenLen >= 4) {\nrule = new TextField(Calendar.MONTH, months);\n} else if (tokenLen == 3) {\nrule = new TextField(Calendar.MONTH, shortMonths);\n} else if (tokenLen == 2) {\nrule = TwoDigitMonthField.INSTANCE;\nrule = UnpaddedMonthField.INSTANCE;\nbreak;\nrule = selectNumberRule(Calendar.DAY_OF_MONTH, tokenLen);\nbreak;\nrule = selectNumberRule(Calendar.HOUR_OF_DAY, tokenLen);\nbreak;\nrule = selectNumberRule(Calendar.MINUTE, tokenLen);\nbreak;\nrule = selectNumberRule(Calendar.SECOND, tokenLen);\nbreak;\nrule = new TextField(Calendar.DAY_OF_WEEK, tokenLen < 4 ? shortWeekdays : weekdays);\nbreak;\nrule = selectNumberRule(Calendar.DAY_OF_YEAR, tokenLen);\nbreak;\nrule = new TextField(Calendar.AM_PM, AmPmStrings);\nbreak;\nif (tokenLen >= 4) {\nrule = new TimeZoneNameRule(mTimeZone, mLocale, TimeZone.LONG);\nrule = new TimeZoneNameRule(mTimeZone, mLocale, TimeZone.SHORT);\nbreak;\nif (tokenLen == 1) {\nrule = TimeZoneNumberRule.INSTANCE_NO_COLON;\nrule = TimeZoneNumberRule.INSTANCE_COLON;\nbreak;\nString sub = token.substring(1);\nif (sub.length() == 1) {\nrule = new CharacterLiteral(sub.charAt(0));\nrules.add(rule);\nreturn rules;\n}",
+            "method_id": 47
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:parseToken(Ljava/lang/String;[I)Ljava/lang/String;",
+            "method_body": "protected String parseToken(String pattern, int[] indexRef) {\nStringBuilder buf = new StringBuilder();\nint i = indexRef[0];\nint length = pattern.length();\nchar c = pattern.charAt(i);\nif (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') {\nbuf.append(c);\nwhile (i + 1 < length) {\nchar peek = pattern.charAt(i + 1);\nif (peek == c) {\nbuf.append(c);\ni++;\n}\nbuf.append('\\'');\nboolean inLiteral = false;\nfor (; i < length; i++) {\nc = pattern.charAt(i);\nif (c == '\\'') {\nif (i + 1 < length && pattern.charAt(i + 1) == '\\'') {\ninLiteral = !inLiteral;\n} else if (!inLiteral &&\ni--;\nbreak;\nbuf.append(c);\nindexRef[0] = i;\nreturn buf.toString();\n}",
+            "method_id": 48
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat:selectNumberRule(II)Lorg/apache/commons/lang3/time/FastDateFormat$NumberRule;",
+            "method_body": "protected NumberRule selectNumberRule(int field, int padding) {\nswitch (padding) {\nreturn new UnpaddedNumberField(field);\nreturn new TwoDigitNumberField(field);\nreturn new PaddedNumberField(field, padding);\n}",
+            "method_id": 49
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache:getInstance(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)Ljava/text/Format;",
+            "method_body": "public F getInstance(String pattern, TimeZone timeZone, Locale locale) {\nif (pattern == null) {\nif (timeZone == null) {\ntimeZone = TimeZone.getDefault();\nif (locale == null) {\nlocale = Locale.getDefault();\nMultipartKey key = new MultipartKey(pattern, timeZone, locale);\nF format = cInstanceCache.get(key);\nif (format == null) {\nformat = createInstance(pattern, timeZone, locale);\nF previousValue= cInstanceCache.putIfAbsent(key, format);\nif (previousValue != null) {\nreturn format;\n}",
+            "method_id": 50
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FastDateFormat$1:createInstance(Ljava/lang/String;Ljava/util/TimeZone;Ljava/util/Locale;)Lorg/apache/commons/lang3/time/FastDateFormat;",
+            "method_body": "protected FastDateFormat createInstance(String pattern,    TimeZone timeZone, Locale locale) {\nreturn new FastDateFormat(pattern, timeZone, locale);\n}",
+            "method_id": 51
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache$MultipartKey:<init>([Ljava/lang/Object;)V",
+            "method_body": "public MultipartKey(Object... keys) {\nthis.keys = keys;\n}",
+            "method_id": 52
+        },
+        {
+            "method_signature": "org.apache.commons.lang3.time.FormatCache$MultipartKey:hashCode()I",
+            "method_body": "public int hashCode() {\nif(hashCode==0) {\nint rc= 0;\nfor(Object key : keys) {\nif(key!=null) {\nrc= rc*7 + key.hashCode();\nhashCode= rc;\nreturn hashCode;\n}",
+            "method_id": 53
+        }
+    ]
+}

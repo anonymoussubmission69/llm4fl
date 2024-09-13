@@ -1,0 +1,14 @@
+{
+    "bug_id": 6,
+    "test_id": 1,
+    "test_name": "org.jsoup.nodes.EntitiesTest.quoteReplacements",
+    "test_body": "@Test public void quoteReplacements() {\nString escaped = \"&#92; &#36;\";\nString unescaped = \"\\\\ $\";\n42: assertEquals(unescaped, Entities.unescape(escaped));\n}\n",
+    "stack_trace": "java.lang.IllegalArgumentException: character to be escaped is missing\nat java.util.regex.Matcher.appendReplacement(Matcher.java:809)\nat org.jsoup.nodes.Entities.unescape(Entities.java:70)\nat org.jsoup.nodes.EntitiesTest.quoteReplacements(EntitiesTest.java:42)",
+    "covered_methods": [
+        {
+            "method_signature": "org.jsoup.nodes.Entities:unescape(Ljava/lang/String;)Ljava/lang/String;",
+            "method_body": "static String unescape(String string) {\nif (!string.contains(\"&\"))\nreturn string;\nMatcher m = unescapePattern.matcher(string); // &(#(x|X)?([0-9a-fA-F]+)|[a-zA-Z]+);?\nStringBuffer accum = new StringBuffer(string.length()); // pity matcher can't use stringbuilder, avoid syncs\nwhile (m.find()) {\nint charval = -1;\nString num = m.group(3);\nif (num != null) {\nint base = m.group(2) != null ? 16 : 10; // 2 is hex indicator\ncharval = Integer.valueOf(num, base);\n} // skip\nString name = m.group(1);\nif (full.containsKey(name))\ncharval = full.get(name);\nif (charval != -1 || charval > 0xFFFF) { // out of range\nString c = Character.toString((char) charval);\nm.appendReplacement(accum, c);\n} else {\nm.appendReplacement(accum, m.group(0));\n}\nm.appendTail(accum);\nreturn accum.toString();\n}",
+            "method_id": 0
+        }
+    ]
+}
