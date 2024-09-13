@@ -82,14 +82,7 @@ python3 merge_ranking.py Lang sbfl gpt4omini FaultLocalization
 To compute top-k fault localization metrics, run the following command:
 
 ```bash
-python3 fault_localization.py <ProjectName> <RankingMethod> <Model> <Component>
-```
-
-This script provides metrics on how well the fault localization process performed, such as identifying the top-k most suspicious components.
-
-Example:
-```bash
-python3 fault_localization.py Lang sbfl gpt4omini FaultLocalization
+python3 calculate_metrics.py <ProjectName> <RankingMethod> <Model> <Component>
 ```
 
 ---
